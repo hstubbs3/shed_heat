@@ -1,6 +1,9 @@
-int ComfyTemp=69;
+#define ComfyTemp 69
 #define HEAT_ELEMENT_MAX_TEMP 120
-#define setupDelayTime 50
+#define setupDelayTime 100
+
+char cBuffer[128];
+
 
 //temp sensors
 #include <DHT.h>
@@ -12,18 +15,27 @@ char resevoir[] = "RESERVOIR";
 char sand[] = "SAND";
 char heatsink[] = "HEATSINK";
 char roof[] = "ROOF";
-enum eHT: byte {HT_SHED=0,HT_AMBIENT=1,HT_RESERVOIR=2,HT_SAND=3,HT_HEATSINK=4,HT_ROOF=5} ;
 
-void *HT_names[] = {&shed,&ambient,&resevoir,&sand,&heatsink,&roof};
+//this ordering is to reflect how the heat from the roof panel should flow to the shed...
+enum eHT: byte {
+  HT_SHED=0,
+  HT_HEATSINK=1,
+  HT_SAND=2,
+  HT_RESERVOIR=3,
+  HT_ROOF=4,
+  HT_AMBIENT=5
+  } ;
+
+void *HT_names[] = {&shed,&heatsink,&sand,&resevoir,&roof,&ambient};
 byte HT_Pins[] = {24,25,26,27,28,29} ;
 
-DHT dht[] = {
-  DHT(24,DHT11),
-  DHT(25,DHT11),
-  DHT(26,DHT11),
-  DHT(27,DHT11),
-  DHT(28,DHT11),
-  DHT(29,DHT11)
+DHT dht[] ={
+  {24,DHT11},
+  {25,DHT11},
+  {26,DHT11},
+  {27,DHT11},
+  {28,DHT11},
+  {29,DHT11},  
 };
 
 struct dht_readout { 
@@ -37,7 +49,6 @@ struct dht_readout {
 
 struct dht_readout dht_reads[numHT];
 
- 
 bool checkDHT(int i) {
   dht_reads[i].fF=dht[i].readTemperature(true);
   dht_reads[i].fH=dht[i].readHumidity();
@@ -80,6 +91,85 @@ void *r_names[]={&heatloop,&xfer,&heatfan,&heatelem};
 bool run_relays[numRELAY];
 byte r_pins[]={12,11,10,9};
 
+
+enum ruleTypes: byte { ruleEND_LIST,ruleDHT_TARGET_TEMP_ON_HIGH, ruleDHT_TARGET_TEMP_ON_LOW, ruleDHT_LT_DHT_ON, ruleDHT_LT_DHT_OFF, ruleDHT_GT_DHT_ON, ruleDHT_GT_DHT_OFF, ruleDHT_LT_TARGET_DHT, ruleDHT_GT_TEMP_OFF };
+
+struct tempRule {
+  ruleTypes t;
+  byte a;
+  byte b;
+  byte r;
+  void *d;
+  
+  tempRule(ruleTypes _t, byte _a, byte _b, byte _r, char *_d) : t(_t), a(_a), b(_b), r(_r), d(_d) {}
+};
+
+void evaluateRule( struct tempRule* rule, bool verbose=true){
+/* handled by emergency rules..
+  if ( dht_reads[rule->a].iF == 255 && run_relays[rule->r]) {
+    digitalWrite(r_pins[rule->r],HIGH);
+    run_relays[rule->r]=false;
+    sprintf(cBuffer,"EvaluateRule : disabling relay %d %s due to error with sensor %d %s at pin %d",rule->r,r_names[rule->r],rule->a,HT_names[rule->a],HT_Pins[rule->a]);
+    Serial.println(cBuffer);
+    return;
+  }
+  
+*/
+  switch(rule->t){
+    case ruleDHT_TARGET_TEMP_ON_LOW:
+        if ( dht_reads[rule->a].iF < rule->b && !run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s > %d F - switching on %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
+           Serial.println(cBuffer);
+           run_relays[rule->r]=true; // relay will switch on loop... 
+        } else if ( dht_reads[rule->a].iF > rule->b && run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s < %d F - switching off %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
+           Serial.println(cBuffer);
+           run_relays[rule->r]=false; // relay will switch on loop... 
+          
+        } else if (verbose) {
+          sprintf(cBuffer,"EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s ? %d F - nothing to change",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b);
+          Serial.println(cBuffer);
+        }
+        break;
+
+    case ruleDHT_GT_TEMP_OFF:
+        if ( dht_reads[rule->a].iF > rule->b && run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_HIGH - DHT %d %s - %s > %d F - switching off %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
+           Serial.println(cBuffer);
+           run_relays[rule->r]=false; // relay will switch on loop... 
+          
+        } else if (verbose) {
+          sprintf(cBuffer,"EvaluateRule : %s - TARGET_TEMP_ON_HIGH - DHT %d %s - %s ? %d F - nothing to change",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b);
+          Serial.println(cBuffer);
+        }
+        break;
+
+    default:
+        sprintf(cBuffer,"evaluateRule: invalid type... %d %d %d %s",rule->t,rule->a,rule->b,rule->r,rule->d);
+        Serial.println(cBuffer);
+  }
+}
+
+
+char ruleA[]= "Main loop if Roof > Reservoir";
+char ruleB[]="Xfer loop if Resevoir > Sand";
+char ruleC[]= "SHED TEMP UNDER COMFY - activate heat";
+char ruleD[]="SHED TEMP UNDER COMFY - activate fan";
+char ruleE[]="HEATSINK IN EXCESS OF MAXTEMP";
+char ruleF[]="end of list";
+
+//  tempRule(ruleTypes _t, byte _a, byte _b, byte _r, char *_d) : t(_t), a(_a), b(_b), r(_r), d(_d) {}
+
+struct tempRule daRules[] = {
+  { ruleTypes::ruleDHT_LT_TARGET_DHT, HT_RESERVOIR, HT_ROOF, R_LOOP, (void*)&ruleA } ,
+  { ruleTypes::ruleDHT_LT_TARGET_DHT, HT_SAND, HT_RESERVOIR, R_XFER, (void*)&ruleB },
+  { ruleTypes::ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT, (void*)&ruleC },
+  { ruleTypes::ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_FAN, (void*)&ruleD },
+  { ruleTypes::ruleDHT_GT_TEMP_OFF, HT_HEATSINK, HEAT_ELEMENT_MAX_TEMP, R_HEAT, (void*)&ruleE },
+  { ruleTypes::ruleEND_LIST,0,0,0, (void*)&ruleF }
+};
+
+ 
 //4x4 matrix keypad stuffs here...
 #include <Keypad.h>
 
@@ -258,7 +348,6 @@ void printTextLine(char *src){
   }
 }
 
-char cBuffer[128];
 
 //real time clock stuff
 #include "Wire.h"
@@ -350,6 +439,7 @@ void setup() {
   lcd.setCursor(0,1);
   lcd.print("splash!");
 //  while (!customKeypad.getKey()) {delay(1);}
+
   delay(setupDelayTime);
 
   drawTextScreen();
@@ -475,37 +565,27 @@ char setTimeString[13][17] = {
 };
 
 void loop() {
-  //enum eHT: byte {HT_SHED=0,HT_AMBIENT=1,HT_RESERVOIR=2,HT_SAND=3,HT_HEATSINK=4} ;
+/* enum eHT: byte {
+  HT_SHED=0,
+  HT_HEATSINK=1,
+  HT_SAND=2,
+  HT_RESERVOIR=3,
+  HT_ROOF=4,
+  HT_AMBIENT=5
+  } ;
+  */
   //enum relays: byte {R_LOOP=0,R_XFER=1,R_FAN=2,R_HEAT=3}; 
-
-  if (run_relays[R_XFER]){
-    if (dht_reads[HT_RESERVOIR].iF < dht_reads[HT_SAND].iF) { 
-      digitalWrite(r_pins[R_LOOP],HIGH);
-      run_relays[R_XFER]=false;
-      Serial.println("Disabling xfer pump relay");  
-    }
-  } else {
-    if (dht_reads[HT_RESERVOIR].iF > dht_reads[HT_SAND].iF){
-      digitalWrite(r_pins[R_LOOP],LOW);
-      run_relays[R_XFER]=true;
-      Serial.println("Enabling xfer pump relay");        
+/*
+  if ( run_relays[R_HEAT] ) {
+    if ( dht_reads[HT_HEATSINK].iF > HEAT_ELEMENT_MAX_TEMP || dht_reads[HT_SAND] > StoreTemp) {
+      digitalWrite(r_pins[R_HEAT],HIGH);
+      run_relays[R_HEAT]=false;
+      sprintf(cBuffer,"HEATSINK temp %d\xA7F > %d\xA7F , disabling heat element");
+      Serial.println(cBuffer);
     }
   }
-  if (run_relays[R_FAN]) {
-    if (dht_reads[HT_SHED].iF > ComfyTemp) {
-      digitalWrite(r_pins[R_FAN],HIGH);
-      run_relays[R_FAN]=false;
-      Serial.println("Disabling the heater Fan");        
-    }
-  } else {
-    if (dht_reads[HT_SHED].iF < ComfyTemp && dht_reads[HT_SAND].iF > dht_reads[HT_SHED].iF) {
-      digitalWrite(r_pins[R_FAN],LOW);
-      run_relays[R_FAN]=true;
-      Serial.println("Enabling the heater Fan");        
-    }
-  }
+ */
 
-  
   // put your main code here, to run repeatedly:
   if (keypress_counter==0) {
     customKey = customKeypad.getKey();  
@@ -716,7 +796,7 @@ void loop() {
       default:
               mode=0;
       case 0:
-
+        mode0_display_second=69;
         break;
       case 1:
         display.clearDisplay();
@@ -744,9 +824,13 @@ void loop() {
     if (counterMed==0) {
       counterMed=10;
       // stuff to do every second..
-
+  for (int i=0; i < numRELAY; i++) {
+    if (run_relays[i]) { digitalWrite(r_pins[i],LOW); }
+    else { digitalWrite(r_pins[i],HIGH); }
+  }
+  
        byte last_second = rtcTime[0];
-    readDS3231time(&rtcTime[0], &rtcTime[1],&rtcTime[2],&rtcTime[3],&rtcTime[5],&rtcTime[4],&rtcTime[6]);
+    readDS3231time(&rtcTime[0], &rtcTime[1],&rtcTime[2],&rtcTime[3],&rtcTime[4],&rtcTime[5],&rtcTime[6]);
     if (rtcTime[3] > 6 || rtcTime[3] < 0 ) { rtcTime[3]=7; }
     sprintf(cBuffer,"counterHigh: %2d - seconds %2d / %2d - %s 20%02d/%02d/%02d %2d:%02d:%02d",counterHigh,last_second,rtcTime[0],dayOfWeek[rtcTime[3]],rtcTime[6],rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1],rtcTime[0]);
     Serial.println(cBuffer);
@@ -773,13 +857,24 @@ void loop() {
       
      }
     //}
-      if (counterHigh==0){
+      if (counterHigh==0){ //stuff to do every 10s
         
          // strcpy(lcdLine1,"________________");
         sprintf(cBuffer,"LCD display : %s -- %s",lcdLine0,lcdLine1);
         Serial.println(cBuffer);
         counterHigh=9; //do stuff every 10s..
         check_all_DHT();
+
+ for (int i=0; i<255; i++){
+  if ( daRules[i].t == ruleEND_LIST ) {
+    Serial.print(i);
+    Serial.println(" done rules...");
+    break;
+  }
+  evaluateRule(&daRules[i],false);
+ }
+
+
     } else {
       counterHigh--;
      }
