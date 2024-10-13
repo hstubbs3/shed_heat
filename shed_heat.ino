@@ -15,6 +15,7 @@ char resevoir[] = "RESERVOIR";
 char sand[] = "SAND";
 char heatsink[] = "HEATSINK";
 char roof[] = "ROOF";
+char missingno[] = "NOT HERE";
 
 //this ordering is to reflect how the heat from the roof panel should flow to the shed...
 enum eHT: byte {
@@ -26,7 +27,7 @@ enum eHT: byte {
   HT_AMBIENT=5
   } ;
 
-void *HT_names[] = {&shed,&heatsink,&sand,&resevoir,&roof,&ambient};
+char *HT_names[] = {(char*)&shed,(char*)&heatsink,(char*)&sand,(char*)&resevoir,(char*)&roof,(char*)&ambient,(char*)&missingno};
 byte HT_Pins[] = {24,25,26,27,28,29} ;
 
 DHT dht[] ={
@@ -69,6 +70,9 @@ bool checkDHT(int i) {
   return true;
 }
 
+//char csv_headers[256];
+
+
 void check_all_DHT(){
   Serial.println("CHECK ALL DHT");
   for (int i=0; i<numHT; i++){
@@ -76,8 +80,9 @@ void check_all_DHT(){
     Serial.print((char*)HT_names[i]);
     Serial.print(" : ");
     Serial.print(dht_reads[i].strF);
-    Serial.println("*F ");
+    Serial.println(" F ");
   }
+  Serial.println("DONE CHECK ALL DHT");
 }
 
 //relays
@@ -99,12 +104,12 @@ struct tempRule {
   byte a;
   byte b;
   byte r;
-  void *d;
+  char d[16]; // so can always be displayed on the 16x2 ? 
   
-  tempRule(ruleTypes _t, byte _a, byte _b, byte _r, char *_d) : t(_t), a(_a), b(_b), r(_r), d(_d) {}
+  tempRule(char *_d, ruleTypes _t, byte _a, byte _b, byte _r ) : t(_t), a(_a), b(_b), r(_r) { memcpy(d,_d,15); d[15]=0; }
 };
 
-void evaluateRule( struct tempRule* rule, bool verbose=true){
+bool evaluateRule( struct tempRule* rule, bool verbose=true){
 /* handled by emergency rules..
   if ( dht_reads[rule->a].iF == 255 && run_relays[rule->r]) {
     digitalWrite(r_pins[rule->r],HIGH);
@@ -116,6 +121,25 @@ void evaluateRule( struct tempRule* rule, bool verbose=true){
   
 */
   switch(rule->t){
+    case ruleEND_LIST:
+        return false;
+        break;
+    case ruleDHT_LT_TARGET_DHT:
+        if ( dht_reads[rule->a].iF < dht_reads[rule->b].iF && !run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - DHT_LT_TARGET_DHT - %s : %s F < %s : %s F - switching on %d %s",rule->d, HT_names[rule->a], dht_reads[rule->a].strF,HT_names[rule->b], dht_reads[rule->b].strF,rule->r,r_names[rule->r]);
+           Serial.println(cBuffer);
+           run_relays[rule->r]=true; // relay will switch on loop... 
+        } else if ( dht_reads[rule->a].iF > rule->b && run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - DHT_LT_TARGET_DHT - %s : %s F < %s : %s F - switching off %d %s",rule->d, HT_names[rule->a], dht_reads[rule->a].strF,HT_names[rule->b], dht_reads[rule->b].strF,rule->r,r_names[rule->r]);
+           Serial.println(cBuffer);
+           run_relays[rule->r]=false; // relay will switch on loop... 
+          
+        } else if (verbose) {
+          sprintf(cBuffer,"EvaluateRule : %s - DHT_LT_TARGET_DHT - %s : %s F ? %s : %s F - nothing to change %d %s",rule->d, HT_names[rule->a], dht_reads[rule->a].strF,HT_names[rule->b], dht_reads[rule->b].strF,rule->r,r_names[rule->r]);
+          Serial.println(cBuffer);
+          
+        }
+        break;
     case ruleDHT_TARGET_TEMP_ON_LOW:
         if ( dht_reads[rule->a].iF < rule->b && !run_relays[rule->r]) {
            sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s > %d F - switching on %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
@@ -134,12 +158,12 @@ void evaluateRule( struct tempRule* rule, bool verbose=true){
 
     case ruleDHT_GT_TEMP_OFF:
         if ( dht_reads[rule->a].iF > rule->b && run_relays[rule->r]) {
-           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_HIGH - DHT %d %s - %s > %d F - switching off %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
+           sprintf(cBuffer, "EvaluateRule : %s - ruleDHT_GT_TEMP_OFF - DHT %d %s - %s > %d F - switching off %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
-           run_relays[rule->r]=false; // relay will switch on loop... 
+           run_relays[rule->r]=false; // relay will switch off loop... 
           
         } else if (verbose) {
-          sprintf(cBuffer,"EvaluateRule : %s - TARGET_TEMP_ON_HIGH - DHT %d %s - %s ? %d F - nothing to change",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b);
+          sprintf(cBuffer,"EvaluateRule : %s - ruleDHT_GT_TEMP_OFF - DHT %d %s - %s ? %d F - nothing to change",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b);
           Serial.println(cBuffer);
         }
         break;
@@ -148,6 +172,7 @@ void evaluateRule( struct tempRule* rule, bool verbose=true){
         sprintf(cBuffer,"evaluateRule: invalid type... %d %d %d %s",rule->t,rule->a,rule->b,rule->r,rule->d);
         Serial.println(cBuffer);
   }
+  return true;
 }
 
 
@@ -158,15 +183,26 @@ char ruleD[]="SHED TEMP UNDER COMFY - activate fan";
 char ruleE[]="HEATSINK IN EXCESS OF MAXTEMP";
 char ruleF[]="end of list";
 
-//  tempRule(ruleTypes _t, byte _a, byte _b, byte _r, char *_d) : t(_t), a(_a), b(_b), r(_r), d(_d) {}
+//  tempRule(char *_d;, ruleTypes _t, byte _a, byte _b, byte _r ) : t(_t), a(_a), b(_b), r(_r) { memcpy(d,_d,16); d[16]=0; }
 
 struct tempRule daRules[] = {
-  { ruleTypes::ruleDHT_LT_TARGET_DHT, HT_RESERVOIR, HT_ROOF, R_LOOP, (void*)&ruleA } ,
-  { ruleTypes::ruleDHT_LT_TARGET_DHT, HT_SAND, HT_RESERVOIR, R_XFER, (void*)&ruleB },
-  { ruleTypes::ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT, (void*)&ruleC },
-  { ruleTypes::ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_FAN, (void*)&ruleD },
-  { ruleTypes::ruleDHT_GT_TEMP_OFF, HT_HEATSINK, HEAT_ELEMENT_MAX_TEMP, R_HEAT, (void*)&ruleE },
-  { ruleTypes::ruleEND_LIST,0,0,0, (void*)&ruleF }
+//  { "0123456789ABCDE",  rule type, a, b, r }, 
+    { "main: roof>res", ruleDHT_LT_TARGET_DHT, HT_RESERVOIR, HT_ROOF, R_LOOP }, //0
+    { "xfer:  res>sand", ruleDHT_LT_TARGET_DHT, HT_SAND, HT_RESERVOIR, R_XFER }, //1
+    { "h0: sand<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SAND, ComfyTemp, R_HEAT }, //2
+    { "f0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_FAN }, //3
+    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATSINK, HEAT_ELEMENT_MAX_TEMP, R_HEAT }, //4
+    { "End Of List", ruleEND_LIST,0,0,0 }, //5
+    { "End Of List", ruleEND_LIST,0,0,0 }, //6
+    { "End Of List", ruleEND_LIST,0,0,0 }, //7
+    { "End Of List", ruleEND_LIST,0,0,0 }, //8
+    { "End Of List", ruleEND_LIST,0,0,0 }, //9
+    { "End Of List", ruleEND_LIST,0,0,0 }, //10
+    { "End Of List", ruleEND_LIST,0,0,0 }, //11
+    { "End Of List", ruleEND_LIST,0,0,0 }, //12
+    { "End Of List", ruleEND_LIST,0,0,0 }, //13
+    { "End Of List", ruleEND_LIST,0,0,0 }, //14
+    { "End Of List", ruleEND_LIST,0,0,0 }, //15 <- so up to 16 rules... 
 };
 
  
@@ -412,9 +448,14 @@ void strTimeStamp(char *output){
   Serial.println(output);
 }
 
+byte rtcTime[7]; //second, minute, hour, dayOfWeek, dayOfMonth, month, year;
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
+
+
+  
   Wire.begin();
   strTimeStamp(cBuffer);
 //  displayTime();  
@@ -423,6 +464,20 @@ void setup() {
   lcd.print("Hello!! ");
   lcd.print(cBuffer);
 
+/*
+  csv_headers[0]=0;
+  strcat(csv_headers,"timestamp, ");
+  Serial.println(csv_headers);
+  for (int i=0; i<numHT-1; i++){
+    strcat(csv_headers,HT_names[i]);
+    strcat(csv_headers,", ");
+    Serial.println(csv_headers);
+  }
+  strcat(csv_headers,HT_names[numHT-1]);
+  strcat(csv_headers,", ");
+//  Serial.print("csv header preview - ");
+  Serial.println(csv_headers);
+*/
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
@@ -431,6 +486,7 @@ void setup() {
     for(;;); // Don't proceed, loop forever
   }
 
+/*
   // Show initial display buffer contents on the screen --
   display.clearDisplay();
   display.drawBitmap(0,0,start_screen,128,64,1);
@@ -451,7 +507,7 @@ void setup() {
   delay(setupDelayTime);
 
 
-  
+  */
   for (int i=0; i<numRELAY; i++){
     sprintf(cBuffer,"init relay %d : %d %s ",i,r_pins[i]);
     Serial.print(cBuffer);    
@@ -526,21 +582,22 @@ void setup() {
 //  printTextLine("press any key... ");
   drawTextScreen();
 //  while (!customKeypad.getKey()) {delay(1);}
-  delay(setupDelayTime);
+//  delay(setupDelayTime);
   Serial.println("SYSTEM INIT DONE!");
+  readDS3231time(&rtcTime[0], &rtcTime[1],&rtcTime[2],&rtcTime[3],&rtcTime[4],&rtcTime[5],&rtcTime[6]);
 }
 
-int counterLow=0; //setting up a ghetto counter to be like counterHigh is seconds
-int counterMed=10; // tries to be 1/th second...
-int counterHigh=0; // ticks once a second..
+int counterLow=1; //setting up a ghetto counter to be like counterHigh is seconds
+int counterMed=1; // tries to be 1/100th second...
+int counterHigh=1; // ticks once a second..
 int keypress_counter=0; // for reading key presses... 
 char customKey = 0; 
 int mode=0 ; // for switching between menus and screens...
 int oldmode=-1; 
 
-byte rtcTime[7]; //second, minute, hour, dayOfWeek, dayOfMonth, month, year;
 
-int secondLoops=3500; //actually 1/100th of second...
+
+int secondLoops=1; //actually 1/10th of second...
 byte mode0_display_second=99;
 
 byte setTime[8]; //for setting time using mode 2..
@@ -564,6 +621,14 @@ char setTimeString[13][17] = {
    "SECONDS - ones  "
 };
 
+char dateTimeStamp[64]; // ie -  "2024/10/12 10:24:00 - HH M LLLL/TTTT | " but up to 64 length just in case... 
+
+void makeDateTimeStamp(){
+  sprintf(dateTimeStamp,"20%02d/%02d/%02d %02d:%02d:%02d - %02d %d %04d/%04d ::",rtcTime[6],rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1],rtcTime[0],counterHigh,counterMed,counterLow,secondLoops);
+}
+
+byte last_csv_minute = -1;
+
 void loop() {
 /* enum eHT: byte {
   HT_SHED=0,
@@ -585,12 +650,14 @@ void loop() {
     }
   }
  */
-
   // put your main code here, to run repeatedly:
+  makeDateTimeStamp();
+
   if (keypress_counter==0) {
     customKey = customKeypad.getKey();  
     if (customKey){
      display.drawBitmap(120,0,start_screen,8,8,0);
+     Serial.print(dateTimeStamp);
      Serial.println(customKey);
      display.setCursor(120, 0);
      display.setTextSize(1); // Draw 1X-scale text
@@ -790,7 +857,7 @@ void loop() {
 
   //process switching to other mode...
   if (oldmode != mode){
-    sprintf(cBuffer,"switching mode from %d to %d",oldmode,mode);
+    sprintf(cBuffer,"%s switching mode from %d to %d",dateTimeStamp,oldmode,mode);
     Serial.println(cBuffer);
     switch(mode){
       default:
@@ -822,75 +889,98 @@ void loop() {
   
   if (counterLow==0) {
     if (counterMed==0) {
-      counterMed=10;
-      // stuff to do every second..
-  for (int i=0; i < numRELAY; i++) {
-    if (run_relays[i]) { digitalWrite(r_pins[i],LOW); }
-    else { digitalWrite(r_pins[i],HIGH); }
-  }
-  
-       byte last_second = rtcTime[0];
+      // stuff to do every second.. well, try to.. this is done rather than polling the RTC directly every loop...  
+    byte last_second = rtcTime[0];
     readDS3231time(&rtcTime[0], &rtcTime[1],&rtcTime[2],&rtcTime[3],&rtcTime[4],&rtcTime[5],&rtcTime[6]);
-    if (rtcTime[3] > 6 || rtcTime[3] < 0 ) { rtcTime[3]=7; }
-    sprintf(cBuffer,"counterHigh: %2d - seconds %2d / %2d - %s 20%02d/%02d/%02d %2d:%02d:%02d",counterHigh,last_second,rtcTime[0],dayOfWeek[rtcTime[3]],rtcTime[6],rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1],rtcTime[0]);
-    Serial.println(cBuffer);
 
-    sprintf(lcdLine0,"%2d/%2d   %2d:%02d:%02d",rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1],rtcTime[0]);
-
-  //  if (rtcTime[0] % 2 == 0 ) { // check only every 2s 
+    if(rtcTime[0] == last_second) {
+        while(rtcTime[0] == last_second) { // this is to stall until next second.. 
+          secondLoops +=2;
+         // Serial.print("Secondloop too short, increasing by 2 to ");
+         // Serial.println(secondLoops);
+          delay(1);
+          readDS3231time(&rtcTime[0], &rtcTime[1],&rtcTime[2],&rtcTime[3],&rtcTime[4],&rtcTime[5],&rtcTime[6]);
+        }
+    }
+    else {
       if ( last_second > rtcTime[0] ) { last_second -= 60 ; }
-      
-    if (rtcTime[0] > last_second) {
       if (rtcTime[0] - last_second > 1 ) {
-        secondLoops -=10;
-        Serial.print("Secondloop too long, reducing by 10 to ");
-        Serial.println(secondLoops);
-      } 
-    }else if(rtcTime[0] == last_second) {
-        secondLoops +=1;
-        Serial.print("Secondloop too short, increasing by 1 to ");
-        Serial.println(secondLoops);        
-      }
-     else {
-      Serial.print("Secondloop on target - ");
-        Serial.println(secondLoops);        
-      
+        if( secondLoops > 1) { secondLoops -=1; }
+       // Serial.print("Secondloop too long, reducing by 1 to ");
+      //  Serial.println(secondLoops);
+      } else {
+      //  Serial.print("Secondloop on target - ");
+       //   Serial.println(secondLoops);        
      }
-    //}
-      if (counterHigh==0){ //stuff to do every 10s
+    }
+      makeDateTimeStamp();
+      sprintf(cBuffer,"%s %2d / %2d - %s - secondLoops: %d",dateTimeStamp,last_second,rtcTime[0],dayOfWeek[rtcTime[3]],secondLoops);
+      Serial.println(cBuffer);
+      sprintf(lcdLine0,"%2d/%2d   %2d:%02d:%02d",rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1],rtcTime[0]);
+
+      counterMed=10;
+
+     if (counterHigh==0){ //stuff to do every 10s
         
          // strcpy(lcdLine1,"________________");
-        sprintf(cBuffer,"LCD display : %s -- %s",lcdLine0,lcdLine1);
-        Serial.println(cBuffer);
+        //sprintf(cBuffer,"LCD display : %s -- %s",lcdLine0,lcdLine1);
+        //Serial.println(cBuffer);
         counterHigh=9; //do stuff every 10s..
         check_all_DHT();
+        int i=0; //struct tempRule* rule
+        for ( tempRule r : daRules ) { 
+          if (!evaluateRule(&r,true)) break ;
+          i++ ; 
+        }
 
- for (int i=0; i<255; i++){
-  if ( daRules[i].t == ruleEND_LIST ) {
-    Serial.print(i);
-    Serial.println(" done rules...");
-    break;
-  }
-  evaluateRule(&daRules[i],false);
- }
+       
+        sprintf(cBuffer,"%s %d DONE RULES",dateTimeStamp,last_second,rtcTime[0],dayOfWeek[rtcTime[3]],secondLoops);
+        Serial.println(cBuffer);
+        Serial.print(i);
+        Serial.println(" done rules...");
+
+      if ( last_csv_minute != rtcTime[1] ) {
+        last_csv_minute = rtcTime[1];
+        //Serial.println(csv_headers);
+        //char *HT_names[] = {(char*)&shed,(char*)&heatsink,(char*)&sand,(char*)&resevoir,(char*)&roof,(char*)&ambient,(char*)&missingno};
+    //    Serial.println("CSV_HEADERS, datetime, SHED, HEATSINK, SAND, RESERVOIR, ROOF, AMBIENT, ");
+
+        //"2024/10/13 06:12" 
+        // 1234567890123456 - 15 chars to copy from timestamp...
+      //  Serial.print("CSV, ");
+        memcpy(cBuffer,dateTimeStamp,16);
+        cBuffer[16]=0 ; // make the null...
+        strcat(cBuffer,", "); 
+        for (int i=0; i<numHT; i++) {
+          if (dht_reads[i].iF < 255 ) strcat(cBuffer,dht_reads[i].strF);
+          strcat(cBuffer,", ");
+        }
+        Serial.println(cBuffer);
+       }
 
 
     } else {
       counterHigh--;
      }
-    }
+
     
  
-        
+    }
+
     counterLow=secondLoops;
     counterMed--;
-//    if(counterMed==0){counterHigh--;}
+    // this stuff runs every 1/10 second...
 
-  lcd.setCursor(0,0);
-  lcd.print(lcdLine0);
-  lcd.setCursor(0,1);
-  lcd.print(lcdLine1);  
-  display.display();
+    for (int i=0; i < numRELAY; i++) {
+       if (run_relays[i]) { digitalWrite(r_pins[i],LOW); }
+       else { digitalWrite(r_pins[i],HIGH); }
+    }
+
+    lcd.setCursor(0,0);
+    lcd.print(lcdLine0);
+    lcd.setCursor(0,1);
+    lcd.print(lcdLine1);  
+    display.display();
 //  Serial.print(counterHigh);  Serial.print(" ");  Serial.println(counterLow);
 
   } else {
