@@ -70,7 +70,6 @@ bool checkDHT(int i) {
   return true;
 }
 
-//char csv_headers[256];
 
 
 void check_all_DHT(){
@@ -142,11 +141,11 @@ bool evaluateRule( struct tempRule* rule, bool verbose=true){
         break;
     case ruleDHT_TARGET_TEMP_ON_LOW:
         if ( dht_reads[rule->a].iF < rule->b && !run_relays[rule->r]) {
-           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s > %d F - switching on %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
+           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s < %d F - switching on %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=true; // relay will switch on loop... 
         } else if ( dht_reads[rule->a].iF > rule->b && run_relays[rule->r]) {
-           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s < %d F - switching off %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
+           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s > %d F - switching off %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=false; // relay will switch on loop... 
           
@@ -175,14 +174,14 @@ bool evaluateRule( struct tempRule* rule, bool verbose=true){
   return true;
 }
 
-
+/*
 char ruleA[]= "Main loop if Roof > Reservoir";
 char ruleB[]="Xfer loop if Resevoir > Sand";
 char ruleC[]= "SHED TEMP UNDER COMFY - activate heat";
 char ruleD[]="SHED TEMP UNDER COMFY - activate fan";
 char ruleE[]="HEATSINK IN EXCESS OF MAXTEMP";
 char ruleF[]="end of list";
-
+*/
 //  tempRule(char *_d;, ruleTypes _t, byte _a, byte _b, byte _r ) : t(_t), a(_a), b(_b), r(_r) { memcpy(d,_d,16); d[16]=0; }
 
 struct tempRule daRules[] = {
@@ -463,21 +462,6 @@ void setup() {
   lcd.begin(16,2);
   lcd.print("Hello!! ");
   lcd.print(cBuffer);
-
-/*
-  csv_headers[0]=0;
-  strcat(csv_headers,"timestamp, ");
-  Serial.println(csv_headers);
-  for (int i=0; i<numHT-1; i++){
-    strcat(csv_headers,HT_names[i]);
-    strcat(csv_headers,", ");
-    Serial.println(csv_headers);
-  }
-  strcat(csv_headers,HT_names[numHT-1]);
-  strcat(csv_headers,", ");
-//  Serial.print("csv header preview - ");
-  Serial.println(csv_headers);
-*/
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
@@ -486,28 +470,6 @@ void setup() {
     for(;;); // Don't proceed, loop forever
   }
 
-/*
-  // Show initial display buffer contents on the screen --
-  display.clearDisplay();
-  display.drawBitmap(0,0,start_screen,128,64,1);
-  display.display();
-  Serial.println("splash screen - hit any button");
-  lcd.setCursor(0,1);
-  lcd.print("splash!");
-//  while (!customKeypad.getKey()) {delay(1);}
-
-  delay(setupDelayTime);
-
-  drawTextScreen();
-
-  Serial.println("text screen test - hit any button");
-  lcd.setCursor(0,1);
-  lcd.print("TEXT SCREEN!!");
-//  while (!customKeypad.getKey()) {delay(1);}
-  delay(setupDelayTime);
-
-
-  */
   for (int i=0; i<numRELAY; i++){
     sprintf(cBuffer,"init relay %d : %d %s ",i,r_pins[i]);
     Serial.print(cBuffer);    
@@ -532,15 +494,20 @@ void setup() {
 //  while (!customKeypad.getKey()) {delay(1);}
   }
   Serial.println("Done relays..");
+
   printTextLine("Done relays...");
   drawTextScreen();
 //  while (!customKeypad.getKey()) {delay(1);}
   delay(setupDelayTime);
 
   for (int i=0; i<numHT; i++) {
-    sprintf(cBuffer,"init temp %d : %d ",i,r_pins[i]);
+    sprintf(cBuffer,"init temp %d : %d ",i,HT_Pins[i]);
     Serial.print(cBuffer);    
     Serial.println((char*)HT_names[i]);
+    dht[i].begin();
+    delay(setupDelayTime);
+/*
+
     printTextLine(cBuffer);
     printTextLine((char*)HT_names[i]);
     drawTextScreen();
@@ -551,34 +518,21 @@ void setup() {
     lcd.print(HT_Pins[i]);
     lcd.setCursor(0,1);
     lcd.print((char*)HT_names[i]);
-    dht[i].begin();
 
     if(!checkDHT(i)){
       Serial.println("ERROR!");
-/*
-      printTextLine("ERROR!");
-      printTextLine((char*)HT_names[i]);
-      drawTextScreen();
-      char leKey=customKeypad.getKey();
-      while (leKey==0) {
-        leKey=customKeypad.getKey();
-        delay(1);
-        }
-      Serial.println(leKey);
-      if (leKey=='D') { break; }
-      */    
       }
     Serial.println(dht_reads[i].strF);
     lcd.setCursor(11,0);
     lcd.print(dht_reads[i].strF);
     printTextLine(dht_reads[i].strF);
     drawTextScreen();
-    delay(setupDelayTime);
-    
+  */  
   }
   printTextLine(" ");
   printTextLine("Done DHTs...");
   printTextLine(" ");
+
 //  printTextLine("press any key... ");
   drawTextScreen();
 //  while (!customKeypad.getKey()) {delay(1);}
@@ -938,26 +892,6 @@ void loop() {
         Serial.println(cBuffer);
         Serial.print(i);
         Serial.println(" done rules...");
-
-      if ( last_csv_minute != rtcTime[1] ) {
-        last_csv_minute = rtcTime[1];
-        //Serial.println(csv_headers);
-        //char *HT_names[] = {(char*)&shed,(char*)&heatsink,(char*)&sand,(char*)&resevoir,(char*)&roof,(char*)&ambient,(char*)&missingno};
-    //    Serial.println("CSV_HEADERS, datetime, SHED, HEATSINK, SAND, RESERVOIR, ROOF, AMBIENT, ");
-
-        //"2024/10/13 06:12" 
-        // 1234567890123456 - 15 chars to copy from timestamp...
-      //  Serial.print("CSV, ");
-        memcpy(cBuffer,dateTimeStamp,16);
-        cBuffer[16]=0 ; // make the null...
-        strcat(cBuffer,", "); 
-        for (int i=0; i<numHT; i++) {
-          if (dht_reads[i].iF < 255 ) strcat(cBuffer,dht_reads[i].strF);
-          strcat(cBuffer,", ");
-        }
-        Serial.println(cBuffer);
-       }
-
 
     } else {
       counterHigh--;
