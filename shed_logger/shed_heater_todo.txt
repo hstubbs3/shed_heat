@@ -444,6 +444,9 @@ info@ncaks.com - speedy cash - email copy police report
 2024/10/15
 0900 	fixing up the sketch a bit, need to update cron stuff as well.. and get that plus this log into the GIT? 
 
+1005 	OK changes pushed to devices.. 
+
+1020 	hmmm.. its not writing the .csv for some reason... will deal with later, patched a cron in for now..
 
 
 

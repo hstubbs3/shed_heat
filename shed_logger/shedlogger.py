@@ -33,13 +33,17 @@ except ImportError:
 ser = False
 LOG = False
 CSV = False
-CSV_do_headers = True
+CSV_Headers = False
 if len(sys.argv) < 2:
 	#stdin is a terminal, not likely to be a pipe..
-	ser = serial.Serial('/dev/ttyACM0', 9600, 8, 'N', 1, timeout=1)
+	try:
+		ser = serial.Serial('/dev/ttyACM0', 9600, 8, 'N', 1, timeout=1)
+	except:
+		ser = serial.Serial('/dev/ttyACM1', 9600, 8, 'N', 1, timeout=1)
 	filename = f"shed_heater-{datetime.datetime.now().strftime('%Y-%m-%d--%H-%M-%S')}"
 	LOG = open(f"{filename}.log","wt",encoding="Latin1")
 	CSV = open(f"{filename}.csv","wt",encoding="Latin1")
+
 else :
 	ser = sys.stdin
 
@@ -177,7 +181,8 @@ def logloop():
 	global LOG; 
 	global do_temps;
 	global CSV;
-	global CSV_do_headers;
+	global CSV_Headers;
+	loop_counter -= 1 ;
 
 	if ser :
 			output = False
@@ -201,15 +206,17 @@ def logloop():
 				elif output.startswith("CHECK ALL DHT"):
 					do_temps = True
 				elif CSV:
-					if CSV_do_headers:
+					if not CSV_Headers:
 						if output.startswith("CSV_HEADERS"):
-							CSV_do_headers = False
+							CSV_Headers = output
 							CSV.write(output)
-					elif output.startswith("CSV,"):
+					elif output.startswith("CSV_VALUES"):
 						CSV.write(output)
+						with open("/var/www/html/shed_current.csv.txt","wt",encoding="Latin-1") as FILE:
+							FILE.write(CSV_Headers)
+							FILE.write(output)
+			#else: print("no output this loop")
 
-
-	loop_counter -= 1 ;
 
 	if loop_counter == 0 :
 		main_counter +=1

@@ -936,7 +936,7 @@ void loop() {
             Serial.print("\",\"");
           }
           Serial.println("\",");
-          sprintf(cBuffer,"CSV_VALUES, 20%02d/%02d/%02d %02d/%02d,",rtcTime[6],rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1]);
+          sprintf(cBuffer,"CSV_VALUES, 20%02d/%02d/%02d %02d:%02d,",rtcTime[6],rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1]);
           Serial.print(cBuffer);
           for (int i=0; i<numHT; i++){
             if (dht_reads[i].iF != 255) { Serial.print(dht_reads[i].strF); }
