@@ -1,0 +1,459 @@
+Shed HVAC thing
+
+Arduino to run hardware
+
+Raspberry Pi 4 w/ touch screen to interface with the arduino and do logging...
+
+
+
+2024/09/14
+0700 	Sorting out shed stuff, getting RPI updated, trying to get arduino stuff onto better breadboard but it messed up...
+0845 	Trying to get Raspi OS updated to latest ... 
+
+TODO 	update Raspi OS on the Raspi 4 w/ the touchscreen
+TODO 	CHECK how to interface the arduino to the Raspi 
+
+Diagram - 
+
+Arduino
+	Temp Sensors
+		Internal High
+		Internal Low
+		Solar Heater
+		Sand Battery
+	Fans
+		Heating
+			2x 	OUT to heater
+			2x IN from Battery
+
+For cooling - run IN from battery going high / front, and exhaust fans high/back to get flow?
+
+
+2024/09/22
+1035 	OK way too much gone on.. The 12V DC distro board hit a snafu and so the shed wasn't heated at all last night, so couldn't evaluate heating potential.
+		I think I'll modify this program so it tries to max out the heater .. 
+		if ComfyTemp is set to 119, it should work to max out? 
+1040 	ComfyTemp set to 120, setting check to every 60s rather than every 10s.. 	May god have mercy on my soul		
+		Time 	Ambient Desk	HeatSink 	Heater
+		1040 	57  	76 		95 			69 
+
+		1045	57 		76 		98 			70
+
+		1052 	57 		77 		103 		72
+		1053 	58 		77		103 		72
+		1054 	58 		77		102 		73
+
+1240 	switching to ComfyTemp of 69... desk got to 92 with it being 74 out side, heatSink 124 heater 97
+
+2018 	Came out to the shed to check if things working.. the negative 12V DC connection was bad, melted a bit..
+
+		got it sorted out... pulling ~145W ....	OK so the big question is... can it raise Desk temp if I close the doors? 
+		Desk temp is 63... if it gets to 65 in some reasonable time maybe is all ok... 
+		Time 	Ambient Desk	Sink 	sand
+		2020 	70 		63 		70 		70
+		2025 	70 		63 		81		70
+		2030 	70 		64 		92 		71
+		2035 	69 		64 		98 		72 		OK definite heat if A increases or D > A
+		2040 	69 		63 		102 	73
+		2045	69 		64		105 	74
+		2050 	69 		64 		105 	74 		no change in 5 mins... 	running 123 watts..
+
+
+
+		with heater at 70 to start, is clear that heater and desk won't quite equalize.. heater would need to get more radiative vs desk...
+		if 63/70 was more/less in equilibrium before, then maybe heater at 77+ would be enough to move the needle? 
+		the heat sink gets up to about 30F above the sand... 
+
+
+TODO 	add fan to heater, have it start running if ( tempsF[HT_DESK] < ComfyTemp && tempsF[HT_HEATER] > tempsF[HT_DESK] ) ...
+		That way it kicks out more heat, since the increased airflow should move heat off the heat sink directly.. 
+
+TODO 	update Raspi OS on the Raspi 4 w/ the touchscreen
+TODO 	CHECK how to interface the arduino to the Raspi 
+
+
+2024/10/03
+0520 	Was feeling a bit manic tonight ( Wednesday night ), so started building out the solar water heater - just getting the hose
+		and pump setup to do ~half-height test, no glass or reflector or even boxed in.. 
+
+		Of course, I did all this after dark, so currently the water is showing about 5*F colder than ambient... lol
+
+		I managed to stay out by my shed mucking around with this stuff so late that Miguel locked me out of the house - I didn't even notice
+		until about an hour ago... I rigged up the sand heater and the arduino to monitor temps.. Nothing is connected to relays currentlky.
+		Just monitoring temps.
+
+		The sand heater and the water pump currently running about 125 watts... 
+05:28:16.915 -> BUCKET Temp: 46.58 F vs Ambient: 52.34 F .... -5.76
+05:28:17.010 -> SAND Temp: 69.08 F vs AMBIENT: 52.34 F .... 16.74
+05:28:17.057 -> SAND Temp: 69.08 F vs DESK: 55.94 F .... 13.14
+05:28:17.104 -> DESK Temp: 55.94 F vs AMBIENT: 52.34 F .... 3.60
+
+		I closed the door to try and get warmer... but that also is having the effect of cutting me off from the wi-fi.. Not sure what I'll
+		have to do to avoid that issue, aside dangle a wi-fi adapter out the bottom of the shed?? 
+
+		Note - the bucket is currently sitting _outside_ on the ground... 
+
+		Online weather has Ambient should be 52*F ... so really not sure what's going on with bucket sensor.. unless that table outside is just
+		that cold...? 
+
+05:32:53.665 -> loop...
+05:32:53.712 -> DHT sensor 0 : AMBIENT at pin 10 - 51.62 F / 20.00 % H
+05:32:59.709 -> DHT sensor 1 : DESK at pin 12 - 55.94 F / 54.00 % H
+05:33:05.701 -> DHT sensor 2 : BUCKET at pin 11 - 46.58 F / 62.00 % H
+05:33:11.696 -> DHT sensor 3 : SAND at pin 9 - 70.52 F / 98.00 % H
+05:33:17.657 -> BUCKET Temp: 46.58 F vs Ambient: 51.62 F .... -5.04
+05:33:17.705 -> SAND Temp: 70.52 F vs AMBIENT: 51.62 F .... 18.90
+05:33:17.751 -> SAND Temp: 70.52 F vs DESK: 55.94 F .... 14.58
+05:33:17.799 -> DESK Temp: 55.94 F vs AMBIENT: 51.62 F .... 4.32
+
+0538	HEATSINK is actually very warm to the touch, but I don't have temp sensor rigged for it... I suppose I have the time now? lol
+
+0620 	Yeah that took longer than I thought it would... 
+
+06:21:12.060 -> loop...
+06:21:12.060 -> DHT sensor 0 : AMBIENT at pin 10 - 51.62 F / 20.00 % H
+06:21:17.071 -> DHT sensor 1 : DESK at pin 12 - 57.38 F / 52.00 % H
+06:21:22.067 -> DHT sensor 2 : BUCKET at pin 11 - 45.68 F / 64.00 % H
+06:21:27.031 -> DHT sensor 3 : SAND at pin 9 - 80.06 F / 98.00 % H
+06:21:32.018 -> DHT sensor 4 : HEATSINK at pin 8 - 86.36 F / 22.00 % H
+06:21:36.997 -> BUCKET Temp: 45.68 F vs Ambient: 51.62 F .... -5.94
+06:21:37.036 -> HEATSINK Temp: 86.36 F vs SAND: 80.06 F .... 6.30
+06:21:37.083 -> SAND Temp: 80.06 F vs AMBIENT: 51.62 F .... 28.44
+06:21:37.130 -> SAND Temp: 80.06 F vs DESK: 57.38 F .... 22.68
+06:21:37.178 -> DESK Temp: 57.38 F vs AMBIENT: 51.62 F .... 5.76
+
+		HEATSINK at 86*F ... is >32 above ambient... is unclear if desk temperature is really affected here but before I came into the shed
+		desk and ambient were equal.. so that 5*F is possibly just me sitting here? 
+
+
+07:15:18.517 -> loop...
+07:15:18.565 -> DHT sensor 0 : AMBIENT at pin 10 - 51.62 F / 20.00 % H
+07:15:23.559 -> DHT sensor 1 : DESK at pin 12 - 54.68 F / 50.00 % H
+07:15:28.528 -> DHT sensor 2 : BUCKET at pin 11 - 45.14 F / 66.00 % H
+07:15:33.489 -> DHT sensor 3 : SAND at pin 9 - 81.68 F / 98.00 % H
+07:15:38.499 -> DHT sensor 4 : HEATSINK at pin 8 - 84.74 F / 18.00 % H
+07:15:43.436 -> BUCKET Temp: 45.14 F vs Ambient: 51.62 F .... -6.48
+07:15:43.530 -> HEATSINK Temp: 84.74 F vs SAND: 81.68 F .... 3.06
+07:15:43.577 -> SAND Temp: 81.68 F vs AMBIENT: 51.62 F .... 30.06
+07:15:43.624 -> SAND Temp: 81.68 F vs DESK: 54.68 F .... 27.00
+07:15:43.671 -> DESK Temp: 54.68 F vs AMBIENT: 51.62 F .... 3.06
+
+0716	Twilight / Dawn is about 730.. is interesting that desk is down 3*F in the past hour... hmmm unless that's just from cracking the door open?
+
+1035	disconnected heater from 12V DC... moved solar heater to get more direct sunlight.. now is about 50% ...
+
+2024/10/3 10:53:28 loop...
+2024/10/3 10:53:29 DHT sensor 0 : AMBIENT at pin 10 - 68.36 F / 18.00 % H
+2024/10/3 10:53:29 DHT sensor 1 : DESK at pin 12 - 77.54 F / 33.00 % H
+2024/10/3 10:53:29 DHT sensor 2 : BUCKET at pin 11 - 80.06 F / 35.00 % H
+2024/10/3 10:53:29 DHT sensor 3 : SAND at pin 9 - 95.36 F / 98.00 % H
+2024/10/3 10:53:29 DHT sensor 4 : HEATSINK at pin 8 - 85.82 F / 18.00 % H
+
+1053 	Desk at 77 / +9F ambient... using box fan to cool..
+
+1055 	BUCKET V AMBIENT 11.70 F ... not too shabby... if is 4 gallons in system, that would be 512 ounce / 32 pounds .. about 15Kg ...
+		which is about what the air volume in the shed should be? 
+		Specific heat water is 4.184 J/g/C .. air is 1.005 J/g/C .. and sand is .83 ... so 15Kg of water @ +1 C is like +4C air? 
+		~12F is about 6.5 C ... so would expect ambient/bucket to settle at... (68+80*4)/5 = 388/5 = 77*F ? +12F means end up +9F? hmmm
+
+1125 	260ft 1/2" ID is about 2.6 US gallon.. and there's about 5" deep in the bucket.. so about 4.5 Gallon actually.. 36 Lbs..
+		and bucket is at about +18F .. +11F on settling?? hmmmm...
+
+
+2024/10/04
+0926 	testing power characteristics of 2x 12V DC heating elements sharing a sheet metal duct heatsink in sand battery heater..
+
+		initial conditions before powering up - 
+2024/10/4 9:27:23 loop...
+2024/10/4 9:27:23 DHT sensor 0 : AMBIENT at pin 10 - 65.48 F / 18.00 % H
+2024/10/4 9:27:23 DHT sensor 1 : DESK at pin 12 - 66.92 F / 38.00 % H
+2024/10/4 9:27:23 DHT sensor 2 : BUCKET at pin 11 - 64.76 F / 36.00 % H
+2024/10/4 9:27:23 DHT sensor 3 : SAND at pin 9 - 64.58 F / 44.00 % H
+2024/10/4 9:27:23 DHT sensor 4 : HEATSINK at pin 8 - 65.48 F / 35.00 % H
+2024/10/4 9:27:23 BUCKET Temp: 64.76 F vs Ambient: 65.48 F .... -0.72
+2024/10/4 9:27:23 HEATSINK Temp: 65.48 F vs SAND: 64.58 F .... 0.90
+2024/10/4 9:27:24 SAND Temp: 64.58 F vs AMBIENT: 65.48 F .... -0.90
+
+		water pump still on circuit - uses 18-20 watts... so will say 19 as factoring... 
+		powering up at 9:29AM, overall wattage on the 12V DC power supply rising sharply and topping out at ~105 before dropping slowly.
+
+		steady state for the 4 heating elements sharing this heatsink was ~100W.. looking for steady state >50W, factoring pump steady state
+		over ~75W would be ideal?
+
+0933 	HEATSINK sensor was out of place, put back.
+0934 	~74 watts 	maybe it was 100w with the pump...
+0943 	~68 watts
+1030 	~63 watts
+1057	~62 watts 	dumped in additional water in reserve due to loss (return hose out of place due to wind)
+
+1117 	Cutting power to redo wiring of project... 
+
+1120 	First order of biz.. get the 16x2 LCD stable again or confirm it is toast..
+
+1242 	OK.. got the 16x2 LCD working... and the 16key touchpad... woot! 
+		Now I can totally make this work on its own, without being connected to anything other than for logging...
+		Maybe later I can try to get the graphic LCD working? that could be cool... use the graphic LCDs to indicate functions for A-D keys?
+		
+TODO 	use EEPROM to store trigger points / operational modes?
+
+2024/10/10
+0822 	setting up git, then fixing read/write RTC, got day of month / month backwards.. 
+
+2024/10/12
+1100 	more working on stuff.. yesterday got a raspberry pi display up and running but want to revisit how that should work..
+
+		for logging - there is dateTimeStamp string written out ..
+
+1155	Default font is 5x7 .. appears it takes up actually 6x8 though.. giving effectively a 21x8 char display.
+		a custom font would be interesting / cool... perhaps could do smaller? 4x would give 25 chars across, x6 9 lines, x5 10 lines.. x4 12 lines..
+		but.. a 4x4 custom font? hmmm .. there is a 3x5 tom thumb font in the adafruit gfx lib... 
+
+		number sign listed for tom thumb like 0xBE, 0xFA ...
+		1011 1110 1111 1010 
+		101
+		111
+		101
+		111
+		101
+
+		hmmm... W -  0xB7, 0xFA, 101/1 01/11 1/111 /1010
+		101
+		101
+		111
+		111
+		101
+
+		is a W ? wow... 4x4 would be kinda hard to pull off.. maybe go to 4x5 ?
+		1001
+		1001
+		1111
+		1111
+		1010  
+
+		nah... maybe 5x4 but not 4x anything.. prob 5x5 should be OK readability.. would give 21x10 display.. ok
+		the tom thumb font would allow for a display of 32x10 characters.. pretty crazy.. 
+
+1250 	OK... maybe need to focus more on other things... hehe.. like that logger display thing.. the graphics.py is OK but kinda meh...
+		maybe can figure out tkinter directly?
+
+1410 	framework for a tkinter based display app is all set now.. can do custom bitmap font though?
+
+
+2024/10/13
+
+0940 	I came out about 0800 to start work on reservoir and main loop pump... just got it connected and it is cycling on/off every 10s.
+		probably mucked a rule... 
+
+2024/10/13 09:38:50 - 00 0 0000/0088 :: 49 / 50 - Sun - secondLoops: 88
+CHECK ALL DHT
+SHED : 64.04 F
+HEATSINK : ERR F
+SAND : ERR F
+RESERVOIR : 60.98 F
+ROOF : 64.76 F
+AMBIENT : 61.88 F
+DONE CHECK ALL DHT
+EvaluateRule : main: roof>res - DHT_LT_TARGET_DHT - RESERVOIR : 60.98 F < ROOF : 64.76 F - switching on 0 LOOP PUMP
+EvaluateRule : xfer:  res>sand - DHT_LT_TARGET_DHT - SAND : ERR F ? RESERVOIR : 60.98 F - nothing to change 1 XFER PUMP
+EvaluateRule : h0: sand<comfy - TARGET_TEMP_ON_LOW - DHT 2 SAND - ERR ? 69 F - nothing to change
+EvaluateRule : f0: shed<comfy - TARGET_TEMP_ON_LOW - DHT 0 SHED - 64.04 ? 69 F - nothing to change
+EvaluateRule : h0 too hot!!!! - ruleDHT_GT_TEMP_OFF - DHT 1 HEATSINK - ERR ? 120 F - nothing to change
+2024/10/13 09:38:50 - 00 0 0000/0088 :: 49 DONE RULES
+5 done rules...
+2024/10/13 09:38:52 - 09 0 0000/0087 :: 50 / 52 - Sun - secondLoops: 87
+2024/10/13 09:38:53 - 08 0 0000/0087 :: 52 / 53 - Sun - secondLoops: 87
+2024/10/13 09:38:54 - 07 0 0000/0087 :: 53 / 54 - Sun - secondLoops: 87
+2024/10/13 09:38:55 - 06 0 0000/0087 :: 54 / 55 - Sun - secondLoops: 87
+2024/10/13 09:38:56 - 05 0 0000/0087 :: 55 / 56 - Sun - secondLoops: 87
+2024/10/13 09:38:57 - 04 0 0000/0087 :: 56 / 57 - Sun - secondLoops: 87
+2024/10/13 09:38:58 - 03 0 0000/0087 :: 57 / 58 - Sun - secondLoops: 87
+2024/10/13 09:38:59 - 02 0 0000/0087 :: 58 / 59 - Sun - secondLoops: 87
+2024/10/13 09:39:00 - 01 0 0000/0087 :: 255 /  0 - Sun - secondLoops: 87
+2024/10/13 09:39:01 - 00 0 0000/0087 ::  0 /  1 - Sun - secondLoops: 87
+CHECK ALL DHT
+SHED : 64.04 F
+HEATSINK : ERR F
+SAND : ERR F
+RESERVOIR : 60.98 F
+ROOF : 64.76 F
+AMBIENT : 61.88 F
+DONE CHECK ALL DHT
+EvaluateRule : main: roof>res - DHT_LT_TARGET_DHT - RESERVOIR : 60.98 F < ROOF : 64.76 F - switching off 0 LOOP PUMP
+EvaluateRule : xfer:  res>sand - DHT_LT_TARGET_DHT - SAND : ERR F ? RESERVOIR : 60.98 F - nothing to change 1 XFER PUMP
+EvaluateRule : h0: sand<comfy - TARGET_TEMP_ON_LOW - DHT 2 SAND - ERR ? 69 F - nothing to change
+EvaluateRule : f0: shed<comfy - TARGET_TEMP_ON_LOW - DHT 0 SHED - 64.04 ? 69 F - nothing to change
+EvaluateRule : h0 too hot!!!! - ruleDHT_GT_TEMP_OFF - DHT 1 HEATSINK - ERR ? 120 F - nothing to change
+2024/10/13 09:39:01 - 00 0 0000/0087 :: 0 DONE RULES
+
+hmmm... same rule? what? 
+
+if ( dht_reads[rule->a].iF > rule->b && run_relays[rule->r]) {
+
+oh....
+
+
+oops
+
+should be 
+
+else if ( dht_reads[rule->a].iF > dht_reads[rule->b].iF && run_relays[rule->r]) {
+
+hehe
+
+yeah.. a temperature is likely going to be higher than an index.. ok
+
+
+0945 	updated, switching back to RPI for logging..
+		logging started... 
+		is nice shiny day, few clouds..
+		SHED 	SAND  	RESERV 	ROOF 	AMBIENT 	roof/amb res/amb sand/amb
+0945	 64.76 	 		 60.26 	 68.36 	 61.88 		 +7 	 -1 			main loop ON 	nice solid flow 	door is wide open 
+1000	 66.92 	 		 62.60 	 95.36 	 63.50 		+32 	 -1
+1005	will start work wiring up the sand heater..
+1015 	 69.80 	 77.54 	 67.64 	111.02 	 66.20 		+45 	 +1 		 	SAND in the mix, but sensor is reading high still..?
+1030 	 73.40 	 66.20 	 73.40 	120.56 	 69.08 		+51 	+14 	 -3		res barely above shed... 
+1045 	 75.38 	 65.48 	 78.44 	127.76 	 71.24 	 	+56 	 +7  	 -6 	shed +4 ambient, door open, no fan..
+1100 	 77.54 	 66.92 	 84.02 	129.92 	 72.86 		+57 	+12 	 -6 	about to power up xfer loop... 
+1110 	XFER pump stay trying to leak...
+1115 	 80.06 	 68.36 	 88.34 	137.12 	 74.12 		+63 	+14 	 -8		xfer pump down to slow leak... 91.5W 12V
+1125 	taking XFER offline to try and fix that leak.. 
+1130 	 82.40 	 71.24 	 95.36 	139.10 	 77.54 		+62 	+18 	 -6		OK maybe xfer pump leak fixed now..
+1145 	 84.02 	 72.68 	 98.42 	141.26 	 78.44 		+63 	+20 	 -6 	~141 was about maxed out I saw so far for sensor..
+1200 	 84.74 	 74.84 	 91.94 	139.10 	 78.44 	 	+61 	+13 	 -4 	added another ~3-4 gallons to reservoir to cover xfer! 
+1215 	 85.64 	 75.38 	 96.08 	136.22 	 80.60 		+56 	+16 	 -5 	
+1230 	 87.44 	 76.64 	 96.08 	136.22 	 66.92 		+70 	+30 	+10 	hoses popped out of reserve a few mins ago when xfer pump hit prime
+1235 	leaving, closing shed doors
+
+1555 	popped in to grab a tote, check things.. 
+1600 	 92.12 	 92.84 	 96.08 	 93.56 	 80.06 	 	+13 	+16 	+12 	main loop pump is turned off ( res > roof ) . ~20W for xfer pump only
+		OK... probably past the more useful point for the heating system with 1 sand battery / xfer... and unsealed panel with 1 pane...
+		the xfer pump wasn't installed / running initially... so there's ~2-3 hours without gains there, plus door was open until 1235! 
+		So this is mostly from last 3.5 hours in the afternoon, not running all day / closed up...
+
+		Everything inside is basically +13F from ambient... Question is how this maps to maintaining temperature until the roof is warm again?
+
+1615 	 92.84 	 92.84 	 92.84 	 91.84 	 79.16 		+12 	+13 	+13 	xfer pump is still running cuz condition to stop is > not >=...
+1623 	 92.84 	 91.84 	 91.84 	 92.84 	 79.16 		+13 	+12 	+12 	main loop kicked back on! 
+1630 	 93.56 	 91.94 	 94.46 	 94.46 	 80.06 		+14 	+14 	+11 	
+		OK so with all 3 glass and the box sealed, maintaining +10 to +15 F over ambient in the shed should be no problem... so ~50 F in the shed
+		during the day... unclear how much better it can be with all the glass and sealed box, or how it will maintain into the night...
+		sunset today is 1849	... 	so will have to check back around that time..
+
+		Xfer pump still leaking, but appears it should be manageable as-is for now... 
+1635 	will set glass on panel 3 before heading inside... 
+
+1815 	 82.40 	 86.36 	 82.40 	 77.54 	 73.40 	 	 +4 	 +9 	+13
+		Funny... no WIFI with the door closed means I can't pull data from the RPI for the day.. even though the RPI and the laptop are sitting
+		less than 2 feet apart on the desk... 
+
+		shed temp and reservoir temp are same... suggesting there is expectation of thermal equilibrium between those values?
+1830 	 80.78 	 84.74 	 81.68 	 73.40 	 71.24 		 +2 	+10 	+13
+1835 	possibly fixed leak in Xfer pump.. emptied spill pan into reservoir to confirm.. would need the pump to run to be sure?
+		shed-amb is really the determining factor.. so should put that in the tracking header...
+		SHED 	SAND  	RESERV 	ROOF 	AMBIENT		shed-amb sand-amb res-amb roof-amb
+		going into Tuesday, should add a rule that ambient > comfy means no relays run... to avoid killing myself with da heat :-P
+
+		As it is expected in Jan to see temps about 20F, goal is shed above freezing, so shed must maintain at least +13F vs ambient...
+		Will have to see what further systems need to be added, aside the 110V AC heater elements and/or 12V DC heater elements...
+
+		SHED 	SAND  	RESERV 	ROOF 	AMBIENT 	shed-amb 	sand-amb 	res-amb 	roof-amb
+1815 	 82.40 	 86.36 	 82.40 	 77.54 	 73.40 		 +9 		+13 		 +9 		 +4
+1830 	 80.78 	 84.74 	 81.68 	 73.40 	 71.24 		 +9 		+13 		 +9 		 +2
+1845 	 80.78 	 84.02 	 80.78 	 71.96 	 71.24 		 +9 		+13 		 +9 		--- 		roof at ambient / almost sunset
+1900 	 80.06 	 83.30 	 79.16 	 69.80 	 70.52 		+10 		+13 		 +9 		 -1 		?? what are you doing step-roof?
+
+2025 	WIFI extender installed.. WOOT!!!
+
+
+2024/10/14
+
+0820 	added sand battery as extension... leaving SAND temp sensor in the first one ( first one w/ heater duct is second in xfer loop )
+
+1015 	??	oops'd trying to move the arduino... had to start soldering pins and stuff
+1135 	operation up to stuff yesterday restored... 
+
+		SHED 	SAND  	RESERV 	ROOF 	AMBIENT 	shed-amb 	sand-amb 	res-amb 	roof-amb
+1145 	
+
+info@ncaks.com - speedy cash - email copy police report
+
+1410 	wired up 110 V AC relay / heating elements... I grounded the relay to start the heater..
+		initial spike to >300 watts, ~3 amps, heatsink was at ~86 F 
+1415 	160 watts 	heatsink  91F
+
+														over amb ->
+		SHED 	SINK 	SAND 	RES 	ROOF 	AMB 	SHED/ 	SAND/ 	RES/ 	ROOF/ 	MAIN 	XFER 	FAN 	HEATER 	 	 		DOOR
+1415	 93 	 91		 84 	112 	140 	 83 	 10 	  1 	 29 	 57 	 X 		 X 		 		 X (override) 		OPEN 	
+1420 	 93 	105 	 84 	111 	139		 82 	 11 	  2 	 29 	 57 	 X 		 X 				 X 					OPEN  	~160 watts
+1425 	 93 	115 	 85 	112 	139 	 83 	 10 	  2 	 29 	 56 	 x 		 x 				 (normal op)		OPEN 	
+1430 	 93 	122 	 86 	112 	138 	 83 	 10 	  3 	 29 	 55 	 X 		 X 									OPEN
+1435 	 93 	120 	 87 	113 	131 	 84 	  9 	  3 	 29 	 47 	 X 		 X 									OPEN
+
+		sunset - 6:47 PM ... <69 - 68 by 8 PM. low of 53 . Tomorrow - high 81 low 57 ...
+
+		roof temp fell quickly at 1430 ... need to pull where it started.. log since yesterday morning is 14MB .. ok not too horribad...
+		roof sensor appears to max out at 141 F.. it did so today starting before 1107 ( because issues moving the setup, am missing data)
+		it was 115 at 1020 ... roof went hot between 9:30 and 10:00 AM... giving about 4.5 hours max of solar heat collection.
+1448 	main loop just tripped off... reservoir 111 F vs roof 110 F .. 
+		ending today's collection at 111 F v 82 F ambient -> +29 F reservoir with shed currently at +8 F ambient (with door open...)
+
+		yesterday had barely gotten things up and running.. roof not >140 until 11:40 ! (cuz only 1 panel?) .. didn't maintain either.. 
+		heat collection down by 1500 with reservoir 104 F vs 80 F ambient -> +24 F with shed at +19 F ambient (door was closed...)
+		hmmm... insulating the reservoir was a good move? although closing the door has caused ~100 F inside before.. 
+		Also since yesterday, improved insulation on north ceiling and tossed insulation in front of the exhaust window.. 
+		And didn't have the additional sand battery or heater connected
+
+		Reservoir == Ambient at ~6AM this morning... so 10/13 	-	collected +24 F by 3PM.. 15 hours... about 1.5 F/hr lost ...
+		today collected +29 F by 3PM ... predicting rervoir == Ambient after ~20 hours.. 11AM ( with collection starting at 10AM !)
+		down to ~+6 by 6AM , which is give/take coldest time? ... goal was worst case down to +10 over ambient... hmmm.. will have to see..
+
+		yesterday, sand == reservoir by 5PM .. sand was 93 F at 3PM yesterday.. today sand was at 91 F at 3PM, but SAND temp is now taken in middle
+		of new sand battery... at 5PM, xfer set sand==reservior at 91 F ... -2 F total from where sand was at ? hmmm... 
+		5PM ambient yesterday was 79 - so sand v ambient -> +12 F at 5PM when xfer complete .. that puts loss at +1 F / hour to 5am ... 
+
+		Will have to track and see when and what temp sand == reservoir with all the changes today.. 
+
+1520 	calling it a day here.. 
+
+2210 	ran out to move the SAND temp sensor to the heater cuz current Sketch uses sand < comfy to start the heater... should fix that
+		Ambient sensor being under the hole in the floor isn't accurate for outside temperature.. will need to fix that eventually...
+
+		Also updated the webtail to spit out 500 lines ... so should be more like last 4-5 mins ... 
+		Need to add output following rules indicating which relays are on.. 
+
+		eventually should switch to checking only every 5 mins or so, with some button to check sooner in case of sensor issue?
+
+		oh.. and fixed it saying the heat is 12V DC.. cuz I iz using the 110V AC heater... at ~142 watts... 
+2225	Heater started about 22:10 with heat sink at 67 / shed at 66 ... now heat sink at 82 sand at 69.. shed at 67 but I am sitting in it so...
+		will have to see if can get shed back to 70... at 1F per 5 mins for SAND though, and 1F per 15 mins for shed? hmmm...
+2227 	Heat element turned off - sand at 70 heat sink at 84 ... wait, when did xfer come on? oh... at 2208 ... so system is working as intended..
+		shed went low, heat fan kicked on... is like 10 watts sand went low due to the heat fan, lower than reservoir, kicked on xfer ( 20 watts? )
+		so 30 watts total... sand still fell below comfy, kicked on heater ( 180 watts total now ??)... 
+		Now is only using fan and xfer (30 watts).. until sand OK again.. then back to fan only ( 10 watts ?)...
+		So system should cycle during the night, easy peazy... ? 
+		Is just question can shed get back to 69 F? since original delay in the heat element starting was due to sand temp sensor in bad location?
+
+		Taking roof as outside temp - ~56 F... shed is holding at +11 , SAND at +18, RES at +16 ... is only about 7 hours to 6AM.. +5 should be no issue.
+		5/6AM expected to be 58.. saying it should be 63? now... is my roof sensor really 7F off ? 
+
+		Maybe should add an estimate for how much watts the relays using ? hmm... 
+		Maybe should add temperature sensor for the additional sand battery or should its temp be inferred from the heater?
+
+1245 	things to ponder another day perhaps?
+
+2024/10/15
+0900 	fixing up the sketch a bit, need to update cron stuff as well.. and get that plus this log into the GIT? 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

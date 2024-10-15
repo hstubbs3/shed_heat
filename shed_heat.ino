@@ -90,13 +90,14 @@ enum relays: byte {R_LOOP=0,R_XFER=1,R_FAN=2,R_HEAT=3};
 char heatloop[]="LOOP PUMP";
 char xfer[]="XFER PUMP";
 char heatfan[]="HEAT FAN";
-char heatelem[]="12V DC HEAT";
+char heatelem[]="110V AC HEAT";
 void *r_names[]={&heatloop,&xfer,&heatfan,&heatelem};
 bool run_relays[numRELAY];
 byte r_pins[]={12,11,10,9};
+int r_watts[]={100,20,10,150};
 
 
-enum ruleTypes: byte { ruleEND_LIST,ruleDHT_TARGET_TEMP_ON_HIGH, ruleDHT_TARGET_TEMP_ON_LOW, ruleDHT_LT_DHT_ON, ruleDHT_LT_DHT_OFF, ruleDHT_GT_DHT_ON, ruleDHT_GT_DHT_OFF, ruleDHT_LT_TARGET_DHT, ruleDHT_GT_TEMP_OFF };
+enum ruleTypes: byte { ruleEND_LIST,ruleDHT_TARGET_TEMP_ON_HIGH, ruleDHT_TARGET_TEMP_ON_LOW, ruleDHT_LT_DHT_ON, ruleDHT_LT_DHT_OFF, ruleDHT_GT_DHT_ON, ruleDHT_GT_DHT_OFF, ruleDHT_LT_TARGET_DHT, ruleDHT_GT_TEMP_OFF, ruleDHT_LT_TEMP_ON };
 
 struct tempRule {
   ruleTypes t;
@@ -124,11 +125,11 @@ bool evaluateRule( struct tempRule* rule, bool verbose=true){
         return false;
         break;
     case ruleDHT_LT_TARGET_DHT:
-        if ( dht_reads[rule->a].iF < dht_reads[rule->b].iF && !run_relays[rule->r]) {
+        if ( dht_reads[rule->a].iF < dht_reads[rule->b].iF ) {
            sprintf(cBuffer, "EvaluateRule : %s - DHT_LT_TARGET_DHT - %s : %s F < %s : %s F - switching on %d %s",rule->d, HT_names[rule->a], dht_reads[rule->a].strF,HT_names[rule->b], dht_reads[rule->b].strF,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=true; // relay will switch on loop... 
-        } else if ( dht_reads[rule->a].iF > rule->b && run_relays[rule->r]) {
+        } else if ( dht_reads[rule->a].iF > dht_reads[rule->b].iF && run_relays[rule->r]) {
            sprintf(cBuffer, "EvaluateRule : %s - DHT_LT_TARGET_DHT - %s : %s F < %s : %s F - switching off %d %s",rule->d, HT_names[rule->a], dht_reads[rule->a].strF,HT_names[rule->b], dht_reads[rule->b].strF,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=false; // relay will switch on loop... 
@@ -166,7 +167,18 @@ bool evaluateRule( struct tempRule* rule, bool verbose=true){
           Serial.println(cBuffer);
         }
         break;
-
+    case ruleDHT_LT_TEMP_ON:
+        if ( dht_reads[rule->a].iF < rule->b && !run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - ruleDHT_LT_TEMP_ON - DHT %d %s - %s < %d F - switching on %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
+           Serial.println(cBuffer);
+           run_relays[rule->r]=true; // relay will switch on loop... 
+          
+        } else if (verbose) {
+          sprintf(cBuffer,"EvaluateRule : %s - ruleDHT_LT_TEMP_ON - DHT %d %s - %s ? %d F - nothing to change",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b);
+          Serial.println(cBuffer);
+        }
+        break;
+    
     default:
         sprintf(cBuffer,"evaluateRule: invalid type... %d %d %d %s",rule->t,rule->a,rule->b,rule->r,rule->d);
         Serial.println(cBuffer);
@@ -188,12 +200,12 @@ struct tempRule daRules[] = {
 //  { "0123456789ABCDE",  rule type, a, b, r }, 
     { "main: roof>res", ruleDHT_LT_TARGET_DHT, HT_RESERVOIR, HT_ROOF, R_LOOP }, //0
     { "xfer:  res>sand", ruleDHT_LT_TARGET_DHT, HT_SAND, HT_RESERVOIR, R_XFER }, //1
-    { "h0: sand<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SAND, ComfyTemp, R_HEAT }, //2
+    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT }, //2
     { "f0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_FAN }, //3
-    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATSINK, HEAT_ELEMENT_MAX_TEMP, R_HEAT }, //4
-    { "End Of List", ruleEND_LIST,0,0,0 }, //5
-    { "End Of List", ruleEND_LIST,0,0,0 }, //6
-    { "End Of List", ruleEND_LIST,0,0,0 }, //7
+    { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_LOOP}, //4  so the system doesn't freeze... using 30 to account for salt water...
+    { "x: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_XFER}, //5
+    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_HEAT }, //6
+    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATSINK, HEAT_ELEMENT_MAX_TEMP, R_HEAT }, //7
     { "End Of List", ruleEND_LIST,0,0,0 }, //8
     { "End Of List", ruleEND_LIST,0,0,0 }, //9
     { "End Of List", ruleEND_LIST,0,0,0 }, //10
@@ -867,8 +879,13 @@ void loop() {
        //   Serial.println(secondLoops);        
      }
     }
+      if (rtcTime[3] < 0 || rtcTime[3] > 7 ) { 
+        Serial.print("Got bad value for dayOfWeek: ");
+        Serial.println(rtcTime[3]);
+        rtcTime[3]=7; 
+      }
       makeDateTimeStamp();
-      sprintf(cBuffer,"%s %2d / %2d - %s - secondLoops: %d",dateTimeStamp,last_second,rtcTime[0],dayOfWeek[rtcTime[3]],secondLoops);
+      sprintf(cBuffer,"%s %2d / %2d - %s (%d) - secondLoops: %d",dateTimeStamp,last_second,rtcTime[0],dayOfWeek[rtcTime[3]],rtcTime[3],secondLoops);
       Serial.println(cBuffer);
       sprintf(lcdLine0,"%2d/%2d   %2d:%02d:%02d",rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1],rtcTime[0]);
 
@@ -883,7 +900,7 @@ void loop() {
         check_all_DHT();
         int i=0; //struct tempRule* rule
         for ( tempRule r : daRules ) { 
-          if (!evaluateRule(&r,true)) break ;
+          if (!evaluateRule(&r,false)) break ;
           i++ ; 
         }
 
@@ -892,6 +909,45 @@ void loop() {
         Serial.println(cBuffer);
         Serial.print(i);
         Serial.println(" done rules...");
+
+        int watts = 5;
+        Serial.print("Relays: ");
+        for (int i=0; i < numRELAY; i++) {
+          Serial.print((char*)r_names[i]);
+          if ( run_relays[i]) { 
+            Serial.print(": ON "); 
+            watts += r_watts[i];
+            }
+          else { Serial.print(": OFF "); }
+        }
+        Serial.print(" :: ~");
+        Serial.print(watts);
+        Serial.println(" watts");
+
+        if ( last_csv_minute != rtcTime[1] ){
+          last_csv_minute = rtcTime[1];
+          Serial.print("CSV_HEADERS,time,\"");
+          for (int i=0; i<numHT; i++){
+            Serial.print(HT_names[i]);
+            Serial.print("\",\"");
+          }
+          for (int i=0; i<numRELAY; i++){
+            Serial.print((char*)r_names[i]);
+            Serial.print("\",\"");
+          }
+          Serial.println("\",");
+          sprintf(cBuffer,"CSV_VALUES, 20%02d/%02d/%02d %02d/%02d,",rtcTime[6],rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1]);
+          Serial.print(cBuffer);
+          for (int i=0; i<numHT; i++){
+            if (dht_reads[i].iF != 255) { Serial.print(dht_reads[i].strF); }
+            Serial.print(",");
+          }
+          for (int i=0; i<numRELAY; i++){
+            Serial.print(run_relays[i]);
+            Serial.print(",");
+          }
+          Serial.println(",");
+        }
 
     } else {
       counterHigh--;
