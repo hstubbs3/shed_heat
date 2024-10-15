@@ -125,7 +125,7 @@ bool evaluateRule( struct tempRule* rule, bool verbose=true){
         return false;
         break;
     case ruleDHT_LT_TARGET_DHT:
-        if ( dht_reads[rule->a].iF < dht_reads[rule->b].iF ) {
+        if ( dht_reads[rule->a].iF < dht_reads[rule->b].iF && !run_relays[rule->r]) {
            sprintf(cBuffer, "EvaluateRule : %s - DHT_LT_TARGET_DHT - %s : %s F < %s : %s F - switching on %d %s",rule->d, HT_names[rule->a], dht_reads[rule->a].strF,HT_names[rule->b], dht_reads[rule->b].strF,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=true; // relay will switch on loop... 
