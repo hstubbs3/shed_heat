@@ -129,7 +129,7 @@ bool evaluateRule( struct tempRule* rule, bool verbose=true){
            sprintf(cBuffer, "EvaluateRule : %s - DHT_LT_TARGET_DHT - %s : %s F < %s : %s F - switching on %d %s",rule->d, HT_names[rule->a], dht_reads[rule->a].strF,HT_names[rule->b], dht_reads[rule->b].strF,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=true; // relay will switch on loop... 
-        } else if ( dht_reads[rule->a].iF > dht_reads[rule->b].iF && run_relays[rule->r]) {
+        } else if ( dht_reads[rule->a].iF >= dht_reads[rule->b].iF && run_relays[rule->r]) {
            sprintf(cBuffer, "EvaluateRule : %s - DHT_LT_TARGET_DHT - %s : %s F < %s : %s F - switching off %d %s",rule->d, HT_names[rule->a], dht_reads[rule->a].strF,HT_names[rule->b], dht_reads[rule->b].strF,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=false; // relay will switch on loop... 
@@ -145,8 +145,8 @@ bool evaluateRule( struct tempRule* rule, bool verbose=true){
            sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s < %d F - switching on %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=true; // relay will switch on loop... 
-        } else if ( dht_reads[rule->a].iF > rule->b && run_relays[rule->r]) {
-           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s > %d F - switching off %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
+        } else if ( dht_reads[rule->a].iF >= rule->b && run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s >= %d F - switching off %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=false; // relay will switch on loop... 
           
@@ -202,12 +202,12 @@ struct tempRule daRules[] = {
     { "xfer:  res>sand", ruleDHT_LT_TARGET_DHT, HT_SAND, HT_RESERVOIR, R_XFER }, //1
     { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT }, //2
     { "f0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_FAN }, //3
-    { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_LOOP}, //4  so the system doesn't freeze... using 30 to account for salt water...
-    { "x: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_XFER}, //5
-    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_HEAT }, //6
-    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATSINK, HEAT_ELEMENT_MAX_TEMP, R_HEAT }, //7
-    { "End Of List", ruleEND_LIST,0,0,0 }, //8
-    { "End Of List", ruleEND_LIST,0,0,0 }, //9
+    { "x: sand<comfy", ruleDHT_LT_TEMP_ON,HT_SAND, ComfyTemp, R_XFER }, //4 activate XFER if sand battery low..
+    { "h0: sand<comfy",ruleDHT_LT_TEMP_ON,HT_SAND, ComfyTemp, R_HEAT }, //5 activate heat if sand battery low.. 
+    { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_LOOP}, //6  so the system doesn't freeze... using 30 to account for salt water...
+    { "x: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_XFER}, //7
+    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_HEAT }, //8
+    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATSINK, HEAT_ELEMENT_MAX_TEMP, R_HEAT }, //9
     { "End Of List", ruleEND_LIST,0,0,0 }, //10
     { "End Of List", ruleEND_LIST,0,0,0 }, //11
     { "End Of List", ruleEND_LIST,0,0,0 }, //12

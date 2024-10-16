@@ -449,14 +449,44 @@ info@ncaks.com - speedy cash - email copy police report
 1020 	hmmm.. its not writing the .csv for some reason... will deal with later, patched a cron in for now..
 
 
+1800 	so... let's see.. lots of crazy stuff.. I made a DHT11 waterproof so I could stuff it down in the reservoir..
+		updated the code earlier... made some minor tweaks since then, nothing really needing to be pushed yet..
+
+		Maybe should analyze some data so far.. see when system is "failing" ? start a chart up?
+																shed<69, ambi<60
+				3PM res-ambi 	hour res<=69 	hour sand<=69 	shed-ambi<10 	5AM shed-ambi
+		10/13 	+24 			midnight 			midnight 	0400			 +1
+		10/14 	+21 			midnight 			midnight 	0400			---
+		10/15 	+22 
+
+		ok.. so we is losing the fight with ambient... 
+		reservoir sensor is a little glitchy.. seems to be going in ERR state every 3rd or 4th time.. 
+		maybe it isn't so good at swimming after all..
+
+1807 	SAND at 94? where was it yesterday? was 89! ... wow... ok.. reservoir was 83 like it is now.. shed was +5 
+		yesterday this time.. ok.. interestink...
+
+1830 	hanging out in the shed kicking off update for work laptop.. 
 
 
 
 
 
 
+2024/10/16
+0830 	added about 3 gallons water to the reservoir to cover the xfer port and about 6 Lbs of rock salt.
+		Just dumped the rock salt in away from the uptakes, will have to see how well it dissolves later.
 
+1020	In the process of moving the system back into place, kinda mucked up some connections... spent next
+		2 hours redoing connections, barely got it going again just now.
 
+		Last night looked really promising - at 0830 shed stayed about 67 F, ambient was down to 61 F ... 
+		Reservoir was at 63 F, sand was 66 F ... so overall kept ~5 F over ambient.. will have to see how the salt
+		impacts collection / retention before adding more things to the system
 
-
-
+																shed<69, ambi<60
+				3PM res-ambi 	hour res<=69 	hour sand<=69 	shed-ambi<10 	5AM shed-ambi
+		10/13 	+24 			midnight 			midnight 	0400			 +1
+		10/14 	+21 			midnight 			midnight 	0400			---
+		10/15 	+22 			0100 				0300 		amb>60		     +6
+		10/16 	
