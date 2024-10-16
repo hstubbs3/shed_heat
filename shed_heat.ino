@@ -1,4 +1,5 @@
 #define ComfyTemp 69
+#define ComfyFoot 90
 #define HEAT_ELEMENT_MAX_TEMP 120
 #define setupDelayTime 100
 
@@ -8,13 +9,14 @@ char cBuffer[128];
 //temp sensors
 #include <DHT.h>
 
-#define numHT 6
+#define numHT 7
 char shed[] = "SHED";
 char ambient[] = "AMBIENT";
 char resevoir[] = "RESERVOIR";
 char sand[] = "SAND";
 char heatsink[] = "HEATSINK";
 char roof[] = "ROOF";
+char foot[] = "FOOTER";
 char missingno[] = "NOT HERE";
 
 //this ordering is to reflect how the heat from the roof panel should flow to the shed...
@@ -24,11 +26,12 @@ enum eHT: byte {
   HT_SAND=2,
   HT_RESERVOIR=3,
   HT_ROOF=4,
-  HT_AMBIENT=5
+  HT_AMBIENT=5,
+  HT_FOOT=6
   } ;
 
-char *HT_names[] = {(char*)&shed,(char*)&heatsink,(char*)&sand,(char*)&resevoir,(char*)&roof,(char*)&ambient,(char*)&missingno};
-byte HT_Pins[] = {24,25,26,27,28,29} ;
+char *HT_names[] = {(char*)&shed,(char*)&heatsink,(char*)&sand,(char*)&resevoir,(char*)&roof,(char*)&ambient,(char*)&foot,(char*)&missingno};
+byte HT_Pins[] = {24,25,26,27,28,29,30} ;
 
 DHT dht[] ={
   {24,DHT11},
@@ -37,6 +40,7 @@ DHT dht[] ={
   {27,DHT11},
   {28,DHT11},
   {29,DHT11},  
+  {30,DHT11}
 };
 
 struct dht_readout { 
@@ -85,16 +89,17 @@ void check_all_DHT(){
 }
 
 //relays
-#define numRELAY 4
-enum relays: byte {R_LOOP=0,R_XFER=1,R_FAN=2,R_HEAT=3}; 
-char heatloop[]="LOOP PUMP";
-char xfer[]="XFER PUMP";
-char heatfan[]="HEAT FAN";
-char heatelem[]="110V AC HEAT";
-void *r_names[]={&heatloop,&xfer,&heatfan,&heatelem};
+#define numRELAY 5
+enum relays: byte {R_LOOP=0,R_XFER=1,R_FAN=2,R_HEAT=3,R_FOOT=4}; 
+char heatloop[]="LOOP_PUMP";
+char xfer[]="XFER_PUMP";
+char heatfan[]="HEATER_FAN";
+char heatelem[]="HEATER";
+char footwarm[]="FOOT_WARMER";
+void *r_names[]={&heatloop,&xfer,&heatfan,&heatelem,&footwarm};
 bool run_relays[numRELAY];
-byte r_pins[]={12,11,10,9};
-int r_watts[]={100,20,10,150};
+byte r_pins[]={12,11,10,9,8};
+int r_watts[]={100,20,10,150,100};
 
 
 enum ruleTypes: byte { ruleEND_LIST,ruleDHT_TARGET_TEMP_ON_HIGH, ruleDHT_TARGET_TEMP_ON_LOW, ruleDHT_LT_DHT_ON, ruleDHT_LT_DHT_OFF, ruleDHT_GT_DHT_ON, ruleDHT_GT_DHT_OFF, ruleDHT_LT_TARGET_DHT, ruleDHT_GT_TEMP_OFF, ruleDHT_LT_TEMP_ON };
@@ -202,14 +207,14 @@ struct tempRule daRules[] = {
     { "xfer:  res>sand", ruleDHT_LT_TARGET_DHT, HT_SAND, HT_RESERVOIR, R_XFER }, //1
     { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT }, //2
     { "f0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_FAN }, //3
-    { "x: sand<comfy", ruleDHT_LT_TEMP_ON,HT_SAND, ComfyTemp, R_XFER }, //4 activate XFER if sand battery low..
-    { "h0: sand<comfy",ruleDHT_LT_TEMP_ON,HT_SAND, ComfyTemp, R_HEAT }, //5 activate heat if sand battery low.. 
-    { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_LOOP}, //6  so the system doesn't freeze... using 30 to account for salt water...
-    { "x: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_XFER}, //7
-    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_HEAT }, //8
-    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATSINK, HEAT_ELEMENT_MAX_TEMP, R_HEAT }, //9
-    { "End Of List", ruleEND_LIST,0,0,0 }, //10
-    { "End Of List", ruleEND_LIST,0,0,0 }, //11
+    { "foot warmer", ruleDHT_TARGET_TEMP_ON_LOW, HT_FOOT, ComfyFoot, R_FOOT }, //4
+    { "x: sand<comfy", ruleDHT_LT_TEMP_ON,HT_SAND, ComfyTemp, R_XFER }, //5 activate XFER if sand battery low..
+    { "h0: sand<comfy",ruleDHT_LT_TEMP_ON,HT_SAND, ComfyTemp, R_HEAT }, //6 activate heat if sand battery low.. 
+    { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_LOOP}, //7  so the system doesn't freeze... using 30 to account for salt water...
+    { "x: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_XFER}, //8
+    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_HEAT }, //9
+    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATSINK, HEAT_ELEMENT_MAX_TEMP, R_HEAT }, //10
+    { "hot foot!!!!", ruleDHT_GT_TEMP_OFF, HT_FOOT, HEAT_ELEMENT_MAX_TEMP, R_FOOT }, //11
     { "End Of List", ruleEND_LIST,0,0,0 }, //12
     { "End Of List", ruleEND_LIST,0,0,0 }, //13
     { "End Of List", ruleEND_LIST,0,0,0 }, //14

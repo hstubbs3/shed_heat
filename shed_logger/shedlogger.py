@@ -49,7 +49,7 @@ else :
 
 
 counterLabel=tk.Label(root, text="...",fg='#0f8',bg='#000',font=daFontHeader)
-counterLabel.pack(side="top")
+#counterLabel.pack(side="top")
 
 master_frame = tk.Frame(root)
 master_frame.configure(bg="black")
@@ -70,7 +70,8 @@ temps = {
 	"SAND":"222",
 	"RESERVOIR":"222",
 	"ROOF":"222",
-	"AMBIENT":"222"
+	"AMBIENT":"222",
+	"FOOTER":"222"
 }
 
 blahBitmap = tk.BitmapImage(data="""
@@ -155,7 +156,7 @@ static char im_bits[] = {
 
 
 lines = [ ]
-for lineNum in range(6):
+for lineNum in range(7):
 	lineFrame=tk.Frame(frame_right)
 	lines.append([tk.Label(frame_left, text=f"{lineNum}",fg='#0f8',bg='#000',font=daFontHeader),
 		lineFrame,

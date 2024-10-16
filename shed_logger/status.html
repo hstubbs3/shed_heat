@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HFS3001 SHED HVAC THING</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="icon" href="images/thumbnail_icon.ico" />
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"
+      integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw=="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <canvas id="myChart" width="100" height="40"></canvas>
+    <script>
+      d3.csv("shed.csv.txt").then(makeChart);
+
+      //time,"SHED","HEATSINK","SAND","RESERVOIR","ROOF","AMBIENT","LOOP PUMP","XFER PUMP","HEAT FAN","110V AC HEAT","",
+      function makeChart(players) {
+        var timestamps = players.map(function (d) {
+          return d.time;
+        });
+        var footer = players.map(function (d) {
+          return d.FOOTER;
+        });
+        var shed = players.map(function (d) {
+          return d.SHED;
+        });
+
+        var heatsink = players.map(function (d) {
+          return d.HEATSINK;
+        });
+
+        var sand = players.map(function (d) {
+          return d.SAND;
+        });
+
+        var reservoir = players.map(function (d) {
+          return d.RESERVOIR;
+        });
+
+        var roof = players.map(function (d) {
+          return d.ROOF;
+        });
+
+        var ambient = players.map(function (d) {
+          return d.AMBIENT;
+        });
+
+        var chart = new Chart("myChart", {
+          type: "line",
+          data: {
+            labels: timestamps,
+            datasets: [
+              {
+                data: footer, label: "FOOTER", borderColor: "#FF8888", fill : false
+              },
+              {
+                data: shed, label: "SHED", borderColor: "#000000", fill : false
+              },
+              {
+                data: heatsink, label: "HEATSINK", borderColor: "#FF0000", fill : false
+              },
+              {
+                data: sand, label: "SAND", borderColor: "#888800", fill : false
+              },
+              {
+                data: reservoir, label: "RESERVOIR", borderColor: "#008888", fill : false
+              },
+              {
+                data: roof, label: "ROOF", borderColor: "#AA4422", fill : false
+              },
+              {
+                data: ambient, label: "AMBIENT", borderColor: "#888888"
+              },
+            ]
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

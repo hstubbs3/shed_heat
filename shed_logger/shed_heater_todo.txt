@@ -482,7 +482,24 @@ info@ncaks.com - speedy cash - email copy police report
 
 		Last night looked really promising - at 0830 shed stayed about 67 F, ambient was down to 61 F ... 
 		Reservoir was at 63 F, sand was 66 F ... so overall kept ~5 F over ambient.. will have to see how the salt
-		impacts collection / retention before adding more things to the system
+		impacts collection / retention before adding more things to the system.
+
+		For visualization, timeline/graph of temps, which relays were on, watts used, and which rules active..?
+
+pi@raspberrypi:~ $ grep CSV_HEADER `ls /home/pi/shed_heat*.log | tail -1 ` | head -n 1 | cut -d',' -f2-
+time,"SHED","HEATSINK","SAND","RESERVOIR","ROOF","AMBIENT","LOOP PUMP","XFER PUMP","HEAT FAN","110V AC HEAT","",
+pi@raspberrypi:~ $ grep CSV_VALUES `ls /home/pi/shed_heat*.log | tail -1 ` | head -n 1 | cut -d' ' -f2-
+2024/10/16 10:17,69.80,86.36,64.76,63.32,106.88,65.48,1,0,0,0,,
+
+1300 	OK is kinda silly but yay I haz graph of last 3 hours temps...
+
+1400 	prepping up the foot warmer ... 12V DC heater elements / ~100 watts
+1415 	attempting compile for foot warmer add.. setting comfyfoot to 90 for now..
+		rejigger the shedlogger.py for the RPI ..
+1420 	uploading updated sketch
+1425 	OK seems working..
+
+
 
 																shed<69, ambi<60
 				3PM res-ambi 	hour res<=69 	hour sand<=69 	shed-ambi<10 	5AM shed-ambi
