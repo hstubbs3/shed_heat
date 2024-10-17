@@ -500,10 +500,29 @@ pi@raspberrypi:~ $ grep CSV_VALUES `ls /home/pi/shed_heat*.log | tail -1 ` | hea
 1425 	OK seems working..
 
 
+1745 	Ooo... tomorrow supposed to be rain/thunderstorms, high of 55 F... should be good test of the system for sure.
 
-																shed<69, ambi<60
-				3PM res-ambi 	hour res<=69 	hour sand<=69 	shed-ambi<10 	5AM shed-ambi
-		10/13 	+24 			midnight 			midnight 	0400			 +1
-		10/14 	+21 			midnight 			midnight 	0400			---
-		10/15 	+22 			0100 				0300 		amb>60		     +6
-		10/16 	
+2024/10/17
+0800 	shed was down to 60 F vs 55 F ambient... moving the sensor on the heater to the top by the fan, it is only
+		registering about 67 F... but the _sand_ in the heater is very warm, probably closer to the ~90 F the sensor
+		was calling out before... So the heater is warming a 5 gallon bucket - the duct of sand... that isn't really
+		gonna fly, the sand isn't radiative enough and the heater isn't powerful enough...
+
+		Also have some small leaks in the XFER system... at the pump and junction to the heater.. For now will just set
+		something to catch the water and monitor loss.. Reservoir level is OK ...
+
+0815	maybe need to construct different type of heater? but first maybe just disable the fan relay?  
+		may need to add multiple conditions to rules... wanted to make some conditions maybe for day/night...
+
+		Also some way to display rules and determine which are active... possibly also edit rules and allow for 
+		overrides...
+		
+
+
+
+				3PM						hours									shed<69, ambi<60
+				res-ambi	sand-ambi 	shed<=69 	res<=69 	sand<=69 	 	shed-ambi<10 	5AM shed-ambi
+		10/13 	+24 		+13			0100		midnight 	midnight 	 	0400			 +1
+		10/14 	+21 		+10			2200		midnight 	midnight 	 	0400			---
+		10/15 	+23 		+26			2100		0100 		0300 			amb>60		     +6
+		10/16 	+16 		+11 	
