@@ -516,7 +516,101 @@ pi@raspberrypi:~ $ grep CSV_VALUES `ls /home/pi/shed_heat*.log | tail -1 ` | hea
 
 		Also some way to display rules and determine which are active... possibly also edit rules and allow for 
 		overrides...
-		
+
+		the logger opening a new file every time is also kinda bad? would be better using logrotate or something?
+
+
+0930 	uhoh.. I def have a leak somewhere.. not xfer though.. killing 12V and checking..
+
+0935 	leak was apparently from under west wall.. oof, I forgot to seal that.. resuming 12V
+
+0940 	updating sketch on the arduino so can match csv formatting using logger..
+
+0952 	OK seems things running stable now.. didn't even build out the better heater though.. should get on that
+		is kinda cold in here... 
+
+		wanted to add relay data to CSV status.html... looks like last 3 hours should be OK though?
+
+1010 	fuck... nevermind building heater.. just go get a coat.. and maybe a towel for this leak..
+
+1015 	HEATER relay was oops disconnected... dunno how long.. reconnected
+
+1020 	running HEATER without HEATER FAN , sensor placed in under cowl in front of fan...
+
+1030 	OK heater 77, SHED 62 which _is_ +10 ambient... so had to ditch the fan? ... 
+		should reprogram so runs fan if HEATER > SHED ...  yeah.. gonna go ahead with that..
+
+1625	overriding FOOT_WARMER relay to force heat to see if can get above +12 F v ambient with just power..
+		will try to keep it under 120.. lol 
+1640 	pulling the override - hit ~121.. will have to see if that has any effect..
+
+
+2024/10/18
+0830 	is only about 45 F in the shed.. ambient is at 38 F... Was rainy yesterday, highs in the 50s.. 
+0855	SAND is drained for sure... need to warm up, not sure exactly how will accomplish this
+		Last night I tried using part of the old dryer heating element but it just shorted out...
+		The entire element was drawing ~1300 watts at first, way too much for continued use.. and with the element
+		cut now, not sure I could fire it up if I wanted to? 
+		Maybe the heat gun?
+
+0900 	The larger part of the old dryer heating element started drawing ~1700 watts before dropping to ~1500 watts
+		is a bit too much for any sort of continued use.. 
+0910	getting all the element out of the sand helped a lot, was dropping below 1500 watts but then I moved it a 
+		little and accidentally ground faulted.. so grabbed the heat gun.. hehe
+0915 	heat gun on low is ~650 watts... brought heater up to 100 F with that for testing..
+0920 	shed 51 F and falling back down... but this did suggest placement of the elements on the heater is suboptimal
+		as even at >100F at the temperature sensor, the elements drew 200 watts when I plugged them back in..
+		So system is using power to warm the Xfer stuff rather than the shed directly? 
+		I have more AC elements on order, due to arrive Sunday.. so for now maybe stick to the heat gun?
+0925 	shed 50, heater 50, ambient 39... seems stable... 50 is a little cold but not too bad.
+		Maybe just try to see how long would have to boost to get shed to 69 F in this state? 
+0930	Using the heat gun on low, aimed at the back of the heater duct until heater is ~120, then repeating when
+		heater < 100 ?
+		So took less then 5 minutes to jump the heater +70 ish F to 120.. relay kicked off at 122 is when I stopped.
+		but it only took about 2 mins to get <100 again.. would need more oomph to sustain it..
+		so starting 0928 , turning of 0932 - 4 minutes @ 650 watts.. then 0935 hit 69 - 650*4/7=371 additional watts
+		needed to keep the heater at 69? the relay cut out for about a minute maybe? so (650*4 - 150 )/7 additional...
+		still >350 watts.. I think I'll just try doing the added heat elements away from the sand and just firing up them
+		for shed heat see how that goes?
+0940 	oh wow, the xfer pump is triggering cuz sand 47 < res 50 but is kinda suboptimal cuz could pull the heater down?
+		Or is this how the SAND has been slowly recharged the last few days???
+0945	Should be fine.. Even with that it is holding +10 F with me sitting in the shed.. so??
+
+
+1445 	Just some thoughts on the setup here... Currently the 'heater' that is in place seems most effective at maintaining
+		the reservoir temperature really? Like where the heating elements are placed it isn't so effective at blowing warm
+		air for the shed itself.
+		So a secondary xfer loop to another sand battery towards the back of the shed with a heater duct setup more to warm
+		the air makes sense.. like it wouldn't even have to suck air through the sand at all, just the duct would be anchored
+		in the sand to be able to get warmth from it? hmmm.... will have to give it a think and build it out later..
+		Should have at least 1 temperature sensor and a fan for it, but also would need to run AC to it? may need to get
+		more 12 AWG wire or canabalize an extension cord?? 
+
+		And build a new foot warmer using the tote so its wider / shorter to be more comfy? 
+
+1545 	trying to use the heat gun on low, aimed at top of sand battery...
+1550 	oops, melted hole in home depot bucket of the sand battery... yay fumes.. lol
+1600 	no effecet on sand battery observed, shed is at 60.26 vs ambient 44.24 though.. so can see how fast it drops 1 F
+		like this?
+
+		so applied heat of 650 watts for 15 mins - 650*15 ... temperature 57.02 to 60.98 - 650/4 = 162.5 watts/*F
+		or 125 watts gave me 57 vs 44= 13 .. without counting battery or anything.. 125/13 is about 10 watts/*F ...
+		(650+125) = 17 F .. 800=17 F... ~50 watts/*F ... 
+
+		800 +y = 17x
+		150 +y = 13x
+		650    =  4x
+		x = 162.5 watts/F 
+		1605 got to 61 ... 650 watts for 15 mins (900s) is 585 K Joules ... raising 4 F - 4*5/9 = ~2.22*C
+		air is specific heat about 1? .. 585 KJ / 2.22*C / (1 KJ/KG*C) => 263 Kg which is 579 Lb ... hmmm.. no 
+		that don't sound right... 
+		At 70 °F and 14.696 psi, dry air has a density of 0.074887 lb/ft3
+		10*8*6=480 * 0.075 = 36 Lbs.. 16.3293 Kg .. so say 16.5 Kg or even 17 Kg... 17 Kg/ (1 KJ/(KG*C))= 17 KJ/*C
+		5*C/9*F * 17 KJ/*C = ~10 KJ/*F ... so need to build 150 KJ of energy to be +15*F .. 
+		what's that radiative thing again? oh right is to the 4th power or something... 
+		5.67*10^-8 * E * A * K^4 ...
+
+		so 45F in kelvin is 280 .. +15
 
 
 
@@ -525,4 +619,48 @@ pi@raspberrypi:~ $ grep CSV_VALUES `ls /home/pi/shed_heat*.log | tail -1 ` | hea
 		10/13 	+24 		+13			0100		midnight 	midnight 	 	0400			 +1
 		10/14 	+21 		+10			2200		midnight 	midnight 	 	0400			---
 		10/15 	+23 		+26			2100		0100 		0300 			amb>60		     +6
-		10/16 	+16 		+11 	
+		10/16 	+16 		+11 		0200 		0300 		0700 			0500 	64/59 	 +5
+		10/17 	+11 		+12 		always 		always 		always 			1800 	61/52 	 +5 	43/38 	rainy!
+		10/18 	+14 57/43 	+15 58/43 	always 		partly cloudy 
+
+2024/10/23
+0900	was working on stuff for this but not noting it.. hehe.. working on new fonts and a different info display.
+		Maybe should grab the 64x32 to do a large number display, just for the shed temp? hmmm..
+
+		for now, want date, time, 9 temps, and possibly power usage.. and relay statuses.. so like 12 lines of info?
+		and how many characters across??
+	if I use a 3xY font, can have up to 16 chars across the rotated display...
+	date/time show up on the LCD ... don't need them also on the OLED do I ? hmm...
+
+	0123456789ABCDEF 	notes
+0 	SHED 100F 			label of 4 chars - 9 chars total, 7px wide (fixed..)
+1 	SAND1 100F 			label of 5 chars - 10 chars total, 6px wide
+2 	SAND2
+3 	RESERVOIR 100F 		label of 9 chars - 14 chars total, 4px wide
+4 	ROOF
+5 	AMBIENT 100F
+6 	FOOT
+7 	HEATER1
+8 	HEATER2
+
+maybe not fixed width font? 
+R 4 S 3 E 3 V 4 O 4 I 2 R 4 
+RESERVOIR
+433344424 = 31 px? 
+maybe as a bitmap and fill in temps using a font? 
+128/9=14... leaves 2 px at the bottom... could do relays tiny maybe? 
+
+°F => make this 1 character? or at least bake into the display -  7px.. 57 left. 
+Then no space before number - label of 4 becomes .. 
+so could use the 8x12 font? but even the 8x12 font had 1 pixel along each side.. and only touched bottom on few chars..
+so a vertical of 13 is fine, use 7px for °F for 57 left.. if >99 then could draw a line instead of putting actual '1'..
+so 55 left for 2 digits and a label.. if the label takes up 31 (4x 8xY), leaves 24 for the digits.. 12x13 digits?!?
+
+actually, that seems ridiculous.. 9x13 maybe.. maybe.. 
+ok so doing the whole thing either in multiple fonts or bg / overlay data.. 
+backspace thingy no work.. so going to say 3x8 letters for labels, apparently can only get 7 unless I do something funky?
+
+
+
+1345 	woot! got it working enough to see all the temps now. now to set it to be the default mode.. 
+1355 	set to default and formatting OK .. sweet.

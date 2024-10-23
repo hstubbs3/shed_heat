@@ -9,29 +9,33 @@ char cBuffer[128];
 //temp sensors
 #include <DHT.h>
 
-#define numHT 7
+#define numHT 9
 char shed[] = "SHED";
 char ambient[] = "AMBIENT";
 char resevoir[] = "RESERVOIR";
-char sand[] = "SAND";
-char heatsink[] = "HEATER";
+char sand[] = "SANDA";
+char heatsink[] = "HEATERA";
 char roof[] = "ROOF";
-char foot[] = "FOOTER";
+char foot[] = "FOOTWARM";
 char missingno[] = "NOT HERE";
+char sand2[] = "SANDB";
+char heater[] = "HEATERB" ;
 
 //this ordering is to reflect how the heat from the roof panel should flow to the shed...
 enum eHT: byte {
   HT_SHED=0,
-  HT_HEATSINK=1,
-  HT_SAND=2,
+  HT_SAND1=1,
+  HT_SAND2=2,
   HT_RESERVOIR=3,
   HT_ROOF=4,
   HT_AMBIENT=5,
-  HT_FOOT=6
+  HT_FOOT=6,
+  HT_HEATSINK=7,
+  HT_HEATER=8,
   } ;
 
-char *HT_names[] = {(char*)&shed,(char*)&heatsink,(char*)&sand,(char*)&resevoir,(char*)&roof,(char*)&ambient,(char*)&foot,(char*)&missingno};
-byte HT_Pins[] = {24,25,26,27,28,29,30} ;
+char *HT_names[] = {(char*)&shed,(char*)&sand,(char*)&sand2,(char*)&resevoir,(char*)&roof,(char*)&ambient,(char*)&foot,(char*)&heatsink,(char*)&heater,(char*)&missingno};
+byte HT_Pins[] = {24,25,26,27,28,29,30,31,32} ;
 
 DHT dht[] ={
   {24,DHT11},
@@ -40,7 +44,9 @@ DHT dht[] ={
   {27,DHT11},
   {28,DHT11},
   {29,DHT11},  
-  {30,DHT11}
+  {30,DHT11},
+  {31,DHT11},
+  {32,DHT11}
 };
 
 struct dht_readout { 
@@ -89,17 +95,30 @@ void check_all_DHT(){
 }
 
 //relays
-#define numRELAY 5
-enum relays: byte {R_LOOP=0,R_XFER=1,R_FAN=2,R_HEAT=3,R_FOOT=4}; 
-char heatloop[]="LOOP_PUMP";
-char xfer[]="XFER_PUMP";
-char heatfan[]="HEATER_FAN";
-char heatelem[]="HEATER";
+#define numRELAY 8
+enum relays: byte {R_LOOP=0,R_XFER1=1,R_XFER2=2,R_HEAT1FAN=3,R_HEAT2FAN=4,R_HEAT1=5,R_HEAT2=6,R_FOOT=7}; 
+char heatloop[]="LOOP_PUMP";  
+char xfer1[]="XFER1_PUMP";
+char xfer2[]="XFER2_PUMP";
+char heatfan[]="HEATER1_FAN";
+char heatelem[]="HEATER1_ELEMENT";
 char footwarm[]="FOOT_WARMER";
-void *r_names[]={&heatloop,&xfer,&heatfan,&heatelem,&footwarm};
+char heat1fans[] = "HEATER2_FANS";
+char heatelem1[] = "HEATER2_ELEMENT";
+
+char *r_names[]={(char *)&heatloop,(char *)&xfer1,(char *)&xfer2,(char *)&heat1fans,(char *)&heatfan,(char *)&heatelem1,(char *)&heatelem,(char *)&footwarm};
 bool run_relays[numRELAY];
-byte r_pins[]={12,11,10,9,8};
-int r_watts[]={100,20,10,150,100};
+byte r_pins[]={12,11,10,9,8,7,6,5};
+int r_watts[]={
+  100, // loop pump
+  20, // xfer 1
+  20, // xfer 2
+  30, // heat 1 fans
+  10, // heat 2 fan
+  200, // heater 1
+  125,// heater 2
+  100 // foot warmer
+  };
 
 
 enum ruleTypes: byte { ruleEND_LIST,ruleDHT_TARGET_TEMP_ON_HIGH, ruleDHT_TARGET_TEMP_ON_LOW, ruleDHT_LT_DHT_ON, ruleDHT_LT_DHT_OFF, ruleDHT_GT_DHT_ON, ruleDHT_GT_DHT_OFF, ruleDHT_LT_TARGET_DHT, ruleDHT_GT_TEMP_OFF, ruleDHT_LT_TEMP_ON };
@@ -204,21 +223,29 @@ char ruleF[]="end of list";
 struct tempRule daRules[] = {
 //  { "0123456789ABCDE",  rule type, a, b, r }, 
     { "main: roof>res", ruleDHT_LT_TARGET_DHT, HT_RESERVOIR, HT_ROOF, R_LOOP }, //0
-    { "xfer:  res>sand", ruleDHT_LT_TARGET_DHT, HT_SAND, HT_RESERVOIR, R_XFER }, //1
-    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT }, //2
-    { "f0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_FAN }, //3
+    { "xfer1:  res>sandA", ruleDHT_LT_TARGET_DHT, HT_SAND1, HT_RESERVOIR, R_XFER1 }, //1
+    { "xfer2:  res>sandB", ruleDHT_LT_TARGET_DHT, HT_SAND2, HT_RESERVOIR, R_XFER1 }, //1
+    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT1 }, //2
+    { "f0: shed<heater", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATSINK, R_HEAT1FAN }, //3
+    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT2 }, //2
+    { "f0: shed<heater", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATER, R_HEAT2FAN }, //3
     { "foot warmer", ruleDHT_TARGET_TEMP_ON_LOW, HT_FOOT, ComfyFoot, R_FOOT }, //4
-    { "x: sand<comfy", ruleDHT_LT_TEMP_ON,HT_SAND, ComfyTemp, R_XFER }, //5 activate XFER if sand battery low..
-    { "h0: sand<comfy",ruleDHT_LT_TEMP_ON,HT_SAND, ComfyTemp, R_HEAT }, //6 activate heat if sand battery low.. 
+//    { "x: sand<comfy", ruleDHT_LT_TEMP_ON,HT_SAND, ComfyTemp, R_XFER }, //5 activate XFER if sand battery low..
+//    { "h0: sand<comfy",ruleDHT_LT_TEMP_ON,HT_SAND, ComfyTemp, R_HEAT }, //6 activate heat if sand battery low.. 
     { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_LOOP}, //7  so the system doesn't freeze... using 30 to account for salt water...
-    { "x: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_XFER}, //8
-    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_HEAT }, //9
-    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATSINK, HEAT_ELEMENT_MAX_TEMP, R_HEAT }, //10
+    { "x: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_XFER1}, //8 ... xfer1 is looped with heater 1 / sand 1
+    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_HEAT1 }, //9
+    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATSINK, HEAT_ELEMENT_MAX_TEMP, R_HEAT1 }, //10
+    { "h1 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATER, HEAT_ELEMENT_MAX_TEMP, R_HEAT2 }, //10
     { "hot foot!!!!", ruleDHT_GT_TEMP_OFF, HT_FOOT, HEAT_ELEMENT_MAX_TEMP, R_FOOT }, //11
-    { "End Of List", ruleEND_LIST,0,0,0 }, //12
+    { "hot fan!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_HEAT1FAN }, //12
+    { "hot fan!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_HEAT2FAN }, //12
     { "End Of List", ruleEND_LIST,0,0,0 }, //13
     { "End Of List", ruleEND_LIST,0,0,0 }, //14
     { "End Of List", ruleEND_LIST,0,0,0 }, //15 <- so up to 16 rules... 
+    { "End Of List", ruleEND_LIST,0,0,0 }, //13
+    { "End Of List", ruleEND_LIST,0,0,0 }, //13
+    { "End Of List", ruleEND_LIST,0,0,0 }, //13
 };
 
  
@@ -263,6 +290,7 @@ char lcdLine1[]="0123456789ABCDEF";
 #define SCREEN_ADDRESS 0x3D ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+#include "shed_digits.h"
 
 static const unsigned char PROGMEM start_screen[] ={
   0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111,  
@@ -364,6 +392,8 @@ byte textCursorLine=0;
 
 void drawTextScreen(){
   display.clearDisplay();
+  display.setRotation(0);
+  display.setFont();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(0,0);
@@ -559,11 +589,11 @@ void setup() {
 }
 
 int counterLow=1; //setting up a ghetto counter to be like counterHigh is seconds
-int counterMed=1; // tries to be 1/100th second...
+int counterMed=0; // tries to be 1/100th second...
 int counterHigh=1; // ticks once a second..
 int keypress_counter=0; // for reading key presses... 
 char customKey = 0; 
-int mode=0 ; // for switching between menus and screens...
+int mode=3 ; // for switching between menus and screens...
 int oldmode=-1; 
 
 
@@ -644,6 +674,7 @@ void loop() {
     case 0:
       if (customKey=='A'){ mode=1;}
       else if (customKey=='B') { mode=2; }
+      else if (customKey=='C') { mode=3; }
       else if (mode0_display_second != rtcTime[0]){
         mode0_display_second = rtcTime[0];
         display.clearDisplay();
@@ -824,6 +855,38 @@ void loop() {
         strcpy(lcdLine1,setTimeString[setTime[7]]);        
       }
       break;
+    case 3:
+      if (customKey=='A') { mode=0; }
+      else if (mode0_display_second != rtcTime[0]){
+        mode0_display_second = rtcTime[0];
+        display.clearDisplay();
+        display.setTextSize(1); // Draw 1X-scale text
+        display.setTextColor(SSD1306_WHITE);
+        display.setCursor(0,13);
+        for (int i=0 ; i<numHT; i++){
+          strcpy(cBuffer,"---------");
+          for(int j=0; j<9; j++){
+            if(HT_names[i][j] > 0) { cBuffer[j]=HT_names[i][j]; }
+            else { break; }
+          }
+          display.print(cBuffer);
+          if ( dht_reads[i].iF > 200) { display.println(",ERROR"); }
+          else {
+          if ( dht_reads[i].iF > 100 ){ 
+            display.print("/"); 
+            if (dht_reads[i].iF < 110) {display.print("0"); }
+            display.print(dht_reads[i].iF-100);
+          }
+          else { 
+            display.print(","); 
+            if ( dht_reads[i].iF < 10 ) { display.print(" "); }
+            display.print(dht_reads[i].iF); 
+          }
+          display.println("!");
+          } 
+        }
+      }
+      break;
   }
 
   //process switching to other mode...
@@ -834,23 +897,33 @@ void loop() {
       default:
               mode=0;
       case 0:
+        display.setRotation(0);
+        display.setFont();
         mode0_display_second=69;
         break;
       case 1:
         display.clearDisplay();
+        display.setFont();
+        display.setRotation(0);
         display.setTextSize(2); // Draw 1X-scale text
         display.setTextColor(SSD1306_WHITE);
         display.setCursor(16,24);
         display.println("WHAT UP?");
         break;
       case 2:
+        display.setRotation(0);
+        display.setFont();
         strcpy(lcdLine1,"SetTime!    ");
         for (int i=0; i<7; i++) {
           setTime[i]=rtcTime[i];          
         }
-        setTime[7]=0;
-        
+        setTime[7]=0;        
         break;
+      case 3:
+        display.setRotation(1);
+        display.setFont(&shed_digits);
+        mode0_display_second=69;
+        break; 
     }
   oldmode=mode ; 
   lcd.setCursor(0,1);
@@ -894,7 +967,7 @@ void loop() {
       Serial.println(cBuffer);
       sprintf(lcdLine0,"%2d/%2d   %2d:%02d:%02d",rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1],rtcTime[0]);
 
-      counterMed=10;
+      counterMed=1;
 
      if (counterHigh==0){ //stuff to do every 10s
         

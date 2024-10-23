@@ -41,11 +41,50 @@ if len(sys.argv) < 2:
 	except:
 		ser = serial.Serial('/dev/ttyACM1', 9600, 8, 'N', 1, timeout=1)
 	filename = f"shed_heater-{datetime.datetime.now().strftime('%Y-%m-%d--%H-%M-%S')}"
-	LOG = open(f"{filename}.log","wt",encoding="Latin1")
-	CSV = open(f"{filename}.csv","wt",encoding="Latin1")
+	LOG = open(f"shed.log","at",encoding="Latin1")
+	CSV = open(f"shed.csv","at",encoding="Latin1")
 
 else :
 	ser = sys.stdin
+
+csv_lines = []
+
+try:
+	with open("shed.csv","r") as FILE:
+		csv_lines = FILE.readlines()[-24*60:]
+		if csv_lines[0].startswith("time"): csv_lines.pop(0)
+except Exception as e:
+	print("oops opening csv to read...")
+	print(e)
+
+
+def add_csv_line(csv_line):
+	global csv_lines
+	global CSV_Headers
+	csv_lines.append(csv_line) #remove that first bit...
+	if len(csv_lines) >= 24*60: #keep only last 24 hours ...
+		csv_lines.pop(0) # Keep it Simple Stupid!
+
+	with open("shed24.csv","wt",encoding="Latin-1") as FILE:
+		FILE.write(CSV_Headers) 
+		for line in csv_lines:
+			FILE.write(line)
+
+	with open("shed12.csv","wt",encoding="Latin-1") as FILE:
+		FILE.write(CSV_Headers)
+		for line in csv_lines[-12*60:]:
+			FILE.write(line)
+
+	with open("shed6.csv","wt",encoding="Latin-1") as FILE:
+		FILE.write(CSV_Headers)
+		for line in csv_lines[-6*60:]:
+			FILE.write(line)
+
+	with open("shed3.csv","wt",encoding="Latin-1") as FILE:
+		FILE.write(CSV_Headers)
+		for line in csv_lines[-3*60:]:
+			FILE.write(line)
+
 
 
 counterLabel=tk.Label(root, text="...",fg='#0f8',bg='#000',font=daFontHeader)
@@ -66,7 +105,7 @@ main_counter = 0
 
 temps = { 
 	"SHED" : "222",
-	"HEATSINK": "222",
+	"HEATER": "222",
 	"SAND":"222",
 	"RESERVOIR":"222",
 	"ROOF":"222",
@@ -209,24 +248,24 @@ def logloop():
 				elif CSV:
 					if not CSV_Headers:
 						if output.startswith("CSV_HEADERS"):
-							CSV_Headers = output
-							CSV.write(output)
+							CSV_Headers = output[12:] # CSV_HEADERS,time,"SHED",
+							if len(csv_lines) == 0:
+								CSV.write(CSV_Headers)
 					elif output.startswith("CSV_VALUES"):
-						CSV.write(output)
+						add_csv_line(output[12:])
+						CSV.write(output[12:])
 						with open("/var/www/html/shed_current.csv.txt","wt",encoding="Latin-1") as FILE:
 							FILE.write(CSV_Headers)
-							FILE.write(output)
+							FILE.write(output[12:])
 			#else: print("no output this loop")
 
 
 	if loop_counter == 0 :
-		main_counter +=1
-		if main_counter > 99: main_counter=0
 		loop_counter=10
-		counterLabel.configure(text=f'{main_counter}')
 		dateTimeStampVar.set(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"))
 		lineNum=0
 		for (k,v) in temps.items():
+			print(f"window - setting {lineNum} to {k} {v}")
 			lines[lineNum][0].configure(text=f"{k} ")
 			lines[lineNum][2].configure(text=f"{v} °F")
 			lineNum +=1 
