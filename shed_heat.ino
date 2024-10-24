@@ -2,8 +2,9 @@
 #define ComfyFoot 90
 #define HEAT_ELEMENT_MAX_TEMP 120
 #define setupDelayTime 100
+#define WATTS_MILLIS 100
 
-char cBuffer[128];
+char cBuffer[256];
 
 
 //temp sensors
@@ -291,6 +292,7 @@ char lcdLine1[]="0123456789ABCDEF";
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 #include "shed_digits.h"
+#include "shed_font.h"
 
 static const unsigned char PROGMEM start_screen[] ={
   0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111, 0b11111111,  
@@ -496,16 +498,34 @@ void strTimeStamp(char *output){
 
 byte rtcTime[7]; //second, minute, hour, dayOfWeek, dayOfMonth, month, year;
 
+//power monitoring stuffs..
+
+#include <Adafruit_ADS1X15.h>
+Adafruit_ADS1115 ADS;
+
+float voltage_factor = 6.144 / 128*256; //25500.0/4.70; //32767.0/5.0
+float watts_factor = 69/0.24 ;
+int16_t offset = 0 ;
+float last_min_secs[60];
+float run_average = 0;
+int run_counter = 0;
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
+  Serial.println(__FILE__);
 
 
   
   Wire.begin();
+
+  
   strTimeStamp(cBuffer);
 //  displayTime();  
-  Serial.println("init...");
+  ADS.begin();
+  ADS.setGain(0);
+  for (int i=0; i<60; i++) { last_min_secs[i]=0.0; }
+
   lcd.begin(16,2);
   lcd.print("Hello!! ");
   lcd.print(cBuffer);
@@ -629,6 +649,10 @@ void makeDateTimeStamp(){
 }
 
 byte last_csv_minute = -1;
+
+char str_max_min[16];
+char str_run_average[16];
+int int_max_min = 0; 
 
 void loop() {
 /* enum eHT: byte {
@@ -860,6 +884,7 @@ void loop() {
       else if (mode0_display_second != rtcTime[0]){
         mode0_display_second = rtcTime[0];
         display.clearDisplay();
+        display.setFont(&shed_digits);
         display.setTextSize(1); // Draw 1X-scale text
         display.setTextColor(SSD1306_WHITE);
         display.setCursor(0,13);
@@ -885,8 +910,16 @@ void loop() {
           display.println("!");
           } 
         }
-      }
+        display.setFont(&shed_font_4x5_mono);
+        display.setCursor(0,122);
+        for (int i=0 ; i<numRELAY; i++){
+          if (run_relays[i]) { display.print("X"); }
+          else { display.print("_"); }
+       }
+       display.println("");
+        display.print(int_max_min); display.println(" WATTS");
       break;
+      }
   }
 
   //process switching to other mode...
@@ -921,7 +954,6 @@ void loop() {
         break;
       case 3:
         display.setRotation(1);
-        display.setFont(&shed_digits);
         mode0_display_second=69;
         break; 
     }
@@ -962,12 +994,41 @@ void loop() {
         Serial.println(rtcTime[3]);
         rtcTime[3]=7; 
       }
-      makeDateTimeStamp();
-      sprintf(cBuffer,"%s %2d / %2d - %s (%d) - secondLoops: %d",dateTimeStamp,last_second,rtcTime[0],dayOfWeek[rtcTime[3]],rtcTime[3],secondLoops);
-      Serial.println(cBuffer);
-      sprintf(lcdLine0,"%2d/%2d   %2d:%02d:%02d",rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1],rtcTime[0]);
 
       counterMed=1;
+     int16_t maxi = -32000;
+     int16_t mini = 32000;
+     int16_t sample = 0; 
+     
+     unsigned long int stop_at = millis() + WATTS_MILLIS;
+     while (millis() < stop_at ) {
+         sample = ADS.readADC_Differential_0_1();
+        if ( sample < mini ) { mini = sample; }
+        else if (sample > maxi) { maxi = sample; }
+     }
+     int16_t old_offset = offset; 
+    offset = (maxi + mini)/2; 
+    maxi -= offset;
+    mini -= offset;
+    float max_min = watts_factor*ADS.computeVolts((maxi/2 - mini/2)); 
+    dtostrf(max_min,3,2,str_max_min);
+    int_max_min = int(trunc(max_min));
+    run_average -= last_min_secs[run_counter];
+    last_min_secs[run_counter]=max_min/60.0;
+    run_average += last_min_secs[run_counter] ;
+    dtostrf(run_average,3,2,str_run_average);
+    
+    run_counter += 1;
+    if (run_counter >=60) { run_counter=0; }
+  
+      makeDateTimeStamp();
+ //     sprintf(cBuffer,"%s %2d / %2d - %s (%d) - secondLoops: %d - old_offset: %d offset: %d maxi: %d - mini: %d - Watts: %s - last_min_watts: %s",dateTimeStamp,last_second,rtcTime[0],dayOfWeek[rtcTime[3]],rtcTime[3],secondLoops,maxi,mini,str_max_min,str_run_average);
+      sprintf(cBuffer,"%s %2d / %2d - %s (%d) - secondLoops: %d",dateTimeStamp,last_second,rtcTime[0],dayOfWeek[rtcTime[3]],rtcTime[3],secondLoops);
+      Serial.print(cBuffer);
+//      sprintf(cBuffer," - old_offset: %d offset: %d maxi: %d - mini: %d - Watts: %s - last_min_watts: %s",old_offset,offset,maxi,mini,str_max_min,str_run_average);
+      sprintf(cBuffer," - maxi: %d - Watts: %s - last_min_watts: %s",maxi,str_max_min,str_run_average);
+      Serial.println(cBuffer);
+      sprintf(lcdLine0,"%2d/%2d   %2d:%02d:%02d",rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1],rtcTime[0]);
 
      if (counterHigh==0){ //stuff to do every 10s
         
@@ -1004,16 +1065,16 @@ void loop() {
 
         if ( last_csv_minute != rtcTime[1] ){
           last_csv_minute = rtcTime[1];
-          Serial.print("CSV_HEADERS,time,\"");
+          Serial.print("CSV_HEADERS,time,");
           for (int i=0; i<numHT; i++){
             Serial.print(HT_names[i]);
-            Serial.print("\",\"");
+            Serial.print(",");
           }
           for (int i=0; i<numRELAY; i++){
             Serial.print((char*)r_names[i]);
-            Serial.print("\",\"");
+            Serial.print(",");
           }
-          Serial.println("\",");
+          Serial.println("Watts,");
           sprintf(cBuffer,"CSV_VALUES, 20%02d/%02d/%02d %02d:%02d,",rtcTime[6],rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1]);
           Serial.print(cBuffer);
           for (int i=0; i<numHT; i++){
@@ -1024,7 +1085,7 @@ void loop() {
             Serial.print(run_relays[i]);
             Serial.print(",");
           }
-          Serial.println(",");
+          Serial.print(str_run_average); Serial.println(",");
         }
 
     } else {

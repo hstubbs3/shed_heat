@@ -664,3 +664,38 @@ backspace thingy no work.. so going to say 3x8 letters for labels, apparently ca
 
 1345 	woot! got it working enough to see all the temps now. now to set it to be the default mode.. 
 1355 	set to default and formatting OK .. sweet.
+
+2115 	came out to the shed to start building the bigger heater unit.. 
+
+2240 	oops... need something that can withstand high temps to hold the heater elements in place... 
+
+		22:42:30 	triggered 2x heater element test, no fan yet.. starting at 74 F shed 68 ambient 64
+		22:45:00 	 85 	+11 in 2.5 mins = ~4 F / min
+		22:46:00 	 99 	+14 F/min
+		22:47:00 	107 	+8 F/min
+		22:48:00 	112 	+5 F/min
+		22:49:00 	117 	+5 F/min
+		22:50:00 	119 	+2
+		22:50:40 	121 	+2 		cut power to elements
+		22:53:00 	120 	power back on
+		22:55:30 	114 	coming back hot after getting down to 113...
+
+		with the fan, might actually stay on and under cut-off temp? hmm...
+
+2300	OK enough playing with heater stuff an go inside.. 
+
+
+2024/10/24
+0830 	back at the shed.. is 50°F currently in the shed, 47°F ambient.
+		maybe if error it should check sensor every 2s to see if it comes back quicker? hmmm... maybe at later time..
+		For now, am going to work on getting the power meter thing going... 
+
+		to do 'whole shed' will need to make sensored extension cord thingy...
+
+		watts 	volts
+		70 		1.6
+
+1315 	OK.. got it reading approx watts, writing data to serial, csv lines, screen.. cool.. OK 
+
+
+		so 10-15 mins to get up and then 
