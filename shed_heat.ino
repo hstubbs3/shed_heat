@@ -25,14 +25,14 @@ char heater[] = "HEATERB" ;
 //this ordering is to reflect how the heat from the roof panel should flow to the shed...
 enum eHT: byte {
   HT_SHED=0,
-  HT_SAND1=1,
-  HT_SAND2=2,
+  HT_SANDA=1,
+  HT_SANDB=2,
   HT_RESERVOIR=3,
   HT_ROOF=4,
   HT_AMBIENT=5,
   HT_FOOT=6,
-  HT_HEATSINK=7,
-  HT_HEATER=8,
+  HT_HEATERA=7,
+  HT_HEATERB=8,
   } ;
 
 char *HT_names[] = {(char*)&shed,(char*)&sand,(char*)&sand2,(char*)&resevoir,(char*)&roof,(char*)&ambient,(char*)&foot,(char*)&heatsink,(char*)&heater,(char*)&missingno};
@@ -97,27 +97,27 @@ void check_all_DHT(){
 
 //relays
 #define numRELAY 8
-enum relays: byte {R_LOOP=0,R_XFER1=1,R_XFER2=2,R_HEAT1FAN=3,R_HEAT2FAN=4,R_HEAT1=5,R_HEAT2=6,R_FOOT=7}; 
+enum relays: byte {R_LOOP=0,R_XFERA=1,R_XFERB=2,R_HEAT_A_FAN=3,R_HEAT_B_FAN=4,R_HEAT_A=5,R_HEAT_B=6,R_FOOT=7}; 
 char heatloop[]="LOOP_PUMP";  
-char xfer1[]="XFER1_PUMP";
-char xfer2[]="XFER2_PUMP";
-char heatfan[]="HEATER1_FAN";
-char heatelem[]="HEATER1_ELEMENT";
+char xfer1[]="XFERA_PUMP";
+char xfer2[]="XFERB_PUMP";
+char heatfan[]="HEATER_A_FAN";
+char heatelem[]="HEATER_A_ELEMENTS";
 char footwarm[]="FOOT_WARMER";
-char heat1fans[] = "HEATER2_FANS";
-char heatelem1[] = "HEATER2_ELEMENT";
+char heat1fans[] = "HEATER_B_FANS";
+char heatelem1[] = "HEATER_B_ELEMENTS";
 
-char *r_names[]={(char *)&heatloop,(char *)&xfer1,(char *)&xfer2,(char *)&heat1fans,(char *)&heatfan,(char *)&heatelem1,(char *)&heatelem,(char *)&footwarm};
+char *r_names[]={(char *)&heatloop,(char *)&xfer1,(char *)&xfer2,(char *)&heatfan,(char *)&heatelem,(char *)&heat1fans,(char *)&heatelem1,(char *)&footwarm};
 bool run_relays[numRELAY];
 byte r_pins[]={12,11,10,9,8,7,6,5};
 int r_watts[]={
-  100, // loop pump
+  25, // loop pump
   20, // xfer 1
   20, // xfer 2
   30, // heat 1 fans
   10, // heat 2 fan
-  200, // heater 1
-  125,// heater 2
+  120, // heater 1
+  200,// heater 2
   100 // foot warmer
   };
 
@@ -224,29 +224,24 @@ char ruleF[]="end of list";
 struct tempRule daRules[] = {
 //  { "0123456789ABCDE",  rule type, a, b, r }, 
     { "main: roof>res", ruleDHT_LT_TARGET_DHT, HT_RESERVOIR, HT_ROOF, R_LOOP }, //0
-    { "xfer1:  res>sandA", ruleDHT_LT_TARGET_DHT, HT_SAND1, HT_RESERVOIR, R_XFER1 }, //1
-    { "xfer2:  res>sandB", ruleDHT_LT_TARGET_DHT, HT_SAND2, HT_RESERVOIR, R_XFER1 }, //1
-    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT1 }, //2
-    { "f0: shed<heater", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATSINK, R_HEAT1FAN }, //3
-    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT2 }, //2
-    { "f0: shed<heater", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATER, R_HEAT2FAN }, //3
+    { "xfer1:  res>sandA", ruleDHT_LT_TARGET_DHT, HT_SANDA, HT_RESERVOIR, R_XFERA }, //1
+    { "xfer2:  res>sandB", ruleDHT_LT_TARGET_DHT, HT_SANDB, HT_RESERVOIR, R_XFERB }, //1
+    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT_A }, //2
+    { "f0: shed<heater", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATERA, R_HEAT_A_FAN }, //3
+    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT_B }, //2
+    { "f0: shed<heater", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATERB, R_HEAT_B_FAN }, //3
     { "foot warmer", ruleDHT_TARGET_TEMP_ON_LOW, HT_FOOT, ComfyFoot, R_FOOT }, //4
-//    { "x: sand<comfy", ruleDHT_LT_TEMP_ON,HT_SAND, ComfyTemp, R_XFER }, //5 activate XFER if sand battery low..
-//    { "h0: sand<comfy",ruleDHT_LT_TEMP_ON,HT_SAND, ComfyTemp, R_HEAT }, //6 activate heat if sand battery low.. 
-    { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_LOOP}, //7  so the system doesn't freeze... using 30 to account for salt water...
-    { "x: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_XFER1}, //8 ... xfer1 is looped with heater 1 / sand 1
-    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_HEAT1 }, //9
-    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATSINK, HEAT_ELEMENT_MAX_TEMP, R_HEAT1 }, //10
-    { "h1 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATER, HEAT_ELEMENT_MAX_TEMP, R_HEAT2 }, //10
-    { "hot foot!!!!", ruleDHT_GT_TEMP_OFF, HT_FOOT, HEAT_ELEMENT_MAX_TEMP, R_FOOT }, //11
-    { "hot fan!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_HEAT1FAN }, //12
-    { "hot fan!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_HEAT2FAN }, //12
-    { "End Of List", ruleEND_LIST,0,0,0 }, //13
-    { "End Of List", ruleEND_LIST,0,0,0 }, //14
+    { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_LOOP}, //5  so the system doesn't freeze... using 30 to account for salt water...
+    { "x: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_XFERA}, //6 ... xferA is looped with heater A / sand A by the door , inline with HeaterA which will serve to keep loop from freezing..
+    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_HEAT_A }, //7
+    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERA, HEAT_ELEMENT_MAX_TEMP, R_HEAT_A }, //8
+    { "h1 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERB, HEAT_ELEMENT_MAX_TEMP, R_HEAT_B }, //9
+    { "hot foot!!!!", ruleDHT_GT_TEMP_OFF, HT_FOOT, HEAT_ELEMENT_MAX_TEMP, R_FOOT }, //10
+    { "hot fan A!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_HEAT_A_FAN }, //11
+    { "hot fan B!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_HEAT_B_FAN }, //12
+    { "hot shed -xferA!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_XFERA },// 13
+    { "hot shed -xferB!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_XFERB },// 14
     { "End Of List", ruleEND_LIST,0,0,0 }, //15 <- so up to 16 rules... 
-    { "End Of List", ruleEND_LIST,0,0,0 }, //13
-    { "End Of List", ruleEND_LIST,0,0,0 }, //13
-    { "End Of List", ruleEND_LIST,0,0,0 }, //13
 };
 
  
@@ -504,7 +499,7 @@ byte rtcTime[7]; //second, minute, hour, dayOfWeek, dayOfMonth, month, year;
 Adafruit_ADS1115 ADS;
 
 float voltage_factor = 6.144 / 128*256; //25500.0/4.70; //32767.0/5.0
-float watts_factor = 69/0.24 ;
+float watts_factor = 44.0*20*4.5;
 int16_t offset = 0 ;
 float last_min_secs[60];
 float run_average = 0;
@@ -523,7 +518,7 @@ void setup() {
   strTimeStamp(cBuffer);
 //  displayTime();  
   ADS.begin();
-  ADS.setGain(0);
+  ADS.setGain(GAIN_TWO);
   for (int i=0; i<60; i++) { last_min_secs[i]=0.0; }
 
   lcd.begin(16,2);

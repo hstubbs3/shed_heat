@@ -699,3 +699,98 @@ backspace thingy no work.. so going to say 3x8 letters for labels, apparently ca
 
 
 		so 10-15 mins to get up and then 
+
+2024/10/26
+1200 	worked yesterday in the shed a bit, improving insulation, built box for the reservoir and made holes
+		for xfer2 and the returns. Swapped the 100A split-core sensor with one of the 30A that came in and
+		tweaked the program a bit to make that work. 
+
+		This morning I started work on the 200 watt heater, got the wood cut and started building it out but hit noon.
+		Solar noon is at about 1310, and I wanted to get the system pumping by then. 
+
+1215 	steps today - 
+		plumb xfer2 pump
+		test for leaks at xfer2 / reservoir
+		confirm temp sensors for shed, roof, reservoir, ambient. 
+		wire up 12V DC power supply
+		connect R_LOOP relay / pump 12V
+		wire up temp sensor HT_SANDA (by the door)
+		connect R_XFERA relay / pump 12V
+		wire up temp sensor HT_SANDB (at the back)
+		connect R_XFERB relay / pump 12V
+		install glass onto roof
+		wire up temp sensor HT_HEATERA (inline with xferA)
+		wire up 110V AC relays
+		connect R_HEATER_A_ELEMENTS relay / PTCs
+		finish build for heaterb 
+		connect temp sensor HT_HEATERB
+		connect R_HEATER_B_ELEMENTS relay / PTCs
+
+
+1230	plumb xfer2 pump 
+		test for leaks at xfer2 / reservoir
+
+1245	confirm temp sensors for shed, roof, reservoir, ambient. 
+	1250 		shed 		OK 	 71 F
+	1310 		roof 		OK 	140 F
+	1315 		reservoir 	OK 	 60 F
+	1320 		ambient 	OK 	 61 F
+	relay0 - R_LOOP active
+
+1320	wire up 12V DC power supply
+1335	
+		connect R_LOOP relay / pump 12V
+1345 	shed 	72 	reservoir 	60 	roof 	140 	ambient 	61
+		
+		System is running too dry.. need to add water...
+1400 	added 4 gallons .. xferA or xferB is leaking at reservoir..
+		trying to seal...
+
+1415 	got it down to little drips.. will need to try again later, may have to empty reservoir?
+		At least the floor isn't soaking and electronics are OK .. 
+		shed 	72 	reservoir	61 	roof 	140 	ambient 	61
+1430 	shed 	72 	reservoir 	60 	roof 	140 	ambient 	61
+		weird.. no change? not a whole degree? but sure only 15 mins.. so moving on
+
+		wire up temp sensor HT_SANDA (by the door)
+1450 	shed  68 	sandA  63 	res  79 	roof  77 	was about 50 watts all-in with main pump, sitting at 20 watts now
+
+		R_XFERA isn't triggered at moment.. double-checking conditions.. might have a cut-off if above comfy? 
+1510 	not sure why not or if looking at wrong thing? 
+		hmm.. altered rules to shut off XFERA and XFERB if shed is > comfy, to avoid overheating shed...
+		is not expected to be a common rule to hit though..
+1515 	oh... there's a lego blocking the LED.. duh.. hehe
+
+		connect R_XFERA relay / pump 12V
+1530 	shed  66 	sandA  58 	res  76 	roof  76 	amb  60 	door's wide open lol.. 
+
+		wire up temp sensor HT_SANDB (at the back)
+1630 	well, that took an hour to make a 15' cable? lol.. wow.. the zoning must be real
+		shed  66 	sandA  60 	sandB  64 	res  71 	roof  72 	amb  61
+
+		connect R_XFERB relay / pump 12V
+1645 	shed  67 	sandA  62 	sandB  62 	res  71 	roof  71 	amb  61
+
+		find/fix leaks
+1650 	appears leaks sealed now.. woot.. moving back into position
+
+1700 	spoke to soon on that leak situation.. everything was fine and dry and running until I tried to move
+		the reservoir into position...
+
+		looks like trickles out of loop and xferA .. will have to look into it another time, seems OK if not in position?
+
+1710 	OK I think should call it now..
+
+
+		install glass onto roof
+		confirm monitoring / RPI 
+		wire up temp sensor HT_HEATERA (inline with xferA)
+		wire up 110V AC relays
+		connect R_HEATER_A_ELEMENTS relay / PTCs
+		finish build for heaterb 
+		connect temp sensor HT_HEATERB
+		connect R_HEATER_B_ELEMENTS relay / PTCs
+		figure out seals / leaks in reservoir
+		finish door for reservoir box
+		setup watts sensor
+
