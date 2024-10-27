@@ -781,9 +781,35 @@ backspace thingy no work.. so going to say 3x8 letters for labels, apparently ca
 
 1710 	OK I think should call it now..
 
+1930 	back in the shed.. no significant loss of water in reservoir.. 
+		shed  59 	sandA  66 	sandB  63 	res  65 	roof  57 	amb  55
+
+		still 4 F above ambient and its about an hour after sunset. wasn't good solar collection day anyway and
+		this is still only passive solar components...
+
+		Actually came out to the shed now to work on the RPI monitoring stuff.. mayhaps I forgot to bring the USB cord
+		for it out.. but I haz alternate so yay? 
+
+		Oh.. before that, let's reconnect the watts meter.. 
+1935 	OK kill-o-watt says 40 and the thingy is reporting 37 watts.. not too shabby ... will need to gather info to
+		make better conversion is all.
+		Already setup to log last 60s average .. OK 
+
+		setup watts sensor
+
+1940 	back to the RPI monitoring then.. need to fix the number and display of temperatures and do something for watts..
+
+2010 	OK output has a weird blank space.. oh.. right.. cuz there's a newline! duh...
+		was quick fix.. now for the html status stuff?
+
+		confirm monitoring / RPI 
+2030 	OK that was pretty quick.. seeing 43 watts calc'd .. ~45 actual? hmmm
+		actual 	reported 	reported/actual
+		40 		37 			92.5%
+		45 		43 			95.5% 
+
 
 		install glass onto roof
-		confirm monitoring / RPI 
 		wire up temp sensor HT_HEATERA (inline with xferA)
 		wire up 110V AC relays
 		connect R_HEATER_A_ELEMENTS relay / PTCs
@@ -792,5 +818,4 @@ backspace thingy no work.. so going to say 3x8 letters for labels, apparently ca
 		connect R_HEATER_B_ELEMENTS relay / PTCs
 		figure out seals / leaks in reservoir
 		finish door for reservoir box
-		setup watts sensor
 

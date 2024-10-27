@@ -90,27 +90,47 @@ def add_csv_line(csv_line):
 counterLabel=tk.Label(root, text="...",fg='#0f8',bg='#000',font=daFontHeader)
 #counterLabel.pack(side="top")
 
+watts_label = tk.Label(root,text="Watt you looking at?",fg='#0f8',bg='#000',font=daFontHeader)
+watts_label.pack(side="top")
 master_frame = tk.Frame(root)
 master_frame.configure(bg="black")
 master_frame.pack()
-frame_left = tk.Frame(master_frame)
-frame_left.configure(bg="black")
-frame_left.pack(side="left")
-frame_right = tk.Frame(master_frame)
-frame_right.configure(bg="black")
-frame_right.pack(side="left")
+left_columns = tk.Frame(master_frame)
+left_columns.configure(bg="black")
+left_columns.pack(side="left")
+
+l_frame_left = tk.Frame(left_columns)
+l_frame_left.configure(bg="black")
+l_frame_left.pack(side="left")
+l_frame_right = tk.Frame(left_columns)
+l_frame_right.configure(bg="black")
+l_frame_right.pack(side="left")
+
+right_columns = tk.Frame(master_frame)
+right_columns.configure(bg="black")
+right_columns.pack(side="right")
+
+r_frame_left = tk.Frame(right_columns)
+r_frame_left.configure(bg="black")
+r_frame_left.pack(side="left")
+r_frame_right = tk.Frame(right_columns)
+r_frame_right.configure(bg="black")
+r_frame_right.pack(side="left")
+
 
 loop_counter = 100
 main_counter = 0 
 
 temps = { 
 	"SHED" : "222",
-	"HEATER": "222",
-	"SAND":"222",
+	"SANDA": "222",
+	"SANDB":"222",
 	"RESERVOIR":"222",
 	"ROOF":"222",
 	"AMBIENT":"222",
-	"FOOTER":"222"
+	"FOOTWARM":"222",
+	"HEATERA":"222",
+	"HEATERB":"222"
 }
 
 blahBitmap = tk.BitmapImage(data="""
@@ -195,9 +215,24 @@ static char im_bits[] = {
 
 
 lines = [ ]
-for lineNum in range(7):
-	lineFrame=tk.Frame(frame_right)
-	lines.append([tk.Label(frame_left, text=f"{lineNum}",fg='#0f8',bg='#000',font=daFontHeader),
+for lineNum in range(5):
+	lineFrame=tk.Frame(l_frame_right)
+	lines.append([tk.Label(l_frame_left, text=f"{lineNum}",fg='#0f8',bg='#000',font=daFontHeader),
+		lineFrame,
+		tk.Label(lineFrame, text=f"{lineNum}",fg='#0f8',bg='#000',font=daFontHeader),
+		tk.Label(lineFrame,image=blahBitmap,fg='#0f8',bg='#000'),
+		tk.Label(lineFrame,image=blahBitmap,fg='#0f8',bg='#000'),
+		tk.Label(lineFrame,image=bitmap_font['2'],fg='#0f8',bg='#000')])
+	lines[-1][0].pack(anchor="e")
+	lines[-1][1].pack(anchor="e")
+	lines[-1][2].pack(side="left")
+	lines[-1][3].pack(side="left")
+	lines[-1][4].pack(side="left")
+	lines[-1][5].pack(side="left")
+
+for lineNum in range(5,9,1):
+	lineFrame=tk.Frame(r_frame_right)
+	lines.append([tk.Label(r_frame_left, text=f"{lineNum}",fg='#0f8',bg='#000',font=daFontHeader),
 		lineFrame,
 		tk.Label(lineFrame, text=f"{lineNum}",fg='#0f8',bg='#000',font=daFontHeader),
 		tk.Label(lineFrame,image=blahBitmap,fg='#0f8',bg='#000'),
@@ -245,6 +280,8 @@ def logloop():
 							do_temps = False
 				elif output.startswith("CHECK ALL DHT"):
 					do_temps = True
+				elif "last_min_watts:" in output:
+					watts_label.configure(text=" ".join(output[:-1].split(" ")[-5:]))
 				elif CSV:
 					if not CSV_Headers:
 						if output.startswith("CSV_HEADERS"):
