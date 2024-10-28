@@ -1,8 +1,10 @@
-#define ComfyTemp 69
+#define ComfyTemp 60
 #define ComfyFoot 90
 #define HEAT_ELEMENT_MAX_TEMP 120
 #define setupDelayTime 100
-#define WATTS_MILLIS 100
+#define WATTS_MILLIS 200
+
+float watts_factor = 4200.0;
 
 char cBuffer[256];
 
@@ -498,8 +500,6 @@ byte rtcTime[7]; //second, minute, hour, dayOfWeek, dayOfMonth, month, year;
 #include <Adafruit_ADS1X15.h>
 Adafruit_ADS1115 ADS;
 
-float voltage_factor = 6.144 / 128*256; //25500.0/4.70; //32767.0/5.0
-float watts_factor = 44.0*20*4.5;
 int16_t offset = 0 ;
 float last_min_secs[60];
 float run_average = 0;

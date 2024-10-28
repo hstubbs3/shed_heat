@@ -901,16 +901,32 @@ backspace thingy no work.. so going to say 3x8 letters for labels, apparently ca
 
 		Guess I'll clear up tools and head inside.. can set up the desk for work in the morning.
 
+2024/10/28
+0855 	SHED  62 	AMBI  56  ... holding at +6 F! .. not too shabby.. 62 F is actually pretty comfy.
+		I think I will set ComfyTemp down to 60 ... also the watts_factor should be adjusted.. 
+		Actual volts reads over 120, so will update the status display to divide by 120 properly.. 
+		maybe boost watts_millis to 200 as well.. 
+0930 	OK cool.. the cutoff for the xfer to sand should maybe still be 70 though - comfytemp + 10 ?
+		maybe set that later? 
+
+0935 	maybe add light sensor to measure amount of sun? something to investigate later.. as well as
+		door sensor?
+		And maybe some sort of modulation for fine control of the fans? hmmmm...
 
 
 
-
-
-
+		maybe add light sensor to measure amount of sun?
 		wire up temp sensor HT_HEATERA (inline with xferA)
 		connect R_HEATER_A_ELEMENTS relay / PTCs
 		empty reservoir and let dry overnight
 		figure out seals / leaks in reservoir
 		finish door for reservoir box
-		connect 12V DC for heaterB fan
+		cutoff temp for xfer to sand at 70? 
+		shed door sensor
+		fine control of fans
+		relay overrides for testing... 
+		foot warmer!
+0940 	OK.. gotta clear the desk off a bit and get logged into work.. .
+
+
 
