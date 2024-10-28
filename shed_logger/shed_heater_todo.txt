@@ -804,18 +804,113 @@ backspace thingy no work.. so going to say 3x8 letters for labels, apparently ca
 
 		confirm monitoring / RPI 
 2030 	OK that was pretty quick.. seeing 43 watts calc'd .. ~45 actual? hmmm
+		Watts
 		actual 	reported 	reported/actual
 		40 		37 			92.5%
 		45 		43 			95.5% 
 
+2024/10/27 	Sunday
+1005 	started at about 0830 working on installing the new Plastiko glass onto the roof panel.
+		noticed the roof temp was actually above reservoir and main pump was on but only a little flow.
+		Troubleshot first by splicing out loop 3, which is flattened / deformed, but still issue.
+		Removed strainer from loop pump, cleaned it out with garden hose, put back into place. 
+		Now there is good flow on all loops.
 
+		After all that, added 2 gallons fresh water, as xferB was exposed. Will need to empty the 
+		reservoir at some point, let it dry, and re-seal... Probably at night / after collection, as
+		the floor is getting pretty soaked and a gallon/day loss isn't really sustainable.. Most 
+		likely will start that Friday, so I can work on it over next weekend...
+
+		I did get the first 2 glass installed so far.. so will head back out to do the last one.. afer I get a towel
+		or something to soak up more water >_>
+1015
 		install glass onto roof
-		wire up temp sensor HT_HEATERA (inline with xferA)
-		wire up 110V AC relays
-		connect R_HEATER_A_ELEMENTS relay / PTCs
+1120	finally got that sorted out.. also Miguel helped get the aluminum straps done for HeaterB ..
+
+		Watts - watts factor = 3,960
+		actual 	reported 	reported/actual suggested watts factor
+		40 		37 			92.5% 			4281
+		45 		43 			95.5% 			4144
+		121 	110 		90.9% 			4356
+
+1320 	was working on heaterB .. unit is assembled, ready for wiring.. 
 		finish build for heaterb 
+
+		heaterB wiring
+		1 	Yellow 				+5V DC
+		2 	Blue 				GND 5V
+		3 	white 				temp sensor
+		4 	white w/ 1 tape 	fan relay
+		5 	white w/ 2 tape 	elements relay
+
+		6 	+12V DC
+		7 	GND 12V DC
+
+1445		
 		connect temp sensor HT_HEATERB
 		connect R_HEATER_B_ELEMENTS relay / PTCs
+1525 	ready to test... and the shed is 70 F.. .lol 
+
+1540 	OK going to manually take the heaterB element relay hot.. 
+		oh right.. have to plug it into AC.. 
+		still don't have 12V DC to give the fans.. maybe can feed them 5V DC instead? 
+
+1555	ok... maybe now... was over 500 watts total from ~95 watts
+		tracking heater B 	total watts
+		1557		 70 	>500
+		1602 		 95 	 296
+		1607 		113 	 288 	cutting off 	...	 ~10 mins to heat up without the fans running at all..
+
+1610 	OK, now can we operate the 12V DC fans off 5V ?
+1618 	we can indeed run the fans on 5V DC... now to bring back da heat...
+		1619 	 81 	>400
+		1620 	 77 	>350
+		1621 	 76 	 335
+		1622 	 75
+		1623 	 75 	 330
+
+		1625 	 75 	...
+
+		something weird going on with the clock its not updating and sometimes RTC is giving invalid info...
+1628 	secondLoops is >13,000 .. 	is usually around 1200 ... 
+
+1635	is totally due to the RTC glitching out.. was using +5V for the fans too much?
+		will try it again but need to reboot the system. no huge problem though just RTC mucked for ~10s
+		goofed up the counter.. OK 
+
+1640 	Yeah, the RTC isn't stable if heater B fan is drawing from 5V source... d'oh.. 
+		am run out of wiring though to shunt 12V DC to them.. 
+		Well, if is going to be separate connection, guess it could be shorter or ghetto-er?
+
+		connect 12V DC relay R_HEATER_B_FANS
+1725 	OK.. desoldered a barrell jack from one of the arduino style power supplies so I could use the 12V 
+		variable controller that came with the fans i stuck in the exhaust... so now I haz fans.. yay
+
+1727 	let's fire up the 200W heater with fans running.. total watts over 600 for a bit there.. wow
+				heaterB 	amps (total)
+		1729 	 69 		4.041 
+		1730 	 69 		3.446
+		1735 	 71 		2.998
+		1740 	 71 		2.953 	hmmm... maybe turn the fans down to half??
+		1745 	 74 	
+
+1745 	Weird.. set the fan controller to almost off and is giving kinda nice gentle warm breeze.. 
+		perhaps will leave this way.. not sure where to put it so guess will just leave it on the desk
+		overnight.. 
+		Need to switch the relays back to normal operation and see what happens.. 
+
+		Guess I'll clear up tools and head inside.. can set up the desk for work in the morning.
+
+
+
+
+
+
+
+		wire up temp sensor HT_HEATERA (inline with xferA)
+		connect R_HEATER_A_ELEMENTS relay / PTCs
+		empty reservoir and let dry overnight
 		figure out seals / leaks in reservoir
 		finish door for reservoir box
+		connect 12V DC for heaterB fan
 

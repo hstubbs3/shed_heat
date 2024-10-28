@@ -87,6 +87,10 @@
           return d.FOOT_WARMER;
         });
 
+       var amps = players.map(function (d) {
+          return d.Watts/110.0;
+       });
+
         var chart = new Chart("myChart", {
           
           data: {
@@ -128,6 +132,9 @@
                 data: xfera_pump, label: "XFERA_PUMP", backgroundColor: "#008888", yAxisID: 'y1',//  fill : false
               },
               {type: "bar",
+                data: xferb_pump, label: "XFERB_PUMP", backgroundColor: "#004444", yAxisID: 'y1',//  fill : false
+              },
+              {type: "bar",
                 data: heater_a_fan, label: "HEATERA_FAN", backgroundColor: "#FF8888", yAxisID: 'y1',//  fill : false
               },
               {type: "bar",
@@ -142,6 +149,11 @@
 
               {type: "bar",
                 data: foot_warmer, label: "FOOT_WARMER", backgroundColor: "#FF0000", yAxisID: 'y1',//  fill : false
+              },
+
+              {type: "line",
+                data: amps, label: "AMPS (TOTAL/SHED)", backgroundColor: "#888844", yAxisID: 'y1',//  fill : false
+
               },
 
             ]

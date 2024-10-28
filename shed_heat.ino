@@ -107,16 +107,16 @@ char footwarm[]="FOOT_WARMER";
 char heat1fans[] = "HEATER_B_FANS";
 char heatelem1[] = "HEATER_B_ELEMENTS";
 
-char *r_names[]={(char *)&heatloop,(char *)&xfer1,(char *)&xfer2,(char *)&heatfan,(char *)&heatelem,(char *)&heat1fans,(char *)&heatelem1,(char *)&footwarm};
+char *r_names[]={(char *)&heatloop,(char *)&xfer1,(char *)&xfer2,(char *)&heatfan,(char *)&heat1fans,(char *)&heatelem,(char *)&heatelem1,(char *)&footwarm};
 bool run_relays[numRELAY];
-byte r_pins[]={12,11,10,9,8,7,6,5};
+byte r_pins[]={12,11,10,9,7,8,6,5};
 int r_watts[]={
   25, // loop pump
   20, // xfer 1
   20, // xfer 2
-  30, // heat 1 fans
-  10, // heat 2 fan
-  120, // heater 1
+  10, // heat 1 fans
+  125, // heat 2 fan
+  30, // heater 1
   200,// heater 2
   100 // foot warmer
   };
