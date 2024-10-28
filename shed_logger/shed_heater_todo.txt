@@ -913,8 +913,11 @@ backspace thingy no work.. so going to say 3x8 letters for labels, apparently ca
 		door sensor?
 		And maybe some sort of modulation for fine control of the fans? hmmmm...
 
+0940 	OK.. gotta clear the desk off a bit and get logged into work.. .
 
+1120 	power measure is way off.. will need to check into that
 
+		check power monitor
 		maybe add light sensor to measure amount of sun?
 		wire up temp sensor HT_HEATERA (inline with xferA)
 		connect R_HEATER_A_ELEMENTS relay / PTCs
@@ -926,7 +929,5 @@ backspace thingy no work.. so going to say 3x8 letters for labels, apparently ca
 		fine control of fans
 		relay overrides for testing... 
 		foot warmer!
-0940 	OK.. gotta clear the desk off a bit and get logged into work.. .
-
 
 

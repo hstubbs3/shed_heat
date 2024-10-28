@@ -40,32 +40,32 @@
         });
 
        var loop_pump = players.map(function (d) {
-          return d.LOOP_PUMP;
+          return d.LOOP_PUMP*0.125-1.0;
         });
        var xfera_pump = players.map(function (d) {
-          return d.XFERA_PUMP;
+          return d.XFERA_PUMP*0.25-1.0;
         });
 
        var xferb_pump = players.map(function (d) {
-          return d.XFERB_PUMP;
+          return d.XFERB_PUMP*0.375-1.0;
         });
 
        var heater_a_fan = players.map(function (d) {
-          return d.HEATER_A_FAN;
+          return d.HEATER_A_FAN*0.5-1.0;
         });
        var heater_a_elements = players.map(function (d) {
-          return d.HEATER_A_ELEMENTS;
+          return d.HEATER_A_ELEMENTS*0.625-1.0;
         });
 
        var heater_b_fans = players.map(function (d) {
-          return d.HEATER_B_FANS;
+          return d.HEATER_B_FANS*0.75-1.0;
         });
        var heater_b_elements = players.map(function (d) {
-          return d.HEATER_B_ELEMENTS;
+          return d.HEATER_B_ELEMENTS*0.875-1.0;
         });
 
        var foot_warmer = players.map(function (d) {
-          return d.FOOT_WARMER;
+          return d.FOOT_WARMER*1.0-1.0;
         });
 
        var amps = players.map(function (d) {
@@ -77,6 +77,47 @@
           data: {
             labels: timestamps,
             datasets: [
+
+              {type: "line",
+                data: loop_pump, label: "LOOP_PUMP", backgroundColor: "#000088", yAxisID: 'y1', 
+                borderColor: "#000088", pointStyle: 'rect', borderWidth: 2, stepped: true,
+              },
+              {type: "line",
+                data: xfera_pump, label: "XFERA_PUMP", backgroundColor: "#008888", yAxisID: 'y1',//  fill : false
+                borderColor: "#008888", pointStyle: 'rect', borderWidth: 2, stepped: true,
+              },
+              {type: "line",
+                data: xferb_pump, label: "XFERB_PUMP", backgroundColor: "#004444", yAxisID: 'y1',//  fill : false
+                borderColor: "#004444", pointStyle: 'rect', borderWidth: 2, stepped: true,
+              },
+              {type: "line",
+                data: heater_a_fan, label: "HEATERA_FAN", backgroundColor: "#FF8888", yAxisID: 'y1',//  fill : false
+                borderColor: "#FF8888", pointStyle: 'rect', borderWidth: 2, stepped: true,
+              },
+              {type: "line",
+                data: heater_a_elements, label: "HEATER_A_ELEMENTS", backgroundColor: "#FF8800", yAxisID: 'y1',// fill : false
+                borderColor: "#FF8800", pointStyle: 'rect', borderWidth: 2, stepped: true,
+              },
+              {type: "line",
+                data: heater_b_fans, label: "HEATER_B_FANS", backgroundColor: "#FF00FF", yAxisID: 'y1',//  fill : false
+                borderColor: "#FF00FF", pointStyle: 'rect', borderWidth: 2, stepped: true,
+              },
+              {type: "line",
+                data: heater_b_elements, label: "HEATER_B_ELEMENTS", backgroundColor: "#FF0088", yAxisID: 'y1',// fill : false
+                borderColor: "#880088", pointStyle: 'rect', borderWidth: 2, stepped: true,
+              },
+
+              {type: "line",
+                data: foot_warmer, label: "FOOT_WARMER", backgroundColor: "#FF0000", yAxisID: 'y1',//  fill : false
+                borderColor: "#FF0000", pointStyle: 'rect', borderWidth: 2, stepped: true,
+              },
+
+              {type: "line",
+                data: amps, label: "AMPS (TOTAL/SHED)", backgroundColor: "#888844", yAxisID: 'y1',//  fill : false
+
+              },
+
+
               {type: "line",
                 data: footwarm, label: "FOOTWARM", borderColor: "#FF8888", fill : false, yAxisID: 'y',
               },
@@ -105,53 +146,21 @@
               {type: "line",
                 data: ambient, label: "AMBIENT", borderColor: "#888888", yAxisID: 'y',
               },
-
-              {type: "bar",
-                data: loop_pump, label: "LOOP_PUMP", backgroundColor: "#000088", yAxisID: 'y1',// fill : false
-              },
-              {type: "bar",
-                data: xfera_pump, label: "XFERA_PUMP", backgroundColor: "#008888", yAxisID: 'y1',//  fill : false
-              },
-              {type: "bar",
-                data: xferb_pump, label: "XFERB_PUMP", backgroundColor: "#004444", yAxisID: 'y1',//  fill : false
-              },
-              {type: "bar",
-                data: heater_a_fan, label: "HEATERA_FAN", backgroundColor: "#FF8888", yAxisID: 'y1',//  fill : false
-              },
-              {type: "bar",
-                data: heater_a_elements, label: "HEATER_A_ELEMENTS", backgroundColor: "#FF8800", yAxisID: 'y1',// fill : false
-              },
-              {type: "bar",
-                data: heater_b_fans, label: "HEATER_B_FANS", backgroundColor: "#FF00FF", yAxisID: 'y1',//  fill : false
-              },
-              {type: "bar",
-                data: heater_b_elements, label: "HEATER_B_ELEMENTS", backgroundColor: "#FF0088", yAxisID: 'y1',// fill : false
-              },
-
-              {type: "bar",
-                data: foot_warmer, label: "FOOT_WARMER", backgroundColor: "#FF0000", yAxisID: 'y1',//  fill : false
-              },
-
-              {type: "line",
-                data: amps, label: "AMPS (TOTAL/SHED)", backgroundColor: "#888844", yAxisID: 'y1',//  fill : false
-
-              },
-
             ]
           },
                       options: {
               scales: {
                 y: {
                   position: 'left',
-                  min: 20,
-                  max: 100,
+                  min: 0,
+                  max: 120,
                 },
                 y1: {
                   position: 'right',
-                  min: 0,
-                  max: 8
+                  min: -1,
+                  max: 11,
                 }
-              }
+              },
             },
 
         });

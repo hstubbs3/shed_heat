@@ -1005,7 +1005,9 @@ void loop() {
     offset = (maxi + mini)/2; 
     maxi -= offset;
     mini -= offset;
-    float max_min = watts_factor*ADS.computeVolts((maxi/2 - mini/2)); 
+    float max_min ; 
+    if (mini < 0) { max_min=watts_factor*ADS.computeVolts((maxi/2 - mini/2)); } 
+    else { max_min=watts_factor*ADS.computeVolts(maxi); }
     dtostrf(max_min,3,2,str_max_min);
     int_max_min = int(trunc(max_min));
     run_average -= last_min_secs[run_counter];
@@ -1021,7 +1023,7 @@ void loop() {
       sprintf(cBuffer,"%s %2d / %2d - %s (%d) - secondLoops: %d",dateTimeStamp,last_second,rtcTime[0],dayOfWeek[rtcTime[3]],rtcTime[3],secondLoops);
       Serial.print(cBuffer);
 //      sprintf(cBuffer," - old_offset: %d offset: %d maxi: %d - mini: %d - Watts: %s - last_min_watts: %s",old_offset,offset,maxi,mini,str_max_min,str_run_average);
-      sprintf(cBuffer," - maxi: %d - Watts: %s - last_min_watts: %s",maxi,str_max_min,str_run_average);
+      sprintf(cBuffer," - maxi: %d mini: %d - Watts: %s - last_min_watts: %s",maxi,mini,str_max_min,str_run_average);
       Serial.println(cBuffer);
       sprintf(lcdLine0,"%2d/%2d   %2d:%02d:%02d",rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1],rtcTime[0]);
 
