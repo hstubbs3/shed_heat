@@ -917,10 +917,21 @@ backspace thingy no work.. so going to say 3x8 letters for labels, apparently ca
 
 1120 	power measure is way off.. will need to check into that
 
+1940 	wired up heater A , power got fixed too.. so move past stuff
+
 		check power monitor
-		maybe add light sensor to measure amount of sun?
 		wire up temp sensor HT_HEATERA (inline with xferA)
 		connect R_HEATER_A_ELEMENTS relay / PTCs
+1945 	hung out to see everything kick on at 59 F.. Shed was <60 for only about 20 minutes.
+		power usage during that time was roughly 3.5 Amps
+
+		Shed temperature is still slowly trending upward.. system is basically all at 65 F.
+		Will have to let it sit and see how it goes.. 
+
+		Floor is oddly dry now.. not sure what happened to that leak before.. will continue to monitor.
+
+
+
 		empty reservoir and let dry overnight
 		figure out seals / leaks in reservoir
 		finish door for reservoir box
@@ -929,5 +940,6 @@ backspace thingy no work.. so going to say 3x8 letters for labels, apparently ca
 		fine control of fans
 		relay overrides for testing... 
 		foot warmer!
+		maybe add light sensor to measure amount of sun?
 
 

@@ -114,6 +114,7 @@
 
               {type: "line",
                 data: amps, label: "AMPS (TOTAL/SHED)", backgroundColor: "#888844", yAxisID: 'y1',//  fill : false
+                borderColor: "#888844",
 
               },
 
@@ -154,11 +155,19 @@
                   position: 'left',
                   min: 0,
                   max: 120,
+                  grid: {
+                    lineWidth: 2,
+                    color: "#666666",
+                  }
                 },
                 y1: {
                   position: 'right',
                   min: -1,
                   max: 11,
+                  grid: {
+                    lineWidth: 2,
+                    color: "#444444"
+                  }
                 }
               },
             },
