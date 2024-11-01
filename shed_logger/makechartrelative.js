@@ -5,34 +5,34 @@
           return d.time;
         });
         var footwarm = players.map(function (d) {
-          return d.FOOTWARM;
+          return d.FOOTWARM-d.AMBIENT;
         });
         var shed = players.map(function (d) {
-          return d.SHED;
+          return d.SHED-d.AMBIENT;
         });
 
         var heatera = players.map(function (d) {
-          return d.HEATERA;
+          return d.HEATERA-d.AMBIENT;
         });
 
         var heaterb = players.map(function (d) {
-          return d.HEATERB;
+          return d.HEATERB-d.AMBIENT;
         });
 
         var sanda = players.map(function (d) {
-          return d.SANDA;
+          return d.SANDA-d.AMBIENT;
         });
 
         var sandb = players.map(function (d) {
-          return d.SANDB;
+          return d.SANDB-d.AMBIENT;
         });
 
         var reservoir = players.map(function (d) {
-          return d.RESERVOIR;
+          return d.RESERVOIR-d.AMBIENT;
         });
 
         var roof = players.map(function (d) {
-          return d.ROOF;
+          return d.ROOF-d.AMBIENT;
         });
 
         var ambient = players.map(function (d) {
@@ -153,8 +153,8 @@
               scales: {
                 y: {
                   position: 'left',
-                  min: 0,
-                  max: 120,
+                  min: -30,
+                  max: 90,
                   grid: {
                     lineWidth: 2,
                     color: "#666666",

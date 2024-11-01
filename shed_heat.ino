@@ -1,10 +1,13 @@
 #define ComfyTemp 60
+#define HighComfyTemp 69
 #define ComfyFoot 90
 #define HEAT_ELEMENT_MAX_TEMP 120
 #define setupDelayTime 100
 #define WATTS_MILLIS 200
 
 float watts_factor = 4200.0;
+
+int light_level = -1; 
 
 char cBuffer[256];
 
@@ -92,7 +95,9 @@ void check_all_DHT(){
     Serial.print((char*)HT_names[i]);
     Serial.print(" : ");
     Serial.print(dht_reads[i].strF);
-    Serial.println(" F ");
+    Serial.print(" F ");
+    Serial.print(dht_reads[i].strH);
+    Serial.println(" % Humidity");
   }
   Serial.println("DONE CHECK ALL DHT");
 }
@@ -131,9 +136,10 @@ struct tempRule {
   byte a;
   byte b;
   byte r;
+  byte v;
   char d[16]; // so can always be displayed on the 16x2 ? 
   
-  tempRule(char *_d, ruleTypes _t, byte _a, byte _b, byte _r ) : t(_t), a(_a), b(_b), r(_r) { memcpy(d,_d,15); d[15]=0; }
+  tempRule(char *_d, ruleTypes _t, byte _a, byte _b, byte _r, byte _v ) : t(_t), a(_a), b(_b), r(_r), v(_v) { memcpy(d,_d,15); d[15]=0; }
 };
 
 bool evaluateRule( struct tempRule* rule, bool verbose=true){
@@ -152,17 +158,18 @@ bool evaluateRule( struct tempRule* rule, bool verbose=true){
         return false;
         break;
     case ruleDHT_LT_TARGET_DHT:
-        if ( dht_reads[rule->a].iF < dht_reads[rule->b].iF && !run_relays[rule->r]) {
-           sprintf(cBuffer, "EvaluateRule : %s - DHT_LT_TARGET_DHT - %s : %s F < %s : %s F - switching on %d %s",rule->d, HT_names[rule->a], dht_reads[rule->a].strF,HT_names[rule->b], dht_reads[rule->b].strF,rule->r,r_names[rule->r]);
+        if ( dht_reads[rule->a].iF + rule->v < dht_reads[rule->b].iF && !run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - DHT_LT_TARGET_DHT - %s : %s F + %d < %s : %s F - switching on %d %s",rule->d, HT_names[rule->a], dht_reads[rule->a].strF,HT_names[rule->b], dht_reads[rule->b].strF, rule->v, rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=true; // relay will switch on loop... 
-        } else if ( dht_reads[rule->a].iF >= dht_reads[rule->b].iF && run_relays[rule->r]) {
-           sprintf(cBuffer, "EvaluateRule : %s - DHT_LT_TARGET_DHT - %s : %s F < %s : %s F - switching off %d %s",rule->d, HT_names[rule->a], dht_reads[rule->a].strF,HT_names[rule->b], dht_reads[rule->b].strF,rule->r,r_names[rule->r]);
+        } else if ( dht_reads[rule->a].iF + rule->v >= dht_reads[rule->b].iF  && run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - DHT_LT_TARGET_DHT - %s : %s F + %d >= %s : %s F - switching off %d %s",rule->d, HT_names[rule->a], dht_reads[rule->a].strF,HT_names[rule->b], dht_reads[rule->b].strF, rule->v, rule->r,r_names[rule->r]);
+           Serial.println(cBuffer);
            Serial.println(cBuffer);
            run_relays[rule->r]=false; // relay will switch on loop... 
           
         } else if (verbose) {
-          sprintf(cBuffer,"EvaluateRule : %s - DHT_LT_TARGET_DHT - %s : %s F ? %s : %s F - nothing to change %d %s",rule->d, HT_names[rule->a], dht_reads[rule->a].strF,HT_names[rule->b], dht_reads[rule->b].strF,rule->r,r_names[rule->r]);
+          sprintf(cBuffer,"EvaluateRule : %s - DHT_LT_TARGET_DHT - %s : %s + %d F ? %s : %s F - nothing to change %d %s",rule->d, HT_names[rule->a], dht_reads[rule->a].strF,rule->v,HT_names[rule->b], dht_reads[rule->b].strF,rule->r,r_names[rule->r]);
           Serial.println(cBuffer);
           
         }
@@ -225,25 +232,26 @@ char ruleF[]="end of list";
 
 struct tempRule daRules[] = {
 //  { "0123456789ABCDE",  rule type, a, b, r }, 
-    { "main: roof>res", ruleDHT_LT_TARGET_DHT, HT_RESERVOIR, HT_ROOF, R_LOOP }, //0
-    { "xfer1:  res>sandA", ruleDHT_LT_TARGET_DHT, HT_SANDA, HT_RESERVOIR, R_XFERA }, //1
-    { "xfer2:  res>sandB", ruleDHT_LT_TARGET_DHT, HT_SANDB, HT_RESERVOIR, R_XFERB }, //1
-    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT_A }, //2
-    { "f0: shed<heater", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATERA, R_HEAT_A_FAN }, //3
-    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT_B }, //2
-    { "f0: shed<heater", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATERB, R_HEAT_B_FAN }, //3
-    { "foot warmer", ruleDHT_TARGET_TEMP_ON_LOW, HT_FOOT, ComfyFoot, R_FOOT }, //4
-    { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_LOOP}, //5  so the system doesn't freeze... using 30 to account for salt water...
-    { "x: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_XFERA}, //6 ... xferA is looped with heater A / sand A by the door , inline with HeaterA which will serve to keep loop from freezing..
-    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_HEAT_A }, //7
-    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERA, HEAT_ELEMENT_MAX_TEMP, R_HEAT_A }, //8
-    { "h1 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERB, HEAT_ELEMENT_MAX_TEMP, R_HEAT_B }, //9
-    { "hot foot!!!!", ruleDHT_GT_TEMP_OFF, HT_FOOT, HEAT_ELEMENT_MAX_TEMP, R_FOOT }, //10
-    { "hot fan A!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_HEAT_A_FAN }, //11
-    { "hot fan B!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_HEAT_B_FAN }, //12
-    { "hot shed -xferA!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_XFERA },// 13
-    { "hot shed -xferB!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_XFERB },// 14
-    { "End Of List", ruleEND_LIST,0,0,0 }, //15 <- so up to 16 rules... 
+    { "main: roof>res", ruleDHT_LT_TARGET_DHT, HT_RESERVOIR, HT_ROOF, R_LOOP, 2 }, //0
+    { "xfer1:res>sandA", ruleDHT_LT_TARGET_DHT, HT_SANDA, HT_RESERVOIR, R_XFERA, 2 }, //1
+    { "xfer2:res>sandB", ruleDHT_LT_TARGET_DHT, HT_SANDB, HT_RESERVOIR, R_XFERB, 2 }, //1
+    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT_A, 0 }, //2
+    { "f0: shed<heatA", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATERA, R_HEAT_A_FAN, 40 }, //3
+    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT_B, 0 }, //2
+    { "f0: shed<heatB", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATERB, R_HEAT_B_FAN, 40 }, //3
+    { "foot warmer", ruleDHT_TARGET_TEMP_ON_LOW, HT_FOOT, ComfyFoot, R_FOOT, 0 }, //4
+    { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_LOOP, 0}, //5  so the system doesn't freeze... using 30 to account for salt water...
+    { "x: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_XFERA, 0}, //6 ... xferA is looped with heater A / sand A by the door , inline with HeaterA which will serve to keep loop from freezing..
+    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_HEAT_A, 0 }, //7
+    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERA, HEAT_ELEMENT_MAX_TEMP, R_HEAT_A, 0 }, //8
+    { "h1 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERB, HEAT_ELEMENT_MAX_TEMP, R_HEAT_B, 0 }, //9
+    { "hot foot!!!!", ruleDHT_GT_TEMP_OFF, HT_FOOT, HEAT_ELEMENT_MAX_TEMP, R_FOOT, 0 }, //10
+    { "End Of List", ruleEND_LIST,0,0,0, 0 }, //15 <- so up to 16 rules... 
+
+    { "hot fan A!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_HEAT_A_FAN, 0 }, //11
+    { "hot fan B!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_HEAT_B_FAN, 0 }, //12
+    { "hot shed-xA!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_XFERA, 0 },// 13
+    { "hot shed-xB!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_XFERB, 0 },// 14
 };
 
  
@@ -1033,6 +1041,7 @@ void loop() {
         //sprintf(cBuffer,"LCD display : %s -- %s",lcdLine0,lcdLine1);
         //Serial.println(cBuffer);
         counterHigh=9; //do stuff every 10s..
+        Serial.print("Light Level: "); Serial.print(light_level); Serial.println("");
         check_all_DHT();
         int i=0; //struct tempRule* rule
         for ( tempRule r : daRules ) { 
@@ -1071,7 +1080,11 @@ void loop() {
             Serial.print((char*)r_names[i]);
             Serial.print(",");
           }
-          Serial.println("Watts,");
+          Serial.print("Watts,");
+          for (int i=0; i<numHT; i++) {
+            Serial.print(HT_names[i]); Serial.print("_HUM,");
+          }
+          Serial.println("light, ");
           sprintf(cBuffer,"CSV_VALUES, 20%02d/%02d/%02d %02d:%02d,",rtcTime[6],rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1]);
           Serial.print(cBuffer);
           for (int i=0; i<numHT; i++){
@@ -1082,7 +1095,12 @@ void loop() {
             Serial.print(run_relays[i]);
             Serial.print(",");
           }
-          Serial.print(str_run_average); Serial.println(",");
+          Serial.print(str_run_average); Serial.print(",");
+          for (int i=0; i<numHT; i++){            
+            if (dht_reads[i].iH != 255) { Serial.print(dht_reads[i].strH); }
+            Serial.print(",");
+          }
+          Serial.print(light_level); Serial.println(",");
         }
 
     } else {

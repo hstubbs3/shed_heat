@@ -930,8 +930,124 @@ backspace thingy no work.. so going to say 3x8 letters for labels, apparently ca
 
 		Floor is oddly dry now.. not sure what happened to that leak before.. will continue to monitor.
 
+2024/10/29 	Tuesday
+0800 	Things doing OK in the shed. it is raining, and I see a leak dripped by my left monitor and 
+		I still hadn't properly sealed the north half of the west wall... but otherwise under the door
+		is doing OK
+		the fan on heater A needs to be set to a lower voltage, it feels like its blowing too cold too
+		fast..
+		Shed is 50 vs ambient 38. 12 F ... not too shabby. Reservoir at ~54, sands at ~55.
+		Definitely want to set the 'shed to hot' cut-off for xfer higher or just not use the rule at all.
+0810
+		5V to HEATER_A_FAN
+0835 	No luck on that.. switched back to the 12V DC.. 
+		I hear random drops on the north side of the shed now and then. Nothing major just kinda random.
+		Not sure if it is comforting or unsettling.
+		Shed is 55 vs ambient 38. So +5 F just from me sitting in the shed and/or what little warmth
+		is to be had from the sun. Roof has gained a few degrees - it was at 38 F now is 41 F.
+
+0845 	hehe.. I found 2x 128x32 OLED displays, using SSD1306.. because what I needed was more OLED 
+		displays for this project, right? Maybe can use them somewhere in this mess, who knows?
+		Actually, makes me think about how I'm using the 128x64 currently.. I could make it cycle to show 
+		all the sensors for a few seconds and then a few temps really large? the condensed font is 4x5 
+		(in 5x6 spacing). and the shed_digits font was 8x12 (in 9x13 spacing). if we scale up 2x that
+		becomes 18x26.. too large to properly do 4 characters across... would want something like 16x20
+		character set... would have to make one to use for the digits.. and then could display like 4-6
+		temperatures at a time? hmmm.. will have to give it a think, there's other means to making easier
+		to see display for these temps...
+0905 	shoved the insulation into the ceiling a bit harder by the desk.. seems to have stopped the leaks
+		dripping onto my wrists for now..
+		Should get signed into work anyway.. OK..
+
+1310 	Need to fix that thing with the fans coming on when barely warmer than the air... is f'in cold.
 
 
+2024/10/30 	Wednesday
+0900 	Roof was showing about 41 F but looked frosted over, so tossed some hot water from the house to
+		clear the frost. Loop started soon after - roof 48 F res 44 F.
+
+		Today is expected to be partly cloudy, high 47 F / low 37 F. Hoping that means good collection.
+		light sensor and possibly humidity tracking on the roof might allow sensing if the panel is frosted
+		over. Implies light sensor shouldn't be inside the panel but separate?
+
+		Last night I mostly built out the foot warmer but stopped short of hooking it up as I did not
+		want to fuss with having any wires pop off or other issues... need to better secure / enclose
+		the controller system. also need to consider power management...  Ordered some 10 ft usb-c to c
+		cables. 
+
+0920 	getting back to the foot warmer build - is already programmed for 90 F.. so just need to finish
+		build and hook it up? 
+
+		foot warmer!
+
+2024/10/31
+1000 	
+	Yeah, foot warmer did not work out yesterday. I couldn't figure out why the foot warmer temp sensor 
+	didn't want to work when plugged into the 10 ft cable I'd made for it before the system went tits
+	up - most temp sensors went ERR (only reservoir and ambient were still live somehow), and even after
+	disconnecting the foot warmer stuff it didn't come back right away... 
+	I ended up unplugging the whole thing and leaving the shed. Went shopping, got lunch, came back about
+	2 hours later at 1230. Plugged it back in, it came to life like nothing had happened. WTF.
+	So just logged into work. 
+	I bought several cloth boxes and some other stuff so I could organize things better when I clean
+	the shed sometime in the next week or so. I also ordered more wire and some other stuff which will
+	be due to arrive in a few days, so hopefully getting the foot warmer to cooperate then will be simpler?
+	maybe I should also order more heating elements? the 110 AC ones seem fairly easy to work with.
+	As much as I _don't_ want to increase the amount of power required in the shed, the shed is still somewhat
+	chilly when there's not a lot of sun, and the current heaters can't quite keep up with their fans?
+	maybe just need to buy some of them 'heat powered' fans to use in the heaters? hmmm... maybe.. 
+	Still need to finish insulating the reservoir and see how that affects things as well, since currently
+	the reservoir is very much a part of the thermal mass the system is trying to keep warm?
+	Maybe need to recalculate / reconsider things? hmmm.. 
+
+1015 	setting the high cutoff for stuff to 80 using a #define ComfyTempHigh ... want to be sure to max
+		solar collection even if shed is above comfy but not too bad..
+
+1025 	Weird.. putting anything other than 60 in those cut-off rules is causing the system to not boot..
+		just cycles first output and strTimeStamp
+1030	moving the end of list to block those cut-off completely then.. 
+
+
+2024/11/01 	Friday
+0915 	ambi 36 	roof 35 	shed 46 	res 45 	sandA 48 heaterA 79
+	The roof panel is frosted over so it hasn't warmed up yet. Need to figure out how I could detect
+	such an issue and run the loop to do defrost, possibly use light sensor to see how sunny it is and
+	then trigger heaterA / xferA / loop pump accordingly to defrost the panel? How to know when to stop?
+
+	Possibly could try triggering on roof < ambient? hmmm... 
+	Want to see what humidity is showing as as well.. strH / iH have always been present in dht_reads..
+	So am updating code to gather these and also to spit out a light level.. 
+0935 	code updated, uploading to arduino
+	roof humidity 44 vs ambient 49 ... hmmm .. not sure what going on there... 
+0940 	OK am going to manually trip main loop relay to see if I can defrost panel...
+
+1000 	That was kinda bust... the reservoir and roof at 43 F. Roof panel started to defrost but is 
+	still mostly covered. Cut power to loop pump. 
+1003 	Roof temp has risen to 45 vs reservoir 43.. relay would trip at res+3 = 46, so it _only_ needs
+	to gain a few degrees to start things off.. 
+1004 	roof 44 ... arrgh... will have to toss some hot water up there or something... meh
+1006 	roof 45 ... hey now, maybe this isn't so bad a thing.. 
+1008 	roof 50 ... and I had oops'd reconnecting the relay so main loop is just starting now...
+1010	SHED 51 SANDs 48 RES 43 ROOF 53 AMBI 38 HEATs 94 ... woot we is going...
+		but yeah, need proper defrost rules to keep the roof clear, maybe if roof < 35... or light sensor
+		correlation with roof v ambient ? 
+
+	Still - moah power to heaterA wouldn't be a _bad_ thing... hehehe if I can get to some point where 
+	heater A could actually warm up the reservoir, things might not be so bad? hmmm... 
+	Don't need to keep reservoir at comfy though.. just need to heat it for defrosting, really.. 
+
+1015 	OK gotta get to working
+
+		xferA/B to warm shed? at least xferA should be able to??
+		more heat elements for heaterA ?
+		heat powered fans for heaters?
+		foot warmer!
+		secure / enclose the controller system. make it easier to put displays higher and vertical! 
+		light sensor / humidity tracking for the roof to sense if panel frosted over?
+		clean/org shed - actually use shelves, totes? lol
+		seal up west wall, especially north half!
+		find/fix leaks in the ceiling
+		5V to HEATER_A_FAN
 		empty reservoir and let dry overnight
 		figure out seals / leaks in reservoir
 		finish door for reservoir box
@@ -939,7 +1055,7 @@ backspace thingy no work.. so going to say 3x8 letters for labels, apparently ca
 		shed door sensor
 		fine control of fans
 		relay overrides for testing... 
-		foot warmer!
 		maybe add light sensor to measure amount of sun?
-
+		bigger digit display for shed temp?
+		add humidity tracking for temp sensors...
 
