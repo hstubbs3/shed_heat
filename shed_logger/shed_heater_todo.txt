@@ -1038,6 +1038,288 @@ backspace thingy no work.. so going to say 3x8 letters for labels, apparently ca
 
 1015 	OK gotta get to working
 
+
+2024/11/02 	Saturday
+0911 	Come out to the shed not sure exactly what I should work on first... Some stuff did arrive
+	yesterday from Amazon.com, like wire and DHT11s... so maybe foot warmer first?
+	Is possibly going to rain later so I guess I should start by sealing better under the north half 
+	of the western wall... >_>
+
+0930 	Cleaning the shed needs to be made some sort of priority... so add to the list, but next will
+		work on the light sensor setup... should only require adding one check to the shed_heat sketch
+		for monitoring and then can figure out appropriate values.. 
+		also needed to shutdown the RPI to replace its power cord with a 10 foot one...
+
+0945 	Actually... wiring the light sensor is kinda a problem due to the mucked up bus situation... 
+		So should clean the shed to free up floor space so I can spread out LEGO and redo the controller.
+		>_> damn it, I don't wanna have to clean up right now... so maybe I take the morning off, or even
+		whole day... I still need to clean the hallway and my room after all?
+		Really just need to learn to relax, I suppose...
+
+		I guess while I'm out here, I can address the cron for the logging and add humidity data to the graph?
+1000 	Hmmm... shed.log is about 100M / week... Maybe should look into logrotate? 
+
+1020 	put a weekly thing in for logrotate for shed.log, set to keep 4, plenty for now?
+		updated webtail.sh to point to shed.log directly for the last 500 lines..
+		Switching it to 1024.. 500 lines is only about 3 minutes worth... 1024 gives about 7 mins worth...
+		seems a good amount.. OK..
+
+1025 	8x additional 110V AC PTC elements are due to arrive today from Amazon by 10PM.. Their arrival
+	would make good catalyst for coming out to work in the shed, as I can work on bulking up heaterA.
+	I should probably strive to limit / control power consumption.. likely could use last_min_watts
+	for rules and switch relays off in some priority? Will have to give it some thought..
+	Also need to figure out how much each relay adds to the usage.. should be calculatable from CSV data?
+
+1115 	OK got some decent approximate values for average watt consumption for each relay, and actually
+	some methodology to update / recalculate after changes. groovy. HEAT_A_FAN didn't kick on yesterday
+	at all, so am putting it at 60 watts, since it would be full 12V x 1 fan vs ~4Vx3 fan for heaterB
+
+	As far as rule for reducing power consumption - let's say want to keep <10 amps, should leave enough
+	for Miguel to run a tool or something? so that's 1200 watts.. 1000 watts would be 8.333 amps.. eww..
+	10A is prob fine.. so create an array detailing what order to dump if running, rob start with fans, footwarmer,
+	heaterB, heaterA, xferA, xferB, loop ? hmmm.. should give it a think..
+	But the logic could run once a second easily enough , just before the run_relays get enforced?
+	should help to pulse things.. may try it at lower thresholds to see how effective, or would have to
+	put some load on the circuit to be sure? 
+
+	if (run_average > 1200 ){
+		int guess_running = int(trunc(run_average));
+		for (int i=0; i<numRELAY; i++) {
+			int check_relay = dump_relays[i];
+			if (run_relays[check_relay]) {
+				run_relays[check_relay] = false;
+				guess_running -= r_watts[check_relay];
+				sprintf(cBuffer,"TOO MUCH POWAH! - %s watts! - nixing %s hoping to get down to %d",str_run_average,r_names[check_relay],guess_running);
+				Serial.println(cBuffer);
+				if (guess_running < 1200) {
+					break;
+				}
+			}
+
+		}
+	}
+
+1135 	is noteable that on power event, the system would come back up OK when power restored, but the RPI
+	won't be logging.. the RPI would need to be configured to come up with the shedlogger running... kinda 
+	pain point?
+
+	additional PTCs are now slated to arrive this afternoon.. so yay am looking forward to that.. 
+1140 	/
+
+
+1625 	the 8X 110V AC elements arrived. I think I will add 4 of them to heaterA, doubling its output.
+
+1808 	Beefed up heaterA ( now with 8x PTC thermal glued to exterior cowling ) ready to test?
+
+	Test plan is simple enough... shed is currently holding at 60.98 F. is 49.82 F ambient and rainy.
+	So just need to open the door for a bit?? 
+
+1815 	Watts highest was 850! is dropping back down... HeaterA and HeaterB elements active.. 
+1820 	Weird... settling to ~240 watts, heaterA is cold still.... hmmm.. unplugging it to check
+1823 	OK was just bad connection at the relay itself.. so the relay didn't flip...
+1825	currently ~235 watts, plugging HeaterA AC back in ..
+		Spiked at 1252 watts... Shed is 55.94 F - am closing the door..
+
+		Some small amount of smoke - whisps of smoke.. likely bits of WTF still on the duct / elements..
+
+1828	Settled at about 450 watts.. ( actually 430 watts acording to store-bought)
+1829 	heaterA fan just kicked on! <5 mins from heaterA starting up to seeing fan... temp still rising.
+1832 	oops.. temp looked like it moved and I oops'd and disco'd it for a minute or so?
+1836	HeaterA with 12V DC fan running got to 111 F before.. is currently at 103.. am excited to see
+		how long it will stay kicked off for high temp.. rising at about 2 F / min.. another ~7 mins?
+1840 	appears response time to raise shed 1 F after heaters triggered is ~10 mins.. not bad. 
+		coasting on electric heat alone and fanA running currently 495 / 470 watts .. ~4.2 Amps
+1842 	heaterA 111 F ... Appears it is starting to flatten out...
+1850 	is light rain and no leaks, no drips or droops anywhere... well, maybe something in the south wall,
+	but nothing visible... 
+1853	vs yesterday is about +1.2 Amps ... and Weirdly maybe.. reservoir is starting to warm... 
+	is heaterA just that powerful now? xferA isn't even running and roof is still dropping steady..
+	Ambient steady... so must be heaterA modifications...
+1858 	Was about 30 mins from shed being at 55 and heaterA kicking on to shed at 60 F and electric heat
+	ending.. reservoir gained about 2 degrees in that time... hmmm..
+	So does that mean it should cycle on for about 5 mins at a time when the temp starts to dip ?
+1902 	/
+
+
+2024/11/04 	Monday
+1951 	Damn it, there's salt water all over my floor, reservoir or xfer somewhere still has some leak.
+	But was not problem last week. Will need to trace it down and likely should implement some sort of
+	water level sensor before too long... Should be some DIY instructions for that?
+
+	Water level looks OK for now, so will just monitor for now...
+
+	I'd come out to the shed because its been using ~4 Amps basically all day trying to achieve 60 F,
+	but I hadn't been in the shed all day, I don't need it to try and keep such a high temp.
+
+	So am wanting to add logic to the program to have it lower thermostat at night, or at least allow
+	setting of the 'ComfyTemp' threshold from the device. 
+	Why not both? 
+
+	So first need to be able to set 'ComfyTemp'... best way around this would be to make the rules that
+	check against a temperature check against a value in an array rather than a constant? 
+2000
+2110 	attempting to compile changes...
+2125 	still fighting errors / warnings ... oh right, tempchanges != tempChanges .. silly me..
+		compiled.. do I dare switch over the code? lol.. 
+2127 	oops.. I forgot to put the bit for the temp changes to actually run.. lol 
+
+2128 	lol wut
+21:29:15.071 -> EvaluateRule : main: roof>res - DHT_LT_TARGET_DHT - RESERVOIR : 62.78 F + 661 >= 38.84 :  F - switching off 0 LOOP_PUMP
+21:29:15.218 -> EvaluateRule : xfer1:res>sandA - DHT_LT_TARGET_DHT - SANDA : 60.98 F + 666 >= 62.78 :  F - switching off 1 XFERA_PUMP
+21:29:15.306 -> EvaluateRule : xfer1:res>sandA - DHT_LT_TARGET_DHT - SANDA : 60.98 F + 666 >= 62.78 :  F - switching off 1 XFERA_PUMP
+21:29:15.446 -> EvaluateRule : h0: shed<comfy - TARGET_TEMP_ON_LOW - DHT 0 SHED - 57.38 < 60 F - switching on 5 HEATER_A_ELEMENTS
+21:29:15.541 -> EvaluateRule : m: no freeze - ruleDHT_LT_TEMP_ON - DHT 4 ROOF - 38.84 < 40 F - switching on 0 LOOP_PUMP
+21:29:15.682 -> EvaluateRule : x: no freeze - ruleDHT_LT_TEMP_ON - DHT 4 ROOF - 38.84 < 40 F - switching on 1 XFERA_PUMP
+21:29:15.776 -> EvaluateRule : h0 too hot!!!! - ruleDHT_GT_TEMP_OFF - DHT 7 HEATERA - 128.84 > 120 F - switching off 5 HEATER_A_ELEMENTS
+21:29:15.918 -
+
+
+    { "main: roof>res", ruleDHT_LT_TARGET_DHT, HT_RESERVOIR, HT_ROOF, R_LOOP, 2 }, //0
+how did it get v=661 ? v is a BYTE value.. 
+
+2138 	putting do_temp_events(); after counterHigh=9 made reboot loop.. ?!?!
+		not even did init just flat reboot loop!??! dafuq? 
+2141 	changing type of rule->v to int ?
+2150 	OK  but isn't making change still ?
+2205 	Weird.. is allegedly getting different values for rtcTime[2].. is counting up?
+		oh.. had variables in wrong order.. ok 
+2210 	Still .. why not changing ? 
+2215 	cuz i had the logic exactly backwards.. if current time >= start time... not the other way around..
+		Woot.. now ComfyTemp is set to 40 overnight.. can swap back to RPI
+
+		thermostat changes over time 	/
+
+		Also, still leak.. not sure if leaked more since I got into the shed, but that is definitey salt water.
+		reservoir looks OK for now though. 
+
+2216 	swapping back to RPI logging..
+2218 	SANDB showing ERR.. arrgh
+2235 	system just too fragile, a few other sensors popped as well.. need to get proper bus wired up ASAP.
+
+2338 	I had started to wire up the bridges but then realized how long it was taking and how cold it is
+		now in the shed without the heater system running at all.
+		This will have to wait for morning... for warmth.. 
+
+2024/11/05 	Tuesday
+0820 	Feeling sick, so mainly just want to get the system back to working order for now so I can focus
+	on rest and cleaning my rooms.. 
+
+	Silly thing was spazzing out just resetting.. somehow flashing an older sketch and then reflashing the
+	current one resolved issue... now is just saying err for all the temps.. as expected...
+
+	Doesn't appear there was any further leaking after last night, floor is mostly dry.. 
+0850 	Getting back to hooking up the new connectors.. and soldering the other bus...
+0857 	Fuck.. is just doing reset loop until I flash the old font thing and then reflash the shed heat
+		sketch... weird.. is like it can't boot properly or something.. ah well.. just wanted to be sure
+		I was connecting right things.. hehe
+1000 	OK.. the first 6 temperature sensors are connected... That basically gives passive/solar heating only.
+	And is logging to RPI again.. so not too shabby.. just looks messy..
+
+	Now for bus 2?
+1120 	Yay.. testing partial bus 2 with light sensor connected outside showing success..
+	100% cloudy about an hour before solar noon is about 400... roof is 13 F above ambient.. 
+	This is just connected to Arduino Nano though.. need to finish soldering bus 2 before I can connect
+	to the actual system, but it should work about the same...
+	The actual system doesn't have anything connected and is giving a reading around 330... but losing
+	the sensor with the resistor in place would mean a reading of 0, and sensor shorted gives 1024...
+	My task light was giving about 600... so am unsure what full sun would give but doubt it would look
+	like short.. could adjust resistor if detecting full sun is issue though... 
+1140 	OK... back to finishing bus 2...
+
+1500 	OK bus 2 has a wire crossed between heaterA fan relay and heaterA temp signal... and some of 
+	the connections for bus 1 are iffy when you have to touch the setup.. but I have heat again... amazingly.
+	I am an xfer pump down though.. xferA is toast... I had to add about 4 gallons of water today, but
+	I think the sounds I was hearing was xferA eating it hard.. looking around it, seems likely it was
+	the source of most of the water... so possibly it was leaky and died when temps were very low and
+	the NOFREEZE regime was activated. 
+	Will have to give it a think before replacing it. System should be OK for now though... probably
+	nearly the amount of salt it should have had? 
+1510 	/
+
+2024/11/06 	Wednesday
+0905 	Last night I had to run out to the shed to fix ERR on heaterA/HeaterB sensors. Bus 2 power appears
+	to be somewhat iffy.. heaterA temp sensor also came apart, the corner of the LEGO holding the relays
+	was melted, as was some of the Gorilla tape that had been holding the sensor, and since the wire was
+	a bit short, the melted corner of the LEGO was causing the wires to be pulled out.
+
+	The roof sensor also went ERR, but I did not see anything wrong on the controller end, and didn't
+	wish to go up on the roof in the cold and dark to go look... Besides, since the temp sensors ERR to
+	255, the loop pump would just run continously, thinking the roof was hotter than the reservoir.
+
+	I need to sort out when xferA failed and figure out a suitable replacement or look into joining xferA
+	loop with main loop for now. They could be joined in the reservoir easily enough, just it would 
+	thermally couple the sand battery and heaterA to the reservoir... Which is kinda what happens currently
+	during xfer to sandA?
+	Would still prefer the seperation, so that xfer to sandA doesn't require running through the roof panel...
+
+0915	
+		add light level sensor to graphs
+0925 	well, that was easy enough.. and apparently sunrise 7:05 AM was about 64. It is currently sunny,
+	with about 10% cloud cover, giving a light level reading at about 575... Considering how shady it
+	is in the early morning with the trees across the street and all, it makes sense that there was significant
+	jump at about 9:10 . Yesterday was cloudy and light levels were around 400.. 
+	Seems off that sunny on the light scale looks to be about 70.. so readjusted the scale to top out at 733..
+	Puts 600 inline with 100 F.. 
+
+	Oh yeah, need to seal the roof panel since I cut into the tape to fix the temp sensor.. is just cold
+	outside though.. At least waiting until later I can buy more waterproofing tape?
+
+0945 	So Monday when I went into the shed I thought the water level was OK but there was water all over
+	the floor. Then yesterday I noted didn't appear to be more water leaked out but water level was actually
+	low. XferB worked fine after filling but that's when I noticed xferA wasn't working. I don't recall
+	eyeballing the streams Monday.. 
+	So it possibly died between leaving the shed Sunday after getting called about work, and Tuesday when
+	I refilled the reservoir... xferA should have been using about 25 watts.
+	HeaterA upgraded should be about 250 watts... will need to calculate.. 
+
+2024/11/03 10:57	58.64	54.68	54.68	57.38	76.1	39.2		115.16	102.2	1	1	1	1	1	1	1	0	548.22	
+just pumps - ~125
+
+
+		figure out how xferA pump failed
+
+1010	I think xferA pump failed either due to running dry or some wires shorted out against its case...
+	Either way, basically need a new pump.. OK 
+
+		need new xferA pump.. >_<
+1015 	ordered same kind off Amazon, should be delivere tomorrow, so can install this weekend. OK. 
+
+2024/11/07 	Thursday
+1040 	Was a bit panicked last night, the roof sensor showed 17 F for a bit... At best the water would
+	freeze at about 25 F, actually a bit less maybe as long as it flows... The reservoir only got down
+	to 28 F, and everything other than xferA is working as expected.
+
+	I added the foot warmer.. ComfyFoot is configured to be 60 F except for 0700-1800, where it's 100.
+	Currently its warming up at about 10 F / hour, the temp sensor is barely in the surface of the sand
+	in the back left corner, at least a few inches from the buried heater elements / heat spreader setup
+	that is sorta centered and about half an inch down. So even at 45 F on the sensor, the very middle
+	of the warmer felt warm to the touch, possibly 60-70 F. 
+	Will tune the rules for ComfyFoot once there's more data how it behaves. 
+
+	The foot warmer adds about 60 watts, as was expected. Shed is currently 60 F vs 36 F ambient / Sunny.
+	So 60 F should be maintainable during the day when it is all done... I still have about 1A worth of
+	110 V AC heater elements that I would like to implement into a 'heat dump' - just a heater that would
+	be allowed to get as hot as it wants to be, it will be built to be as safe as possible even at the max
+	~518 F of the heater elements themselves. I have 4 of them, each has a max draw of 1A, but that would
+	be assuming a cold start. 
+
+	Should add the current limiting code as well.. idea would be to keep under max of say 10A based on
+	the higher of last minute or current reading..
+
+1110
+		current limiting code...
+		
+
+		tape up the roof panel
+		stupid leak somewhere...
+		override relays
+		override comfyTemp
+		make it work using a remote? 
+		power cutoff logics
+		Water level sensor for reservoir
+		clean/org shed
+		replace RPI power cord with 10 footer
+		light sensor
 		xferA/B to warm shed? at least xferA should be able to??
 		more heat elements for heaterA ?
 		heat powered fans for heaters?

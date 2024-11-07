@@ -72,6 +72,18 @@
           return d.Watts/120.0;
        });
 
+       var shed_hum = players.map(function (d) {
+          return d.SHED_HUM;
+       });
+
+       var ambient_hum = players.map(function (d) {
+          return d.AMBIENT_HUM;
+       });
+
+       var light = players.map(function (d) {
+          return d.light;
+       });
+
         var chart = new Chart("myChart", {
           
           data: {
@@ -147,6 +159,18 @@
               {type: "line",
                 data: ambient, label: "AMBIENT", borderColor: "#888888", yAxisID: 'y',pointRadius:1,
               },
+              {type: "line",
+                data: ambient_hum, label: "AMBIENT HUMIDITY", borderColor: "#8888CC", yAxisID: 'y',pointRadius:3,pointStyle:'triangle'
+              },
+              {type: "line",
+                data: shed_hum, label: "SHED HUMIDITY", borderColor: "#000044", yAxisID: 'y',pointRadius:3,pointStyle:'triangle'
+              },
+              {type: "line",
+                data: light, label: "LIGHT LEVEL", borderColor: "#CCCC00", yAxisID: 'light',pointRadius:8,pointStyle:'star', 
+                borderWidth: 4,
+              },
+
+
             ]
           },
                       options: {
@@ -167,7 +191,12 @@
                   grid: {
                     lineWidth: 2,
                     color: "#444444"
-                  }
+                  },
+                },
+                light: {
+                  position: 'right',
+                  min: -67,
+                  max: 733,
                 }
               },
             },

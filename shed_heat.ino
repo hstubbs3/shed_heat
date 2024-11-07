@@ -1,15 +1,104 @@
-#define ComfyTemp 60
-#define HighComfyTemp 69
-#define ComfyFoot 90
-#define HEAT_ELEMENT_MAX_TEMP 120
 #define setupDelayTime 100
 #define WATTS_MILLIS 200
 
+
 float watts_factor = 4200.0;
-
 int light_level = -1; 
-
 char cBuffer[256];
+
+struct struct_temp{
+  char n[15]; //name
+  byte t; // current setting
+  struct_temp (char *_n, byte _t ) : t(_t)  { memcpy(n,_n,14); n[14]=0; }
+} ;
+
+typedef struct_temp Temperature;
+
+Temperature daTemps[] = {
+  { "ComfyTemp", 60 },
+  { "ComfyFoot", 90 },
+  { "ELEM_MAX", 120 },
+  { "NoFreeze",  40 },
+};
+
+enum TEMP: byte {
+  COMFYTEMP=0,
+  COMFYFOOT=1,
+  ELEM_MAX=2,
+  NOFREEZE=3,
+  NO_TEMP=255,
+};
+
+struct struct_TEMP_TIME_EVENT {
+  TEMP t; // temperature affected
+  byte h; // 24 hour time to start
+  byte m; // minute to start at
+  byte v; // value to change the temp to...
+  struct_TEMP_TIME_EVENT( TEMP _t, byte _h, byte _m, byte _v) : t(_t), h(_h), m(_m), v(_v) {}
+} ; 
+
+typedef struct_TEMP_TIME_EVENT TEMP_TIME_EVENT;
+
+TEMP_TIME_EVENT tempChanges[] = {
+  { COMFYTEMP,  0,  0,  40 }, //0
+  { COMFYFOOT,  0,  0,  60 }, //1
+  { COMFYTEMP,  7,  0,  50 }, //2
+  { COMFYFOOT,  7,  0, 100 }, //3
+  { COMFYTEMP,  8,  0,  60 }, //4
+  { COMFYTEMP, 18,  0,  40 }, //5
+  { COMFYFOOT, 18,  0,  60 }, //6
+  { NO_TEMP,    0,  0,   0 }, //7
+};
+
+byte rtcTime[7]; //second, minute, hour, dayOfWeek, dayOfMonth, month, year;
+int counterLow=1; //setting up a ghetto counter to be like counterHigh is seconds
+int counterMed=0; // tries to be 1/100th second...
+int counterHigh=1; // ticks once a second..
+int keypress_counter=0; // for reading key presses... 
+char customKey = 0; 
+int mode=3 ; // for switching between menus and screens...
+int oldmode=-1; 
+
+int secondLoops=1; //actually 1/10th of second...
+byte mode0_display_second=99;
+
+char dateTimeStamp[64]; // ie -  "2024/10/12 10:24:00 - HH M LLLL/TTTT | " but up to 64 length just in case... 
+
+void makeDateTimeStamp(){
+  sprintf(dateTimeStamp,"20%02d/%02d/%02d %02d:%02d:%02d - %02d %d %04d/%04d ::",rtcTime[6],rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1],rtcTime[0],counterHigh,counterMed,counterLow,secondLoops);
+}
+
+void do_temp_events(int h, int m){
+//  Serial.println("do_temp_events");
+  byte oldTemps[4];
+  for ( int i=0; i<4; i++) {
+    oldTemps[i]=daTemps[i].t;
+  }
+  byte lastChanged[4]={255,255,255,255};
+  
+  for (int i=0; i<8; i++) {
+    if(tempChanges[i].t!=NO_TEMP){
+      //byte rtcTime[7]; //second, minute, hour, dayOfWeek, dayOfMonth, month, year;
+//      sprintf(cBuffer,"%02d:%02d  tempChanges[%d] : %s to %d at %02d:%02d",h,m,i,daTemps[tempChanges[i].t].n,tempChanges[i].v,tempChanges[i].h,tempChanges[i].m);
+//      Serial.print(cBuffer);
+      if( h > tempChanges[i].h || ( tempChanges[i].h==h && m >= tempChanges[i].m)){
+        daTemps[tempChanges[i].t].t = tempChanges[i].v ; lastChanged[tempChanges[i].t]=i;        
+//        Serial.println(" CHANGED");
+      } else {
+//        Serial.println("");
+      }
+    }
+  }
+  for (int i=0; i<4; i++) {
+    if ( daTemps[i].t != oldTemps[i] ) { // so the temp was actually changed...
+      Serial.print(dateTimeStamp); Serial.print(daTemps[i].n); Serial.print(" updated according to tempChanges[");Serial.print(lastChanged[i]);Serial.print(" from "); Serial.print(oldTemps[i]);Serial.print(" to ");Serial.println(daTemps[i].t);
+    } else {
+      Serial.print(dateTimeStamp); Serial.print(daTemps[i].n); Serial.print(" still at ");Serial.println(oldTemps[i]);
+    }
+  }
+}
+
+
 
 
 //temp sensors
@@ -118,14 +207,14 @@ char *r_names[]={(char *)&heatloop,(char *)&xfer1,(char *)&xfer2,(char *)&heatfa
 bool run_relays[numRELAY];
 byte r_pins[]={12,11,10,9,7,8,6,5};
 int r_watts[]={
-  25, // loop pump
-  20, // xfer 1
-  20, // xfer 2
-  10, // heat 1 fans
-  125, // heat 2 fan
-  30, // heater 1
+  75, // loop pump
+  25, // xfer 1
+  25, // xfer 2
+  60, // heat 1 fans
+  60, // heat 2 fan
+  100, // heater 1
   200,// heater 2
-  100 // foot warmer
+   50 // foot warmer
   };
 
 
@@ -136,10 +225,10 @@ struct tempRule {
   byte a;
   byte b;
   byte r;
-  byte v;
+  int v;
   char d[16]; // so can always be displayed on the 16x2 ? 
   
-  tempRule(char *_d, ruleTypes _t, byte _a, byte _b, byte _r, byte _v ) : t(_t), a(_a), b(_b), r(_r), v(_v) { memcpy(d,_d,15); d[15]=0; }
+  tempRule(char *_d, ruleTypes _t, byte _a, byte _b, byte _r, int _v ) : t(_t), a(_a), b(_b), r(_r), v(_v) { memcpy(d,_d,15); d[15]=0; }
 };
 
 bool evaluateRule( struct tempRule* rule, bool verbose=true){
@@ -175,40 +264,40 @@ bool evaluateRule( struct tempRule* rule, bool verbose=true){
         }
         break;
     case ruleDHT_TARGET_TEMP_ON_LOW:
-        if ( dht_reads[rule->a].iF < rule->b && !run_relays[rule->r]) {
-           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s < %d F - switching on %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
+        if ( dht_reads[rule->a].iF < daTemps[rule->b].t && !run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s < %d F - switching on %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,daTemps[rule->b].t,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=true; // relay will switch on loop... 
-        } else if ( dht_reads[rule->a].iF >= rule->b && run_relays[rule->r]) {
-           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s >= %d F - switching off %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
+        } else if ( dht_reads[rule->a].iF >= daTemps[rule->b].t && run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s >= %d F - switching off %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,daTemps[rule->b].t,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=false; // relay will switch on loop... 
           
         } else if (verbose) {
-          sprintf(cBuffer,"EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s ? %d F - nothing to change",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b);
+          sprintf(cBuffer,"EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s ? %d F - nothing to change",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,daTemps[rule->b].t);
           Serial.println(cBuffer);
         }
         break;
 
     case ruleDHT_GT_TEMP_OFF:
-        if ( dht_reads[rule->a].iF > rule->b && run_relays[rule->r]) {
-           sprintf(cBuffer, "EvaluateRule : %s - ruleDHT_GT_TEMP_OFF - DHT %d %s - %s > %d F - switching off %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
+        if ( dht_reads[rule->a].iF > daTemps[rule->b].t && run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - ruleDHT_GT_TEMP_OFF - DHT %d %s - %s > %d F - switching off %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,daTemps[rule->b].t,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=false; // relay will switch off loop... 
           
         } else if (verbose) {
-          sprintf(cBuffer,"EvaluateRule : %s - ruleDHT_GT_TEMP_OFF - DHT %d %s - %s ? %d F - nothing to change",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b);
+          sprintf(cBuffer,"EvaluateRule : %s - ruleDHT_GT_TEMP_OFF - DHT %d %s - %s ? %d F - nothing to change",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,daTemps[rule->b].t);
           Serial.println(cBuffer);
         }
         break;
     case ruleDHT_LT_TEMP_ON:
-        if ( dht_reads[rule->a].iF < rule->b && !run_relays[rule->r]) {
-           sprintf(cBuffer, "EvaluateRule : %s - ruleDHT_LT_TEMP_ON - DHT %d %s - %s < %d F - switching on %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b,rule->r,r_names[rule->r]);
+        if ( dht_reads[rule->a].iF < daTemps[rule->b].t && !run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - ruleDHT_LT_TEMP_ON - DHT %d %s - %s < %d F - switching on %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,daTemps[rule->b].t,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=true; // relay will switch on loop... 
           
         } else if (verbose) {
-          sprintf(cBuffer,"EvaluateRule : %s - ruleDHT_LT_TEMP_ON - DHT %d %s - %s ? %d F - nothing to change",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,rule->b);
+          sprintf(cBuffer,"EvaluateRule : %s - ruleDHT_LT_TEMP_ON - DHT %d %s - %s ? %d F - nothing to change",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,daTemps[rule->b].t);
           Serial.println(cBuffer);
         }
         break;
@@ -230,28 +319,37 @@ char ruleF[]="end of list";
 */
 //  tempRule(char *_d;, ruleTypes _t, byte _a, byte _b, byte _r ) : t(_t), a(_a), b(_b), r(_r) { memcpy(d,_d,16); d[16]=0; }
 
+/*
+enum TEMP: byte {
+  COMFYTEMP=0,
+  COMFYFOOT=1,
+  ELEM_MAX=2,
+  NOFREEZE=3,
+  NO_TEMP=255;
+};
+*/
 struct tempRule daRules[] = {
-//  { "0123456789ABCDE",  rule type, a, b, r }, 
+//  { "0123456789ABCDE",  rule type, a, b, r, v }, 
     { "main: roof>res", ruleDHT_LT_TARGET_DHT, HT_RESERVOIR, HT_ROOF, R_LOOP, 2 }, //0
     { "xfer1:res>sandA", ruleDHT_LT_TARGET_DHT, HT_SANDA, HT_RESERVOIR, R_XFERA, 2 }, //1
     { "xfer2:res>sandB", ruleDHT_LT_TARGET_DHT, HT_SANDB, HT_RESERVOIR, R_XFERB, 2 }, //1
-    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT_A, 0 }, //2
-    { "f0: shed<heatA", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATERA, R_HEAT_A_FAN, 40 }, //3
-    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, ComfyTemp, R_HEAT_B, 0 }, //2
+    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, COMFYTEMP, R_HEAT_A, 0 }, //2
+    { "f0: shed<heatA", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATERA, R_HEAT_A_FAN, 60 }, //3
+    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, COMFYTEMP, R_HEAT_B, 0 }, //2
     { "f0: shed<heatB", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATERB, R_HEAT_B_FAN, 40 }, //3
-    { "foot warmer", ruleDHT_TARGET_TEMP_ON_LOW, HT_FOOT, ComfyFoot, R_FOOT, 0 }, //4
-    { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_LOOP, 0}, //5  so the system doesn't freeze... using 30 to account for salt water...
-    { "x: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_XFERA, 0}, //6 ... xferA is looped with heater A / sand A by the door , inline with HeaterA which will serve to keep loop from freezing..
-    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, 30, R_HEAT_A, 0 }, //7
-    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERA, HEAT_ELEMENT_MAX_TEMP, R_HEAT_A, 0 }, //8
-    { "h1 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERB, HEAT_ELEMENT_MAX_TEMP, R_HEAT_B, 0 }, //9
-    { "hot foot!!!!", ruleDHT_GT_TEMP_OFF, HT_FOOT, HEAT_ELEMENT_MAX_TEMP, R_FOOT, 0 }, //10
+    { "foot warmer", ruleDHT_TARGET_TEMP_ON_LOW, HT_FOOT, COMFYFOOT, R_FOOT, 0 }, //4
+    { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_LOOP, 0}, //5  so the system doesn't freeze... using 30 to account for salt water...
+    { "x: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_XFERA, 0}, //6 ... xferA is looped with heater A / sand A by the door , inline with HeaterA which will serve to keep loop from freezing..
+    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_HEAT_A, 0 }, //7
+    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERA, ELEM_MAX, R_HEAT_A, 0 }, //8
+    { "h1 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERB, ELEM_MAX, R_HEAT_B, 0 }, //9
+    { "hot foot!!!!", ruleDHT_GT_TEMP_OFF, HT_FOOT, ELEM_MAX, R_FOOT, 0 }, //10
     { "End Of List", ruleEND_LIST,0,0,0, 0 }, //15 <- so up to 16 rules... 
 
-    { "hot fan A!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_HEAT_A_FAN, 0 }, //11
-    { "hot fan B!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_HEAT_B_FAN, 0 }, //12
-    { "hot shed-xA!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_XFERA, 0 },// 13
-    { "hot shed-xB!!", ruleDHT_GT_TEMP_OFF, HT_SHED, ComfyTemp, R_XFERB, 0 },// 14
+    { "hot fan A!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, COMFYTEMP, R_HEAT_A_FAN, 0 }, //11
+    { "hot fan B!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, COMFYTEMP, R_HEAT_B_FAN, 0 }, //12
+    { "hot shed-xA!!", ruleDHT_GT_TEMP_OFF, HT_SHED, COMFYTEMP, R_XFERA, 0 },// 13
+    { "hot shed-xB!!", ruleDHT_GT_TEMP_OFF, HT_SHED, COMFYTEMP, R_XFERB, 0 },// 14
 };
 
  
@@ -501,8 +599,6 @@ void strTimeStamp(char *output){
   Serial.println(output);
 }
 
-byte rtcTime[7]; //second, minute, hour, dayOfWeek, dayOfMonth, month, year;
-
 //power monitoring stuffs..
 
 #include <Adafruit_ADS1X15.h>
@@ -611,18 +707,6 @@ void setup() {
   readDS3231time(&rtcTime[0], &rtcTime[1],&rtcTime[2],&rtcTime[3],&rtcTime[4],&rtcTime[5],&rtcTime[6]);
 }
 
-int counterLow=1; //setting up a ghetto counter to be like counterHigh is seconds
-int counterMed=0; // tries to be 1/100th second...
-int counterHigh=1; // ticks once a second..
-int keypress_counter=0; // for reading key presses... 
-char customKey = 0; 
-int mode=3 ; // for switching between menus and screens...
-int oldmode=-1; 
-
-
-
-int secondLoops=1; //actually 1/10th of second...
-byte mode0_display_second=99;
 
 byte setTime[8]; //for setting time using mode 2..
 
@@ -645,11 +729,7 @@ char setTimeString[13][17] = {
    "SECONDS - ones  "
 };
 
-char dateTimeStamp[64]; // ie -  "2024/10/12 10:24:00 - HH M LLLL/TTTT | " but up to 64 length just in case... 
 
-void makeDateTimeStamp(){
-  sprintf(dateTimeStamp,"20%02d/%02d/%02d %02d:%02d:%02d - %02d %d %04d/%04d ::",rtcTime[6],rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1],rtcTime[0],counterHigh,counterMed,counterLow,secondLoops);
-}
 
 byte last_csv_minute = -1;
 
@@ -679,7 +759,6 @@ void loop() {
   }
  */
   // put your main code here, to run repeatedly:
-  makeDateTimeStamp();
 
   if (keypress_counter==0) {
     customKey = customKeypad.getKey();  
@@ -997,6 +1076,7 @@ void loop() {
         Serial.println(rtcTime[3]);
         rtcTime[3]=7; 
       }
+      makeDateTimeStamp();
 
       counterMed=1;
      int16_t maxi = -32000;
@@ -1041,6 +1121,8 @@ void loop() {
         //sprintf(cBuffer,"LCD display : %s -- %s",lcdLine0,lcdLine1);
         //Serial.println(cBuffer);
         counterHigh=9; //do stuff every 10s..
+        do_temp_events(rtcTime[2],rtcTime[1]);
+        light_level=analogRead(A0);
         Serial.print("Light Level: "); Serial.print(light_level); Serial.println("");
         check_all_DHT();
         int i=0; //struct tempRule* rule
