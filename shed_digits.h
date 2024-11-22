@@ -4,6 +4,7 @@
 // using 4x bitmaps and make them like 8 high only...
 // will need a 'backspace' character for between the label and temperature though..
 
+//coercing to height 12 to add another temp sensor without further mods needed..
 const uint8_t shed_digits_Bitmaps[] PROGMEM = {
 	// 0 - 1 using 2x10 bits...
     0b01111101, 0b00011111, 0b11010000,
@@ -260,4 +261,4 @@ const GFXglyph shed_digits_Glyphs[] PROGMEM = {
   {    0,    4,    8,   4,    0,   -10 },   // 0x5A 'Z'
 };
 
-const GFXfont shed_digits PROGMEM = {(uint8_t *) shed_digits_Bitmaps,  (GFXglyph *)shed_digits_Glyphs, 0x20, 0x5A,  13};
+const GFXfont shed_digits PROGMEM = {(uint8_t *) shed_digits_Bitmaps,  (GFXglyph *)shed_digits_Glyphs, 0x20, 0x5A,  12};

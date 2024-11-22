@@ -1,6 +1,8 @@
 #define setupDelayTime 100
 #define WATTS_MILLIS 200
 
+int max_watts_spike=1300;
+int max_watts_minute=1200;
 
 float watts_factor = 4200.0;
 int light_level = -1; 
@@ -18,7 +20,7 @@ Temperature daTemps[] = {
   { "ComfyTemp", 60 },
   { "ComfyFoot", 90 },
   { "ELEM_MAX", 120 },
-  { "NoFreeze",  40 },
+  { "NoFreeze",  35 },
 };
 
 enum TEMP: byte {
@@ -41,12 +43,12 @@ typedef struct_TEMP_TIME_EVENT TEMP_TIME_EVENT;
 
 TEMP_TIME_EVENT tempChanges[] = {
   { COMFYTEMP,  0,  0,  40 }, //0
-  { COMFYFOOT,  0,  0,  60 }, //1
-  { COMFYTEMP,  7,  0,  50 }, //2
-  { COMFYFOOT,  7,  0, 100 }, //3
-  { COMFYTEMP,  8,  0,  60 }, //4
-  { COMFYTEMP, 18,  0,  40 }, //5
-  { COMFYFOOT, 18,  0,  60 }, //6
+  { COMFYTEMP,  5,  0,  60 }, //1
+  { COMFYTEMP, 18,  0,  40 }, //2  
+  { COMFYFOOT,  0,  0,  60 }, //3
+  { COMFYFOOT,  4,  0, 100 }, //4
+  { COMFYFOOT, 18,  0,  80 }, //5
+  { NO_TEMP,    0,  0,   0 }, //6
   { NO_TEMP,    0,  0,   0 }, //7
 };
 
@@ -54,7 +56,7 @@ byte rtcTime[7]; //second, minute, hour, dayOfWeek, dayOfMonth, month, year;
 int counterLow=1; //setting up a ghetto counter to be like counterHigh is seconds
 int counterMed=0; // tries to be 1/100th second...
 int counterHigh=1; // ticks once a second..
-int keypress_counter=0; // for reading key presses... 
+unsigned long int keypress_counter=0; // for reading key presses... 
 char customKey = 0; 
 int mode=3 ; // for switching between menus and screens...
 int oldmode=-1; 
@@ -104,7 +106,7 @@ void do_temp_events(int h, int m){
 //temp sensors
 #include <DHT.h>
 
-#define numHT 9
+#define numHT 10
 char shed[] = "SHED";
 char ambient[] = "AMBIENT";
 char resevoir[] = "RESERVOIR";
@@ -115,6 +117,7 @@ char foot[] = "FOOTWARM";
 char missingno[] = "NOT HERE";
 char sand2[] = "SANDB";
 char heater[] = "HEATERB" ;
+char floortemp[] = "FLOOR";
 
 //this ordering is to reflect how the heat from the roof panel should flow to the shed...
 enum eHT: byte {
@@ -127,10 +130,11 @@ enum eHT: byte {
   HT_FOOT=6,
   HT_HEATERA=7,
   HT_HEATERB=8,
+  HT_FLOOR=9,
   } ;
 
-char *HT_names[] = {(char*)&shed,(char*)&sand,(char*)&sand2,(char*)&resevoir,(char*)&roof,(char*)&ambient,(char*)&foot,(char*)&heatsink,(char*)&heater,(char*)&missingno};
-byte HT_Pins[] = {24,25,26,27,28,29,30,31,32} ;
+char *HT_names[] = {(char*)&shed,(char*)&sand,(char*)&sand2,(char*)&resevoir,(char*)&roof,(char*)&ambient,(char*)&foot,(char*)&heatsink,(char*)&heater,(char*)floortemp,(char*)&missingno};
+byte HT_Pins[] = {24,25,26,27,28,29,30,31,32,33} ;
 
 DHT dht[] ={
   {24,DHT11},
@@ -141,7 +145,8 @@ DHT dht[] ={
   {29,DHT11},  
   {30,DHT11},
   {31,DHT11},
-  {32,DHT11}
+  {32,DHT11},
+  {33,DHT11},
 };
 
 struct dht_readout { 
@@ -192,8 +197,8 @@ void check_all_DHT(){
 }
 
 //relays
-#define numRELAY 8
-enum relays: byte {R_LOOP=0,R_XFERA=1,R_XFERB=2,R_HEAT_A_FAN=3,R_HEAT_B_FAN=4,R_HEAT_A=5,R_HEAT_B=6,R_FOOT=7}; 
+#define numRELAY 9
+enum relays: byte {R_LOOP=0,R_XFERA=1,R_XFERB=2,R_HEAT_A_FAN=3,R_HEAT_B_FAN=4,R_HEAT_A=5,R_HEAT_B=6,R_FOOT=7,R_XFERA_HEAT=8}; 
 char heatloop[]="LOOP_PUMP";  
 char xfer1[]="XFERA_PUMP";
 char xfer2[]="XFERB_PUMP";
@@ -202,21 +207,61 @@ char heatelem[]="HEATER_A_ELEMENTS";
 char footwarm[]="FOOT_WARMER";
 char heat1fans[] = "HEATER_B_FANS";
 char heatelem1[] = "HEATER_B_ELEMENTS";
+char xferAheat[] = "XFERA_HEAT";
 
-char *r_names[]={(char *)&heatloop,(char *)&xfer1,(char *)&xfer2,(char *)&heatfan,(char *)&heat1fans,(char *)&heatelem,(char *)&heatelem1,(char *)&footwarm};
+char *r_names[]={(char *)&heatloop,(char *)&xfer1,(char *)&xfer2,(char *)&heatfan,(char *)&heat1fans,(char *)&heatelem,(char *)&heatelem1,(char *)&footwarm,(char *)&xferAheat};
 bool run_relays[numRELAY];
-byte r_pins[]={12,11,10,9,7,8,6,5};
+byte r_pins[]={12,11,10,9,7,8,6,5,4};
 int r_watts[]={
   75, // loop pump
   25, // xfer 1
   25, // xfer 2
-  60, // heat 1 fans
-  60, // heat 2 fan
-  100, // heater 1
+  50, // heat 1 fans
+  25, // heat 2 fan
+  250, // heater 1
   200,// heater 2
-   50 // foot warmer
+   50, // foot warmer
+  100, // xferA heat
   };
 
+relays r_shutdown_list[numRELAY]={
+  R_HEAT_A_FAN,
+  R_HEAT_B_FAN,
+  R_FOOT,
+  R_HEAT_B,
+  R_XFERB,
+  R_HEAT_A,
+  R_XFERA_HEAT,
+  R_XFERA,
+  R_LOOP,
+};
+
+
+void check_watts_ok(int current_watts, int last_min_watts){
+  if ( last_min_watts > max_watts_minute ) { // we check the long plan first to avoid situation where something hits current watts over and over getting turned off and so want to just keep stuff off... ?
+    sprintf(cBuffer,"%s check_watts_ok:: last_minute MAX: %d but current usage is %d",dateTimeStamp,max_watts_minute,last_min_watts);Serial.println(cBuffer);
+    for (int i=0; i<numRELAY; i++){
+      int relayIndex = r_shutdown_list[i];
+      if (run_relays[relayIndex]){
+        run_relays[relayIndex]=false;
+        last_min_watts -= r_watts[relayIndex];
+        sprintf(cBuffer,"%s check_watts_ok:: disabling relay %d %s trying to save %d watts to get maybe to %d",dateTimeStamp,relayIndex,r_names[relayIndex],r_watts[relayIndex],last_min_watts);Serial.println(cBuffer);
+        if ( last_min_watts < max_watts_spike ) { break; }
+      }
+    }
+  } else if ( current_watts > max_watts_spike ) {
+    sprintf(cBuffer,"%s check_watts_ok:: spike MAX: %d but current usage is %d",dateTimeStamp,max_watts_spike,current_watts);Serial.println(cBuffer);
+    for (int i=0; i<numRELAY; i++){
+      int relayIndex = r_shutdown_list[i];
+      if (run_relays[relayIndex]){
+        run_relays[relayIndex]=false;
+        current_watts -= r_watts[relayIndex];
+        sprintf(cBuffer,"%s check_watts_ok:: disabling relay %d %s trying to save %d watts to get maybe to %d",dateTimeStamp,relayIndex,r_names[relayIndex],r_watts[relayIndex],current_watts);Serial.println(cBuffer);
+        if ( current_watts < max_watts_spike ) { break; }
+      }
+    }
+  }
+}
 
 enum ruleTypes: byte { ruleEND_LIST,ruleDHT_TARGET_TEMP_ON_HIGH, ruleDHT_TARGET_TEMP_ON_LOW, ruleDHT_LT_DHT_ON, ruleDHT_LT_DHT_OFF, ruleDHT_GT_DHT_ON, ruleDHT_GT_DHT_OFF, ruleDHT_LT_TARGET_DHT, ruleDHT_GT_TEMP_OFF, ruleDHT_LT_TEMP_ON };
 
@@ -291,13 +336,13 @@ bool evaluateRule( struct tempRule* rule, bool verbose=true){
         }
         break;
     case ruleDHT_LT_TEMP_ON:
-        if ( dht_reads[rule->a].iF < daTemps[rule->b].t && !run_relays[rule->r]) {
-           sprintf(cBuffer, "EvaluateRule : %s - ruleDHT_LT_TEMP_ON - DHT %d %s - %s < %d F - switching on %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,daTemps[rule->b].t,rule->r,r_names[rule->r]);
+        if ( dht_reads[rule->a].iF < daTemps[rule->b].t - rule->v && !run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - ruleDHT_LT_TEMP_ON - DHT %d %s - %s < %d - %d F - switching on %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,daTemps[rule->b].t,rule->v,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=true; // relay will switch on loop... 
           
         } else if (verbose) {
-          sprintf(cBuffer,"EvaluateRule : %s - ruleDHT_LT_TEMP_ON - DHT %d %s - %s ? %d F - nothing to change",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,daTemps[rule->b].t);
+          sprintf(cBuffer,"EvaluateRule : %s - ruleDHT_LT_TEMP_ON - DHT %d %s - %s ? %d - %d F - nothing to change",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,daTemps[rule->b].t,rule->v);
           Serial.println(cBuffer);
         }
         break;
@@ -339,17 +384,16 @@ struct tempRule daRules[] = {
     { "f0: shed<heatB", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATERB, R_HEAT_B_FAN, 40 }, //3
     { "foot warmer", ruleDHT_TARGET_TEMP_ON_LOW, HT_FOOT, COMFYFOOT, R_FOOT, 0 }, //4
     { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_LOOP, 0}, //5  so the system doesn't freeze... using 30 to account for salt water...
-    { "x: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_XFERA, 0}, //6 ... xferA is looped with heater A / sand A by the door , inline with HeaterA which will serve to keep loop from freezing..
-    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_HEAT_A, 0 }, //7
-    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERA, ELEM_MAX, R_HEAT_A, 0 }, //8
-    { "h1 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERB, ELEM_MAX, R_HEAT_B, 0 }, //9
-    { "hot foot!!!!", ruleDHT_GT_TEMP_OFF, HT_FOOT, ELEM_MAX, R_FOOT, 0 }, //10
+    { "xA: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_XFERA, 2}, //6 ... xferA is looped with heater A / sand A by the door , inline with HeaterA which will serve to keep loop from freezing..
+    { "xB: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_XFERB, 4}, // 7
+    { "xAh: no freeze", ruleDHT_TARGET_TEMP_ON_LOW, HT_ROOF, NOFREEZE, R_XFERA_HEAT, 6}, // 8
+    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_HEAT_A, 8 }, //9
+    { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERA, ELEM_MAX, R_HEAT_A, 0 }, //10
+    { "h1 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERB, ELEM_MAX, R_HEAT_B, 0 }, //11
+    { "hot foot!!!!", ruleDHT_GT_TEMP_OFF, HT_FOOT, ELEM_MAX, R_FOOT, 0 }, //12
     { "End Of List", ruleEND_LIST,0,0,0, 0 }, //15 <- so up to 16 rules... 
-
-    { "hot fan A!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, COMFYTEMP, R_HEAT_A_FAN, 0 }, //11
-    { "hot fan B!!!", ruleDHT_GT_TEMP_OFF, HT_SHED, COMFYTEMP, R_HEAT_B_FAN, 0 }, //12
-    { "hot shed-xA!!", ruleDHT_GT_TEMP_OFF, HT_SHED, COMFYTEMP, R_XFERA, 0 },// 13
-    { "hot shed-xB!!", ruleDHT_GT_TEMP_OFF, HT_SHED, COMFYTEMP, R_XFERB, 0 },// 14
+    { "End Of List", ruleEND_LIST,0,0,0, 0 }, //15 <- so up to 16 rules... 
+    { "End Of List", ruleEND_LIST,0,0,0, 0 }, //15 <- so up to 16 rules... 
 };
 
  
@@ -769,11 +813,11 @@ void loop() {
      display.setCursor(120, 0);
      display.setTextSize(1); // Draw 1X-scale text
      display.println(customKey);
-     keypress_counter=499;
+     keypress_counter=499 + millis();
      }
-  } else {
-    keypress_counter--;
+  } else if ( millis() > keypress_counter ){ 
     customKey = 0;
+    keypress_counter = 0;
   }
   //process current mode
   switch(mode){
@@ -979,7 +1023,7 @@ void loop() {
           display.print(cBuffer);
           if ( dht_reads[i].iF > 200) { display.println(",ERROR"); }
           else {
-          if ( dht_reads[i].iF > 100 ){ 
+          if ( dht_reads[i].iF >= 100 ){ 
             display.print("/"); 
             if (dht_reads[i].iF < 110) {display.print("0"); }
             display.print(dht_reads[i].iF-100);
@@ -999,9 +1043,9 @@ void loop() {
           else { display.print("_"); }
        }
        display.println("");
-        display.print(int_max_min); display.println(" WATTS");
-      break;
+        display.print(int_max_min); display.print(" W "); display.print(light_level);
       }
+      break;
   }
 
   //process switching to other mode...
@@ -1102,7 +1146,7 @@ void loop() {
     last_min_secs[run_counter]=max_min/60.0;
     run_average += last_min_secs[run_counter] ;
     dtostrf(run_average,3,2,str_run_average);
-    
+
     run_counter += 1;
     if (run_counter >=60) { run_counter=0; }
   
@@ -1114,6 +1158,8 @@ void loop() {
       sprintf(cBuffer," - maxi: %d mini: %d - Watts: %s - last_min_watts: %s",maxi,mini,str_max_min,str_run_average);
       Serial.println(cBuffer);
       sprintf(lcdLine0,"%2d/%2d   %2d:%02d:%02d",rtcTime[5],rtcTime[4],rtcTime[2],rtcTime[1],rtcTime[0]);
+
+    check_watts_ok(int_max_min,int(trunc(run_average))); // enforce power limits
 
      if (counterHigh==0){ //stuff to do every 10s
         
@@ -1150,6 +1196,8 @@ void loop() {
         Serial.print(" :: ~");
         Serial.print(watts);
         Serial.println(" watts");
+    } else {
+      counterHigh--;
 
         if ( last_csv_minute != rtcTime[1] ){
           last_csv_minute = rtcTime[1];
@@ -1185,10 +1233,7 @@ void loop() {
           Serial.print(light_level); Serial.println(",");
         }
 
-    } else {
-      counterHigh--;
      }
-
     
  
     }

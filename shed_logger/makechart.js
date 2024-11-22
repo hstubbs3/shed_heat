@@ -11,6 +11,10 @@
           return d.SHED;
         });
 
+        var floortemp = players.map(function (d) {
+          return d.FLOOR;
+        });
+
         var heatera = players.map(function (d) {
           return d.HEATERA;
         });
@@ -40,34 +44,37 @@
         });
 
        var loop_pump = players.map(function (d) {
-          return d.LOOP_PUMP*0.125-1.0;
+          return d.LOOP_PUMP*0.2-1.1;
         });
        var xfera_pump = players.map(function (d) {
-          return d.XFERA_PUMP*0.25-1.0;
+          return d.XFERA_PUMP*0.3-1.1;
         });
 
        var xferb_pump = players.map(function (d) {
-          return d.XFERB_PUMP*0.375-1.0;
+          return d.XFERB_PUMP*0.4-1.1;
         });
 
        var heater_a_fan = players.map(function (d) {
-          return d.HEATER_A_FAN*0.5-1.0;
+          return d.HEATER_A_FAN*0.5-1.1;
         });
        var heater_a_elements = players.map(function (d) {
-          return d.HEATER_A_ELEMENTS*0.625-1.0;
+          return d.HEATER_A_ELEMENTS*0.6-1.1;
         });
 
        var heater_b_fans = players.map(function (d) {
-          return d.HEATER_B_FANS*0.75-1.0;
+          return d.HEATER_B_FANS*0.7-1.1;
         });
        var heater_b_elements = players.map(function (d) {
-          return d.HEATER_B_ELEMENTS*0.875-1.0;
+          return d.HEATER_B_ELEMENTS*0.8-1.1;
         });
 
        var foot_warmer = players.map(function (d) {
-          return d.FOOT_WARMER*1.0-1.0;
+          return d.FOOT_WARMER*0.9-1.1;
         });
 
+       var xfera_heat = players.map(function (d) {
+          return d.XFERA_HEAT*1.0-1.1;
+        }); 
        var amps = players.map(function (d) {
           return d.Watts/120.0;
        });
@@ -123,10 +130,14 @@
                 data: foot_warmer, label: "FOOT_WARMER", backgroundColor: "#FF0000", yAxisID: 'y1',pointRadius:1,
                 borderColor: "#FF0000", pointStyle: 'rect', borderWidth: 2, stepped: true,
               },
+              {type: "line",
+                data: xfera_heat, label: "XFERA_HEAT", backgroundColor: "#CC6600", yAxisID: 'y1',pointRadius:1,
+                borderColor: "#FF0000", pointStyle: 'rect', borderWidth: 2, stepped: true,
+              },
 
               {type: "line",
-                data: amps, label: "AMPS (TOTAL/SHED)", backgroundColor: "#888844", yAxisID: 'y1',pointRadius:1,
-                borderColor: "#888844",
+                data: amps, label: "AMPS (TOTAL/SHED)", backgroundColor: "#888844", yAxisID: 'y1',pointRadius:5,
+                borderColor: "#888844", borderWidth: 4,pointStyle: 'cross',
 
               },
 
@@ -137,6 +148,10 @@
               {type: "line",
                 data: shed, label: "SHED", borderColor: "#000000", fill : false, yAxisID: 'y',pointRadius:1,
               },
+              {type: "line",
+                data: floortemp, label: "FLOOR", borderColor: "#444444", fill : false, yAxisID: 'y',pointRadius:1,
+              },
+
               {type: "line",
                 data: heatera, label: "HEATERA", borderColor: "#FF0000", fill : false, yAxisID: 'y',pointRadius:1,
               },

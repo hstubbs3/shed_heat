@@ -92,6 +92,8 @@ counterLabel=tk.Label(root, text="...",fg='#0f8',bg='#000',font=daFontHeader)
 
 watts_label = tk.Label(root,text="Watt you looking at?",fg='#0f8',bg='#000',font=daFontHeader)
 watts_label.pack(side="top")
+light_label = tk.Label(root,text="How enlightening!",fg='#0f8',bg='#000',font=daFontHeader)
+light_label.pack(side="top")
 master_frame = tk.Frame(root)
 master_frame.configure(bg="black")
 master_frame.pack()
@@ -130,7 +132,8 @@ temps = {
 	"AMBIENT":"222",
 	"FOOTWARM":"222",
 	"HEATERA":"222",
-	"HEATERB":"222"
+	"HEATERB":"222",
+	"FLOOR":"222"
 }
 
 blahBitmap = tk.BitmapImage(data="""
@@ -230,7 +233,7 @@ for lineNum in range(5):
 	lines[-1][4].pack(side="left")
 	lines[-1][5].pack(side="left")
 
-for lineNum in range(5,9,1):
+for lineNum in range(5,10,1):
 	lineFrame=tk.Frame(r_frame_right)
 	lines.append([tk.Label(r_frame_left, text=f"{lineNum}",fg='#0f8',bg='#000',font=daFontHeader),
 		lineFrame,
@@ -282,6 +285,8 @@ def logloop():
 					do_temps = True
 				elif "last_min_watts:" in output:
 					watts_label.configure(text=" ".join(output[:-1].split(" ")[-5:]))
+				elif "Light Level:" in output:
+					light_label.configure(text=output[:-1])
 				elif CSV:
 					if not CSV_Headers:
 						if output.startswith("CSV_HEADERS"):

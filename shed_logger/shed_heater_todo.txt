@@ -1308,9 +1308,466 @@ just pumps - ~125
 
 1110
 		current limiting code...
-		
+1155 	OK that's all roughed in there.. Will have to test it out sometime, likely as part of rebuilding
+	the controller...
+1210 	/
 
+
+2024/11/08 	Friday
+0820 	Working towards the idea of of the 'heat dump' / furnace sort of heater, am planning to take
+	an Arduino nano and make an electronic thermometer using a DHT and a 4 digit segmented display.
+
+2024/11/09 	Saturday
+1120 	Yesterday, I did get a working thermometr thing using a DHT11 and a 128x32 OLED. Maybe I should
+	add capability to monitor power as well? hmmm.. 
+
+	I also got the 'furnace' thing started... currently I've glued 4 of the 110V AC / 270 C elements
+	to some galvanized steel duct, which has a specific heat of .470 J/g-°C - which is about half the
+	specific heat of alumunim ( 0.9 J/g-°C ). In terms using the heating elements it is needed to transfer
+	as much heat as fast as possible - a lower specific heat works against this as the difference in
+	temperature goes down faster... But the transfer to air would be favorable? hmmm
+
+	If one assumes the element internally at 270°C but starting from 0°C everywhere else...
+
+	Considering radiation from the outside of the tin to the air as well as conduction to the air..
+
+	The formula E = σT4 is given, where E is the radiant heat emitted from a unit of area per unit time, T is the absolute temperature, and σ = 5.670367×10−8 W·m−2⋅K−4 is the Stefan–Boltzmann constant.
+
+	The heat transfer formula through conduction is given by: Q/t = kA((T1-T2)/l), where Q/t is the rate of heat transfer, k is the thermal conductivity of the material, A is the cross-sectional area, T1-T2 is the temperature difference, and l is the thickness.
+
+	will consider the surface area of the tin to be 3M^2 and will say it is 5mm thick.. the "heat sink" would be considered
+	as having 0.001m^2 contact area with .1m thickness. ( 4*0.025m*0.1m = .01*.1 ) 
+
+	so conductivity from element through heat sink - 52*0.001m^2 / .1 = .52 W/°C
+	
+	and conductivity from heat sink to tin - is small area of contact, maybe 200mm * 2mm going through 2mm- 
+	so .2*237=47.4 W/°C ... being all wild guesss, will use 50.. 
+
+	finally, for conductivity to air, will consider only the immediate 1mm around the tin.. 
+	so 0.03W/(mK) * 0.4m^2 / .001m = 12 W/°C
+
+	the radiative heat from the tin to the air would be 5.670367×10−8 W·m−2⋅K−4 * 0.4m^2 = ~2.6x10^-8 W/K^4
+
+	flow 	AC -> element -> heat sink -> tin  ->  air 	...
+	heat capacity	.9 			.47 		.9 		1
+	thermal conduc 	/			52			237		0.03 W/(mK)
+						.5 W/°C  	50 W/°C 	12 W/°C + 	 			
+	start temp(°C) 	270 		0 			0 		0
+	time/temp(°K)	543.15 		273.15 		273.15 	273.15
+	1
+
+1435 	Wow is already the afternoon... WTF.... got lost with that calculation... but I think I actually
+	have a model for the shed situation itself.
+
+1500	ooof.. ok need food.. but anyways... shed got to 72 v 50 ambient today - which is about 22 C v 11 C
+	That calculates to about 600W radiative, assuming the average R-factor of 4.. doubling up the roof sorta
+	balances out the floor I guess.	So at least in the sun we have 600W mitigated.. woot. 
+	Last night about 3AM we had power usage of about 384 watts with temps 44/32 - which calculates to 234 radiated
+	That includes .7A overall power .. with the 3 pumps use 1.3A - about 156 watts.. 384-156 = 228 watts.. 
+	so seems basically balanced out then.. woot!
+
+1520
+	So maxed out we have about 600W currently mitigated.. which includes the ~60W from the new heater cuz it is
+	currently running.. is only adding a few degrees currently with that 60W .. Moving from galvanized sheet metal
+	to aluminum for the heat sink should improve the situation a lot there.. 
+	Adding aluminum fins to heater B would increase power there as well... Heater A would need a redesign to
+	take advantage of swapping to aluminum, since its heat elements are currently external to the duct >_<.
+
+	Swapping the current galvanized heatsink thing within the furnace for say 0.5Kg of aluminum	could allow the unit
+	to go to about 100W...
+
+1550 	implementing an aluminum radiator setup to increase the conductivity to the air to 46 gets to 110W
+	Attempting both and aiming at allowing for 60/32 performance .. getting x4 conductivity to the tin would
+	pull ~213 W ... another 1-1.5A , where the current implementation is expected to get 55/32 performance... 
+1600 	Faffing about with it just to add another 1A power consumption to squeeze that last 5°F doesn't seem worth it.
+	Realistically, a worse case scenario would be like 20 something ambient - 44/20 ... Assuming it will normally
+	get to at least 32°F - should expect 54/32 ... 
+1620 	average high temperature in West Jordan, Utah is the worst Dec to Feb at about 40... ok
+	Also, if I run 1A more of anything in the shed I should likely achieve 60 easily.. And this is without factoring
+	solar collection at all. 
+	If anything, could get more heating elements at a later point and put into heaterB using aluminum fins.. Or
+	even just rework heaterB to have the 2 heating elements per fan on sheet aluminum.. probably better option?
+	Would be cheaper - just need sheet aluminum.. ~$30 or so? Easily boosts conductivity from the heatsink by x4,
+	and then the fans would really work well.. same with heaterA - rework it so that the heater elements are
+	suspended in the duct on aluminum sheets... Maybe can thrift some good metal for those.. like later..
+
+		'heat dump'	long term stove / heater furnace thing... Furnace? call it a furnace? lol... 
 		tape up the roof panel
+
+1630 	some minor cleanup of stuffs I got done.. 
+
+2045 	Thinking about how to integrate the Furnace into the existing setup but not sure where it would make
+	sense... It is a constant 60W currently, it shouldn't be the make-or-break as far as power consumption,
+	its just a small source of constant heat... Could see maybe having it shut off when the shed is above
+	comfy, but the spike when it starts up is a little worrying.. Even as it stands now, I should possibly
+	split heaterA and heaterB into multiple sections with their own relays, if only to offset spiky starts?
+2050 	/
+
+2024/11/10 	Sunday
+1055 	Came out to the shed to find that the 12V+ to Foot Warmer element shorted against GND to heaterA fan,
+	resulting in small damage to heaterA fans's GND but toasting a few inches of foot warmer 12V . I taped up
+	heaterA fan GND but am leaving the foot wamer 12V disconnected for now - the relay terminal is a little melted
+	and foot warmer isn't really critical today, so its repair can wait. Just something else to add to the list.
+
+	Plan for today is to finish work on that standalone temp/humidity sensor - need to finish the font, finalize
+	program, solder pins to the LED, and stuff it into some sort of container, maybe a little LEGO deal for funzies.
+	Putting other stuff on the list.. 
+
+2024/11/11 	Monday
+1430 	OK, time to focus on getting shed back together so I can work tomorrow.
+	I did manage to cut a ~5"x12" section from the ~11x17x 1/4" aluminum plate I ordered from Amazon,
+	and fit 2 heater elements to one of the shorter edges and shoved it down the duct of heaterA.
+	This has been drawing ~100 watts, and heaterA duct temp has been steady at ~15 F above shed temp.
+	So it is basically acting as sort of a "pilot light" for heaterA
+
+	11/10 	rework furnace using aluminum and test.
+
+1435
+	Further reading up on thermal conductivity, dry sand has about 0.25 W/m-K, about 8x that of air..
+	And wet sand has something like 2.5 W/m-K, about 8x that of dry and 80x that of air..
+	Thermal conductivity of PVC pipe is .25 W/m-K though, same as dry sand.. so wet sand could possibly
+	radiate to the shed more easily but the conductivity of the PVC would still be limited.
+	Conductivity of plastic is 0.02 to 0.05 W/m-K ... interesting.. 
+
+	I brought a gallon of fresh water out with me to the shed for testing a wet sand battery. 
+	Res 78 	SandA 72 	SandB 64... I think I will try adding the water to sandB
+1442
+	The gallon of water was straight from cold tap inside.. Checking with standalone - gives about 64 F.
+	So about same as SandB at this time.. interesting.. 
+1456 	I've only managed to get about half the gallon into sandB... with heaterB sitting on it I only have
+	direct access to a small amount of its surface, so at best I could soak half the sand? 
+	Is just taking time to seep in from the surface too.. 
+1500 	OK I think I should put water into HeaterA sand, to see if that helps with no freeze..
+1508 	OK.. Added some sand to ensure the lower elements of heaterA wouldn't short but should be good
+	now.. or disastrous.. 
+1510 	No change seen in sandB .. HeaterA temp has dropped to 80 F... Is it possible that heaterA is warming the
+	Reservoir water? ill have to monitor how it changes, but if heaterA==Reservoir==sandA that would be promising
+	result.
+
+1515 	foot warm relay needs replaced... but footwarm took long time to reach 100 F - like 4 hours.
+	So possibly for now could hot-wire footwarm to just run.. it likely couldn't reach actual dangerous temps?
+1523 	Power usage is 2.2A vs 1.2A before hotwiring... expecting it should coast to ~1.5A .. No change was noted
+	in power consumption since wetting the sand in heaterA, but that may be due to xferA running as well?
+	So heaterA temperature is stabilized currently between reservoir and furnace, so no additional power
+	consumed to maintain that ~80 F
+1527 	if footwarm seems too hot, could add more sand... ?
+
+	To avoid further mess inside the shed, the stuff outside could be moved between shed and the fence. 
+	Would at least look a bit better...
+1605 	moved heaterA sensor to show temp of air coming out of it. Furnace is making 102 F air! 
+	So with only 'passive' electric heat, ~2A used, in the shade, door open - 69 F vs 61 F ...
+	That's about 245 Watts radiant loss..  Which basically matches the inputs?
+
+1615 	Maybe could work out using just an 11x17" sheet of aluminum as a heater.. like I dunno put glass over
+	it or something use as a mirror? hmmm... 
+
+1710 	Whoa, just zoned out with a spreadsheet... that has to be a sign I am burnt out.. lol.. 
+	FootWarm is already reading 93 F.. am gonna put more sand in there.. Just to have more sand between
+	my feet and the element so will feel more comfy as a temperature. 
+	The constant power to furnace and the footwarmer might keep the shed from freezing overnight most the time?
+	At the least, once the foot warmer sand and heaterA sand get to stable / higher temperature, they would act
+	as solid thermal mass to stabilize the shed temp?? maybe???
+1520 	OMG I need out the shed get some dinner.. do.. anything else.. lol 
+	I _did_ clean outside the shed a bit, mostly moved trash/stuff to north side between shed and fence.
+
+	hmm... do I want to flash new program befor going inside? prob not.. why risk it? same with moving the thing...
+	see how I feel in the morning? 
+
+	hmmm... footwarm looks plateaued at 93 F... that _might_ be its capacity currently. Maybe should rework it
+	at some point with aluminum plate ? still needs relay replaced though..
+1525 	/
+
+
+2024/11/13 	Wednesday
+1245 	Yesterday at about 1800, I moved the 5x12x1/4" aluminum plate to sandA and attached 3x 110V AC 
+	PTC to the edge, burying it with just the PTC wires poking out of the surface. This as well as covering
+	the roof panel with one of the canopy walls helped maintain a roof panel temperature around 36 F.
+	Upon inspection at about 630 this morning, the canopy wall had slipped down a bit - so possibly it
+	could be enough to cover the panel to help avoid it freezing at night, or perhaps a better solution
+	should be sought.
+	So last night, with these conditions, LOOP_PUMP ran continously all night, sandA maintained above 70 F,
+	Reservoir dropped from 53 F at 1800 to a stable 45 F. This suggests that improving sandA and heaterA
+	thermal conductivity to xferA loop pvc should allow greater ability to keep the roof panel from freezing
+	at night, as well as the capability of charging the sand batteries.
+
+	The general concept of how the sand batteries should be operated needs to be reworked, as the original
+	idea that they would essentially passively maintain the room temperature has not panned out. To passively
+	maintain the room, the radiative properties of the system would need to be tuned by either increasing
+	the temperature difference or increasing the surface area that the sand could radiate from.
+	Increasing the storage temperatures required might be difficult, but aside additional power needs, it
+	may be enough to alter the logic of the system so that it attempts to keep sandA/sandB/reservoir within
+	some amount of each other? Should attempt to model the system, using recent data of it running to tune variables.
+1315 	/
+		
+1350 	put a second skin on the shed? aluminum flashing - 10"x50' for $40, 20"x50' for $75...
+		20"x50' = 83.33 square feet.. not counting the roof would need about 2x(6x8+6x10)= 2x6x18=216/83.33 = ~2.59
+		so ~$225 worth of aluminum + paint... 
+		Plywood - using even 1/16" at $16 for 4x8 sheet - 7*16=$112 
+		Tarp - 6x8 for $11 - would need 5 - $55 for heavy duty, or possibly 5 mil waterproof 20x20 ft for $40.
+		3.5 mil plastic sheeting? $15
+		6 mil plastic sheeting? $20 ...
+		Plastic does have thermal conductivity similar to air... might be best bet? Should strive for 
+		affordable, tough, and simple to apply...
+
+1900 	OK.. if I can get heaterA and heaterB to 300 W each and improve conductivity through sandA and sandB to 3.0
+		( which would be 10x...) and didn't have sandA or sandB powered.. then starting from cold, basically
+		everything 40 F except heaterA starts at 100 cuz is just after warmed up.. 150W of sun ..
+		eh.. not so good.. whatev..
+/
+
+
+2024/11/14 	Thursday
+0824 	PayDay! woot! ordered aluminum flashing, replacement 20V Worx circular saw, and thermal glue,
+	all due to arrive over the next few days... is very nice. Plans for this weekend currently still same -
+	install flashing, update heater stuff, relax, etc.. 
+
+	Just fixed the footwarm relay, will need to optimize sensor placement and such. 
+
+	Am curious exactly what wattage I am getting to the roof panel.. 
+0910 	Appears to almost correlate exactly with light level numbers?1? light level 336 calc'd about 260 W
+	That's a little coincidental. Also maybe should report average of light last min rather than spot check?
+0915 	/ OK logging in for work.. 
+
+
+2024/11/15 	Friday
+0800 	bus2 was offline for about 2 hours, from 0500 to 0700 when I noticed the errors and pushed it back into place.
+	I mucked up earlier calculations - sunlight in winter is more like 50% ... so peak solar, solar noon in summer
+	would be expected about 1000 W/m^2 ... I should expect peak about 500 W/m^2 ... which basically correlates to
+	the measurement I get from the light sensor (strangely? considering the resistor I grabbed was kinda random?).
+	the roof panel is approximately 90x36 inches - ~2.09 m2 ... which puts expected max wattage from solar at
+	1kW best case / 500 W on cloudy/overcast days? ... 
+	I should try to get some more exact figures for weights on the thermal masses, as I have been largely guesstimating..
+	But yesterday I calculated ~270 W net .. 
+0848 	OK crunching with a proper spreadsheet, without accounting for loops being on/off, it looks more like 
+	an average of 20% efficiency / peak 37% efficiency last 24 hours... There was also cut-off early - there
+	was still watts of sun to be had but the reservoir would have been too hot to xfer to. 
+	There was not a lot of energy transferred to sand batteries... This doesn't account at all for inside the shed
+	itself... one would have to add in the total power consumption and subtract out the radiative loss from the shed
+	vs ambient to get a full picture.. but for sake of things could say that sun -> heat system should be at 80-90% ?
+	or consider power consumption vs radiative loss - as in, what % of needed energy is being offset by electric power?
+
+0925 	Graphing thermal needs vs watts consumed suggests a peak of about 750 Watts net from solar. Which seems
+	off but from 10AM to 4PM, there was only about ~250W consumed, but shed heat calculated to ~1000W at peak.
+	Weird.. So mostly day-time performance when sunny is fine... just not efficient enough to store for overnight?
+0930 	/
+
+
+2024/11/16 	Saturday
+1450 	Yay, stuff came in to upgrade the system!  Woot!
+	I already had put that 5x12x1/4" aluminum plate with the 1 PTC that's wired for constant heat back in the middle
+	of the heaterA duct. Adding fins using the 5x7 flashing might help boost that a bit... would need to unplug it
+	for the while is all.. 
+1455 	disabling heaterA so it can cool enough for upgrades... best method here is probably disconnecting the wires from
+	the pins at bus2 and the patch connector... constant is unplugged.. OK
+1457 	first up for upgrade maybe should be sandA... so will unplug xferA at the relay just to be sure.
+	Currently roof 59 / res 55 / sandA 54 / sandB 63 ... door about halfway open.
+1459 	/
+1515 	Cut flashing for sandA... Shed is at 52.. heaterA 68 ... switching to work on heaterA elements upgrade..
+
+
+2024/11/17 	Sunday
+1020 	HeaterA is underpowered currently - adding PTCs outside the duct does NOT contribute very much at all
+	to its performance.. need to increase surface area of metal within the duct so it can get hot enough.
+	Also, woke up 8am to frost on the ground and bus2 was dead, leaving heaters totally disconnected, reservoir
+	was 31 F ... 
+		Currently, roof 95 reservoir 52, sandA 38... sandB 51 shed 53.. I think I should start by disabling
+	the external PTCs on heaterA and prepping things for heaterB rework...
+1030	/
+
+2024/11/18 	Monday
+0840 	white canopy wall fell off the roof. The mylar blew off the roof about 0345, ending up in neighbor's
+	yard. Will need to buy tarp for the roof and make better setup to keep it on there... 
+
+		Yesterday, I tested a few configurations for adding aluminum flashing to heaterB - currently the
+		central unit's configuration using 4 pieces of flashing to form like an asterisk is allowing it
+		to do about as well with 1 PTC as when it had 2... 
+
+		I worked on heaterA as well - now it has 6 PTCs total and the fan cycles on/off about every 5 mins.
+	It is unclear how well heaterA would warm water for the reservoir though. I may have to remove the sand
+	in heaterA and rework it to have better thermal conductivity to the PVC. 
+
+		bus2 was shorting out yesterday between +5V DC and GND - I had to implement workaround using WAGO
+	connectors, but the unit is still very sensitive to being touched.
+
+		plan for today - I want to empty sand from sandA to facilitate adding the flashing. 
+0850 	/
+
+0930 	sandA reworked, aluminum flashing against the PVC from xferA and additionally spread throughout
+	as  wavy sorta thing. initial temps were reservoir 50.90 / sandA 48.x , but sandA dipped to 47.30 
+	within a minute or so, sparking xferA .
+	will want to track roof/res/sandA for a bit ...
+															heaterA?
+			shed 	heaterA 	roof 	res 	sandA 		gradient roof->sandA
+	0930	57 		106 		65 		50 		47 			Y/15/ 3
+	0935 	56 		113 		62 		51 		47 		 	Y/11/ 4
+	0940 	55 		109 		57 		52 		47 			Y/ 5/ 5
+	0945 	55 					55 		53 		47 			Y/ 2/ 6
+	0950 	55 					55 		53 		47 			Y/ 2/ 6
+	0955 	55 					55 		53 		47 			Y/ 2/ 6
+	1000 	56 					55 		53 		48 			Y/ 2/ 5 		sandA up 1/30@5
+	1005 	56 					54 		53 		48 			Y/ 1/ 5 		loop stopped
+	1010 	56 					52 		53 		48 			Y/  / 5
+	1015 	56 					50 		54 		48 			Y/  / 6 					
+	1020 	56 					49 		54 		55 			Y/  / 			
+	adjusted sandA sensor but even trying to be sure of placement, is still high... ? 
+
+
+	There isn't a lot of xferA loop in heaterA.. maybe 3 loops worth and is at the bottom.. 
+	heaterA isn't going to be effective for NoFreeze protocol without some reworking...
+1000 	For now, I've just taken a bit of the xferA hose going from sandA to heaterA and moved it so
+	it would get warm from the sand near the top of heaterA.. About 6" of hose should be directly affected..
+1024 	Adjusting PVC for heaterA more required moving sandA sensor out of the way.. now appears sandA reading
+	higher.. unsure if cuz placement or moving heaterA. 
+	It has started sleeting / raining.. or at least is cloudy and windy, maybe is just leaves rustling.
+
+	With the loop OFF, unable to tell how heaterA would interact with xferA ..
+1030 	/
+
+1045 	Added a PTC externally to heaterA - that's #7.. Not glued or anything.. Might help with heating
+	xferA, but worse case it only adds ~60 W to the system without really visible effect?
+	heaterA has been hitting the >shed+60 status about every ~5 mins, am curious if I can push it to max
+	out and cut heaterA relay for a bit.. 
+1048 	heaterA 118 v shed 57 - fan on... 20-30s then off, drop to 110 @1050 ... 
+1055 	whenever I finish upgrades to heaterB, maybe shed will be able to hit 60 on cloudy day like today...
+1102 	Added a bit more sand to heaterA, just trying to not feel so helpless, useless... I don't feel up
+	to really doing too much today, and feel disappointed with performance of this system... 
+	On a typical day, the shed would get to something like +10F without any of this running, I think... 
+	It doesn't seem the system adds much, but it does provide heat... and should be plenty of power?
+	I am too stubborn to admit defeat, to say all this has been worthless. 
+	Hundreds of dollars worth of wire, PVC, ducting, sand, etc etc... hours and hours of research, calculation,
+	implementation... I've picked up a lot about thermodynamics and designing/building stuff, and programming
+	arduino.. Did  little soldering. Burnt myself a few times....
+
+	Is just feels so much like that typical manic state I get to a few times a year... And after all this,
+	I am just tired of it... but I am having trouble disengaging from this project because I do need the 
+	space, I do enjoy spending the time outside, and having this separate place away from the fam that I
+	can dork around in and make noise and all that.. I just haven't gotten it to point I can just enjoy it...
+	Like I can't relax... I have to check the stats, have to fiddle with this or that... 
+
+1125 	I was worried about having money and keeping up cashflow, and in the mania of this shed and heater
+	stuff, I have gotten to where I am flat a week before payday, that I am paying rent a little late...
+	I am not sure even of who I am any more - I don't think I am trans, but I've found the feeling of being
+	on estrogen to be euphoric, life-affirming. I do kinda want large breasts, and maybe I would nair my
+	whole body or something if the bits filled out more womanly, but otherwise... I am just here.
+		Where in the past I was hyperfixated on sex and stuff, I have been celibate the past few years,
+	originally not by choice... But I don't even try to seek it out, not even in any sort of passive 
+	way. 
+
+1130 	The shed is at 60.26 . the roof has warmed up to 73.40 ... It kinda feels weird to only have 
+	loop and xferA running.. xferB is not yet started as sandB has been kept at about 56 F, maintained
+	by heaterB and not being used for no-freeze...  Almost seems to be a miracle the shed is at 60 today.
+		But that is good thing - even with just this little bit of sun, I can collect some data on the
+	work I've done on sandA today. Have I improved the transfer from the reservoir to the sand battery?
+
+		Is odd feeling again like I don't know myself... In the past, this seemed to come in waves or 
+	cycles, every few months or years being more self-aware for a while before drifting away from that.
+	Is this because I started estrogen pills vs continuing to use the gels and creams? I had read 
+	that the gels can degrade rather quickly, on the order of weeks... And I had the gels for months.
+	But on Saturday I had taken the first of the pills, and yesterday I got my other meds I was missing...
+
+		So, maybe that time inbetween, when I was just coasting or just anxious or whatever... Maybe that
+	was just a state of low energy, of ill health... Of not taking care and not being able to self-care.
+	So maybe doubting myself and this contraption I've worked so long on is a good sign. 
+
+2024/11/21 	Thursday
+1030 	I just upgraded pane1 of the roof panel with backing insulation foam and mylar. The hope is that
+	reducing the space inside so the hose is touching the glass and adding the reflective surface underneath
+	will improve collection efficiency and get reservoir temperature up faster.
+	I plan to move the roof temp sensor when I do pane2, so that it is between some PVC so would be giving
+	a reading of the PVC rather than air or wood or glass..
+	It is currently 45 F ambient but gusty.. so will take a break before starting pane2.
+
+1145 	insulation / mylar upgrades completed to the panel. Currently roof 92 res 68 shed 63 ambi 53
+	Checking data for last half hour - which would be the during the time pane3 was open for upgrades..
+	1115 	roof  91 	res  60 	diff 31 	1145 	roof  88 	res  67 	diff 21 	
+	resevoir is estimated at ~25 kg and specific heat ~3.8 kJ/kg*K so ~95 kJ/K or ~50 kJ/F ... 
+	so 7 F in 30 mins - 7 F *50 kJ/F / 1.8 ks = 194 W ... not bad.. the shed is currently using ~230 W total,
+	including xferB, and I didn't include sandB in this calculation, but sandB only went up a few F in that time...
+	The shed does radiate heat as well.. something like 5.5x10-7W/K^4 ... ? 	really should doof up a chart for that..
+
+	sandA and sandB are about 10 kJ/F each... used will just be total for the shed.. 
+
+	should count in radiant loss for sandA/sandB vs shed temp? maybe not.. 
+
+	light level currently - 500+
+1145 	 88 	 67 	 71 	 59 	 63 	 51 	21,//, 8 															
+		roof 	res 	sandA 	sandB 	shed 	ambi 	diffs-rf-r,r-A,r-B 	avg 	watts change 	total 	radia 	used 	need 
+1200 	109 	 71 	 71 	 60 	 64      53 	38,--,11 	29,//, 9 		222,  0, 11 	 231 	 289 	216 	 29%
+1215 	113 	 75 	 70 	 61 	 66 	 55 	38, 5,14 	38, 2, 7 		222,  0, 11 	 231 	 370 	114 	 16%
+1230 	114 	 79 	 70 	 62 	 67 	 55 	35, 9,17 	36, 7,15 		222,  0, 11 	 231 	 370 	110 	 16%
+1245 	 98 	 80 	 70 	 63 	 67 	 55 	18,10,17 	26, 9,17 		 55,  0, 11 	  66 	 370 	110 	 21%
+
+1240 	looks like maxing out at about 231 W net from the system.. shed warming up in the sun is definitely a help..
+	shed + loop + xferA + xferB is about 110 W ... so it _is_ net gain for clear day....
+	average light level about 575 giving difference >30 yields ~222 watts, but 450 giving diff ~25 only yielded 55? 
+	That seems off... maybe panel is partially covered or somethinng? 
+1255 	/	whatever.. can analyze further another time..
+
+
+2024/11/22 	Friday
+0948 	I have been contemplating the issues presented by the No Freeze protocol, the largest being that sandB does not
+	participate at all, and that heaterA is not effective in adding heat to the reservoir water. SandA's ability to
+	assist during no freeze is also unclear... more data would need to be gathered...
+	The no freeze condition needs to be altered as well - it shouldn't kick in so drastically at 40 degrees when it is 
+	only to avoid the system freezing over. It should be more nuanced and the level set more like 35 F to start..
+		Realistically, no freeze should start with just loop_pump ( of course ) at <35, xferA at <33, xferB at <31, a new
+	relay in heaterA at <29, and finally heaterA  <27 ... 
+1020 	OK so pin4 should no go to this R_XFERA_HEAT, and the xferA loop through heaterA should be redone to max out transfer
+	between heaterA, and the xferA loop.
+		Floor temperature would be a nice-to-have as well... adding that to the sketch as-is would be a little problematic,
+	as the Python monitoring app would need updated, as well as the webUI stuffs... The OLED display code would need update
+	as well, at least in terms of the custom font so that an additional line could be rendered? the current one is set for
+	13 vertical, so setting 12 vertical would squish things a bit but should be 'ok' for now?
+	Should add some display for the light level as well. the debounce should be set for 500 millis rather than attempting
+	to track loop counts.. a watchdog timer in case the RTC goes wonk would probably be good too... but for a later time..
+	also, should move the CSV output away from counterHigh=0 to avoid really long second? should help smooth things a bit..
+1055 	
+	ok.. code changes for the sketch complete.. I should add light_level output to the shedlogger.py as well as the floor
+	thing?
+1100 	OK, the monitoring python script is setup.. now to update the arduino with the new code.. 
+	attempting compiling... 
+1105 	getting error on check_watts_ok line ?!?! huh.. oh.. missing ) .. so this is first version that will enforce wattage?
+1110 	compiled OK .. attempting update system.. 
+1111 	hmmm... OLED is only showing ..... ERROR for FLOOR ... 
+1112 	ah... floortemp was not declared as array of char.. 
+1113 	update complete, switching back to monitoring app..
+1114 	monitoring app looks OK... logging looks ok ... webUI thing is junked up as expected.. 
+1125 	webUI is fixed but the data is misaligned due to previous CSV data not having these added fields. 
+		That's fine for now though.. in about 3 hours it should all look OK ...
+		appears the font is missing a usable 'L' glyph, but the font will need fixed anyway..
+		update running arduino sketch. 
+1130 	committing
+
+		Add temp sensor for FLOOR
+		Add relay / wiring for XFERA_HEAT relay to pin4 for nofreeze. 
+		update code to fix font for OLED
+		watchdog thing for RTC going pear shaped
+		How do I actively use the thermal energy stored in the sand batteries? I need some way to shunt from them on demand
+		build additional sand batteries? string into xferB ?
+		stuff for roof cover - poles, tarp, fasteners?
+		figure out how to calculate thermal conductivity with moving air. 
+		add interface to allow forcing additional heat on demand.. 
+		create simulation model of system to analyze potential improvements
+		blanket to block drafts through doorway
+		flashing / seal space under shed
+		SandA thermal conductivity / radiativity improvements
+		SandB thermal conductivity / radiativity improvements
+
+
+
+	11/10 	Clean up outside shed. 
+	11/11 	move controller off desk and onto sandA ... 
+		Order new cutting board to replace the one warped when testing the furnace stuff.
+
+	11/10 	Clean/org inside shed
+	11/10 	flash updated software to controller
+	11/10 	new case for controller
+
+		Repair foot warm +12V DC 
+		Rework heaterA to use aluminum heatsinks
+		Rework heaterB to use aluminum heatsinks
+		rework foot warm to use aluminum heatsinks
+		Arduino Nano Power monitor
 		stupid leak somewhere...
 		override relays
 		override comfyTemp
@@ -1327,7 +1784,7 @@ just pumps - ~125
 		secure / enclose the controller system. make it easier to put displays higher and vertical! 
 		light sensor / humidity tracking for the roof to sense if panel frosted over?
 		clean/org shed - actually use shelves, totes? lol
-		seal up west wall, especially north half!
+		seal up under west wall, especially north half!
 		find/fix leaks in the ceiling
 		5V to HEATER_A_FAN
 		empty reservoir and let dry overnight
