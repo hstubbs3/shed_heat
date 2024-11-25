@@ -52,6 +52,8 @@ TEMP_TIME_EVENT tempChanges[] = {
   { NO_TEMP,    0,  0,   0 }, //7
 };
 
+unsigned long int rough_timer = 0 ;
+
 byte rtcTime[7]; //second, minute, hour, dayOfWeek, dayOfMonth, month, year;
 int counterLow=1; //setting up a ghetto counter to be like counterHigh is seconds
 int counterMed=0; // tries to be 1/100th second...
@@ -309,12 +311,12 @@ bool evaluateRule( struct tempRule* rule, bool verbose=true){
         }
         break;
     case ruleDHT_TARGET_TEMP_ON_LOW:
-        if ( dht_reads[rule->a].iF < daTemps[rule->b].t && !run_relays[rule->r]) {
-           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s < %d F - switching on %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,daTemps[rule->b].t,rule->r,r_names[rule->r]);
+        if ( dht_reads[rule->a].iF + rule->v < daTemps[rule->b].t && !run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s + %d < %d F - switching on %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,daTemps[rule->b].t,rule->v,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=true; // relay will switch on loop... 
-        } else if ( dht_reads[rule->a].iF >= daTemps[rule->b].t && run_relays[rule->r]) {
-           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s >= %d F - switching off %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,daTemps[rule->b].t,rule->r,r_names[rule->r]);
+        } else if ( dht_reads[rule->a].iF + rule->v >= daTemps[rule->b].t && run_relays[rule->r]) {
+           sprintf(cBuffer, "EvaluateRule : %s - TARGET_TEMP_ON_LOW - DHT %d %s - %s +%d >= %d F - switching off %d %s",rule->d,rule->a, HT_names[rule->a], dht_reads[rule->a].strF,daTemps[rule->b].t,rule->v,rule->r,r_names[rule->r]);
            Serial.println(cBuffer);
            run_relays[rule->r]=false; // relay will switch on loop... 
           
@@ -378,9 +380,9 @@ struct tempRule daRules[] = {
     { "main: roof>res", ruleDHT_LT_TARGET_DHT, HT_RESERVOIR, HT_ROOF, R_LOOP, 2 }, //0
     { "xfer1:res>sandA", ruleDHT_LT_TARGET_DHT, HT_SANDA, HT_RESERVOIR, R_XFERA, 2 }, //1
     { "xfer2:res>sandB", ruleDHT_LT_TARGET_DHT, HT_SANDB, HT_RESERVOIR, R_XFERB, 2 }, //1
-    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, COMFYTEMP, R_HEAT_A, 0 }, //2
+    { "hA: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, COMFYTEMP, R_HEAT_A, 5 }, //2
     { "f0: shed<heatA", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATERA, R_HEAT_A_FAN, 60 }, //3
-    { "h0: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, COMFYTEMP, R_HEAT_B, 0 }, //2
+    { "hB: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, COMFYTEMP, R_HEAT_B, 0 }, //2
     { "f0: shed<heatB", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATERB, R_HEAT_B_FAN, 40 }, //3
     { "foot warmer", ruleDHT_TARGET_TEMP_ON_LOW, HT_FOOT, COMFYFOOT, R_FOOT, 0 }, //4
     { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_LOOP, 0}, //5  so the system doesn't freeze... using 30 to account for salt water...
@@ -749,6 +751,7 @@ void setup() {
 //  delay(setupDelayTime);
   Serial.println("SYSTEM INIT DONE!");
   readDS3231time(&rtcTime[0], &rtcTime[1],&rtcTime[2],&rtcTime[3],&rtcTime[4],&rtcTime[5],&rtcTime[6]);
+  rough_timer = millis();
 }
 
 
@@ -780,6 +783,7 @@ byte last_csv_minute = -1;
 char str_max_min[16];
 char str_run_average[16];
 int int_max_min = 0; 
+
 
 void loop() {
 /* enum eHT: byte {
@@ -1094,12 +1098,37 @@ void loop() {
       // stuff to do every second.. well, try to.. this is done rather than polling the RTC directly every loop...  
     byte last_second = rtcTime[0];
     readDS3231time(&rtcTime[0], &rtcTime[1],&rtcTime[2],&rtcTime[3],&rtcTime[4],&rtcTime[5],&rtcTime[6]);
-
+    if ( rtcTime[0] > 59 || rtcTime[1] > 59 || rtcTime[2] > 23 ) {
+      if( rough_timer < millis() ) {
+        Serial.println("rough_timer too low, adjusting... "); rough_timer = millis() + 1000;
+      }
+      Serial.print(dateTimeStamp);Serial.println("ERROR! Disabling all relays and rechecking RTC!");
+      makeDateTimeStamp();
+      for (int i=0; i<numRELAY; i++ ){ digitalWrite(r_pins[i],HIGH); }
+      while ( rough_timer > millis() && ( rtcTime[0] > 59 || rtcTime[1] > 59 || rtcTime[2] > 23 ) ){
+        readDS3231time(&rtcTime[0], &rtcTime[1],&rtcTime[2],&rtcTime[3],&rtcTime[4],&rtcTime[5],&rtcTime[6]);      
+        }
+      if (rtcTime[0] > 59 ) {
+        Serial.println("ERROR! RTC still not reading OK, switching to rough_timer");
+        if (last_second == 59 ) { 
+          rtcTime[0] = 0;
+          if (rtcTime[1] > 59 ) {
+            if (last_csv_minute == 59) { rtcTime[1]=0; } else { rtcTime[1]=last_csv_minute + 1; } 
+          } 
+        } else {
+          rtcTime[0] = last_second + 1; 
+          rtcTime[1] = last_csv_minute ; 
+        }
+        rough_timer += 1000 ; // setting timer value to use next time
+      }
+    } 
+ 
     if(rtcTime[0] == last_second) {
         while(rtcTime[0] == last_second) { // this is to stall until next second.. 
           secondLoops +=2;
          // Serial.print("Secondloop too short, increasing by 2 to ");
          // Serial.println(secondLoops);
+          if (secondLoops < 0) { secondLoops = 32000; }
           delay(1);
           readDS3231time(&rtcTime[0], &rtcTime[1],&rtcTime[2],&rtcTime[3],&rtcTime[4],&rtcTime[5],&rtcTime[6]);
         }
@@ -1107,7 +1136,8 @@ void loop() {
     else {
       if ( last_second > rtcTime[0] ) { last_second -= 60 ; }
       if (rtcTime[0] - last_second > 1 ) {
-        if( secondLoops > 1) { secondLoops -=1; }
+        if( secondLoops > 1) { 
+          secondLoops -=1; if ( secondLoops < 0 ) secondLoops = 0 ; }
        // Serial.print("Secondloop too long, reducing by 1 to ");
       //  Serial.println(secondLoops);
       } else {
@@ -1122,7 +1152,7 @@ void loop() {
       }
       makeDateTimeStamp();
 
-      counterMed=1;
+      counterMed=16;
      int16_t maxi = -32000;
      int16_t mini = 32000;
      int16_t sample = 0; 
@@ -1237,7 +1267,6 @@ void loop() {
     
  
     }
-
     counterLow=secondLoops;
     counterMed--;
     // this stuff runs every 1/10 second...

@@ -1737,7 +1737,116 @@ just pumps - ~125
 		appears the font is missing a usable 'L' glyph, but the font will need fixed anyway..
 		update running arduino sketch. 
 1130 	committing
+1145 	system found to be a little low on water, added a gallon of cold tap water.. Noting that flow for loop is not as
+	strong as xferA, possibly because of the rise and potentially still air in the system? Could it be due to constriction
+	in the loops??
+1150 	/
 
+1530 	came back from nerd lunch and did more of the flashing around the base, now only the west side left to do.
+	Will take a quick bit and put together a floor temp sensor so that can be tracked.. 
+
+2024/11/23 	Saturday
+0930 	I'm thinking I should try adding Isopropyl Alcohol or Glycol, possibly just antifreeze straight-up to the reservoir.
+	It would be lighter than the water, so would be easier to pump, and the lower specific heat would mean it would get hotter.
+		I added a gallon yesterday to the system but it is already showing low, and pumps aren't even running yet. I just
+	put in 10x 12Oz cans of White Claw hard seltzer to help things out a bit, but am concerned about coverage for xferB once
+	loop pump gets going... There's bout 250ft - 2.5 gallons - max capacity in the roof panel, but I don't think I am getting
+	that much flow, as there isn't so much pressure at the end of the loop at all. Probably would have to be like 1/4 HP to
+	see difference... but if .1 HP pump's flow is getting ~222 W, .25 HP => 555 W ? That's likely nearly maxing out the panel
+	in its current configuration... 
+		At rest, xferA and xferB are mostly below the water level of the system, so only the panel really would pull the level
+	of the reservoir down if everything is primed? so things _should_ be OK.
+0955	 Hmmm.. why is heaterA and ambient showing ERR ? Oh.. Both were just jumper wires to screw terminals... Really should
+	fix all these connections sometime soon -.-;;;
+
+1055 	Added some dish soap to the reservoir to see if that helps anything.. the reservoir is about 20" tall and should
+	be about 41 Q actually - 10.25 gallon. measured about 14" actually.. give ~7.2 gallons.. there's about 100 ft of pvc
+	that should have water in it (xferA,xferB,to/from roof), so about 8 gallons currently.
+		if xferB is uncovered, that is about 7 gallons in the system, and it maxes at about 18" or 10 gallons at the returns.
+	With nothing running, the water level should be up to the returns... with loop running, xferB should be covered...
+		The addition of soap doesn't drastically change the thermal properties, it is just hoped it will make the water less
+	viscous and so easier to pump... Frustratingly, the reservoir is exactly the temperature of the roof panel so far today.
+1105 	Spoke too soon perhaps, reservoir is at 56.66 but roof is up to 57.92 . the trigger is a+v < b ... v=2, so would
+	need roof >=59 if res is 56.xx ... roof is at 58 ... and I do have the door open and the reservoir uncovered for observation..
+1111 	added 1 gallon cold tap water to see if that would bring the reservoir temp down at all.
+1115	weird, pump ran for like 3 mins .. flow looked OK, but without more sunshine won't be able to see further performance.
+	Possibly might trigger for an hour or so around noon... Will have to check it then. Total system is ~11 gallons - .5 gal/inch
+	from top of reservoir. Watts though only counts what is in the reservoir - basically system-1 gallon.. so currently at 
+	~8 gallons, or ~100 kJ/C ( 111 W/C in 15 mins or ~60 W/F in 15 mins, 15 W/F per hour).
+1125 	/
+
+2024/11/24 	Sunday
+1045 	Added 1 gallon tap water.. The floor is wet but it is unclear if it was due to freezing rain last night or leak from
+	reservoir. At the least, there was suds that overflowed the front of the reservoir, as there is residual evidence on the
+	insulation. I repositioned the bit of aluminum foil covering the reservoir to cover the front edge, but still need to 
+	put more foil or something to completely cover the reservoir.
+		The loop pump was running and with the suds it wasn't clear if there was significant loss of water.
+	Loop pump only started 1027 - early morning was a bit overcast and there was some slush on the panel but not enough that
+	it should have prevented it from self-defrosting.
+		Next few days look fairly nice - highs at least 38 but cloudy.. so kinda sucks.
+	Spot checking every 5 mins for a bit - 
+
+			roof 	res 	sandA 	sandB 	diffs 		avg diffs 	watts 	W/10 	 	
+	1025 	 50 	 48 	 50 	 58 	 2  /  / 				---
+	1030 	 53 	 48 	 50 	 58 	 5  /  / 	 3 			---
+	1035 	 55 	 48 	 50 	 58 	 7  /  / 	 6 			---
+	1040 	 59 	 48 	 50 	 58 	11 	/  / 	 9 			---
+	1045 	 62 	 48 	 50 	 58 	14  /  / 	12 			---
+	1050 	 65 	 49 	 50 	 58 	16 	/  / 	15 			180 	 90
+	1055 	 60 	 50 	 50 	 58 	10  /  / 	13 			180 	180
+	1100 	 73 	 50 	 50 	 58 	23  /  /    16 			--- 	 90				light level >500, was ~350
+	1105 	113 	 50 	 50 	 58 	63  /  / 	43 			--- 	  0
+	1110 	122 	 52 	 50 	 58 	70 _2  / 	66  1 		360 	180
+	1115 	120 	 53 	 50 	 58 	67  3  / 	68  2 	 	180 	270
+	1120 	 82 	 55 	 50 	 58 	27  5  / 	47  4 		360 	270
+	1125 	 76 	 56 	 50 	 58 	20 	5  / 	23  5 	 	180 	270
+	1130 	 93 	 56 	 50 	 58 	37  6  / 	28  5 		--- 	 90
+
+1110 	Interesting! A 5 minute interval that averaged change to 360 watts? but-1105 res was actually 50.9 , 1110 52.34...
+	so really the delta was closer to 1.5 F or 270 watts... still... if could be sustained would be nice, was seemed to be
+	limited to 222 watts previously? ( but that was measured over 15 min intervals... ) averaging over last 10 mins more 
+	accurate?
+
+1122 	Loop_pump really shouldn't be attempting collection unless roof is good amount higher.. the pump takes about 60W?
+	Seems it should be about 10 or 15 F difference before loop start... Just to ensure net gains? currently it is 3F diff..
+	But if gains are significant overall maybe isn't huge deal? 
+	Like for the period 1030-1130, over the 1 hour res delta +8 F * 15 W/F/hr = 120 W ... which is double the pump itself?
+	Full sun over 15 mins was about 5 F - ~300 W ... will need to sort it out I s'pose...
+
+1135 	OK.. so the system is proving out OK.. the shed is very comfy, was ~50 F at 0800 and slowly making it up to 60 F.
+	Next few days shouldn't be too bad, so should focus more on clean/org the shed and stop geeking out on the numbers so
+	much. Tonight should get to 30 F at midnight, so will be decent test of NOFREEZE situation, especially with res and sand
+	at a good charge already... So can leave the cover off but will need to bring it into the shed to be sure it dries OK.
+1140 	/
+
+2024/11/25 	Monday
+1517 	Overslept and missed work, didn't wake up until 1250! had to run out to the shed cuz I found the RTC was spewing bad
+	data. Need to correct this little issue... At least detect and mitigate it.. It seems to occur only between 1100 and 1300
+	on sunny days.. When all the original 8 relays are triggered on... Which is when they go low and each is sinking current...
+	But also each of the relays takes a bit of current... so long-term solution would be to power the relays from an external
+	supply? Short term solution would be to detect the RTC error and attempt dead-reckoning or something? would make it more
+	resilient?
+		The negative second loops is occurring because the counter is trying to go higher than signed 16bit can do..
+	Which is what the M counter was originally introduced for.. So would need to add the M counter back.. OK..
+1626 	OK... got a rough timer in, second loops fix in, counterMed goes to 16 now, there's attempt to shut off relays to 
+	read the RTC again and ruleDHT_TARGET_TEMP_ON_LOW now takes V into consideration.. Wunderbar.. Now to try to upload 
+	to controller...
+	Oh wait, should set so heaterA kicks on first as we dip below comfy? Want to stagger them.. so heater B initially at 
+	< comfy and then if it gets lower use heaterA at < comfy - 5 ?  OK will just have to try that..
+
+	Fix RTC error out - add dead-reckoning capability
+
+1634 	returning to Pi for monitoring.. And yes, shed at 59 F only heaterB running so ~273 W not ~600 W .. woot !
+1640 	Weird. laptop is showing no internet but is connected to the wifi extender OK.. ? can ssh to the RPI but can't go
+	online.. 
+	RPI can't go online either... hmmmm
+
+
+
+		Fix RTC error out - move relay power to external supply?
+		more powerful loop pump? - >5.5GPM/330GPH/ 0.1 HP
+		rework heaterA to add xferA_heat
+		check why LOOP_PUMP flow is weak
 		Add temp sensor for FLOOR
 		Add relay / wiring for XFERA_HEAT relay to pin4 for nofreeze. 
 		update code to fix font for OLED
