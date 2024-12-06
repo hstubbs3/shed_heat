@@ -1,5 +1,5 @@
 #define setupDelayTime 100
-#define WATTS_MILLIS 200
+#define WATTS_MILLIS 150
 
 int max_watts_spike=1300;
 int max_watts_minute=1200;
@@ -20,7 +20,7 @@ Temperature daTemps[] = {
   { "ComfyTemp", 60 },
   { "ComfyFoot", 90 },
   { "ELEM_MAX", 120 },
-  { "NoFreeze",  35 },
+  { "NoFreeze",  30 },
 };
 
 enum TEMP: byte {
@@ -63,7 +63,7 @@ char customKey = 0;
 int mode=3 ; // for switching between menus and screens...
 int oldmode=-1; 
 
-int secondLoops=1; //actually 1/10th of second...
+int secondLoops=1000; //actually 1/10th of second...
 byte mode0_display_second=99;
 
 char dateTimeStamp[64]; // ie -  "2024/10/12 10:24:00 - HH M LLLL/TTTT | " but up to 64 length just in case... 
@@ -386,14 +386,14 @@ struct tempRule daRules[] = {
     { "f0: shed<heatB", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATERB, R_HEAT_B_FAN, 40 }, //3
     { "foot warmer", ruleDHT_TARGET_TEMP_ON_LOW, HT_FOOT, COMFYFOOT, R_FOOT, 0 }, //4
     { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_LOOP, 0}, //5  so the system doesn't freeze... using 30 to account for salt water...
-    { "xA: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_XFERA, 2}, //6 ... xferA is looped with heater A / sand A by the door , inline with HeaterA which will serve to keep loop from freezing..
-    { "xB: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_XFERB, 4}, // 7
-    { "xAh: no freeze", ruleDHT_TARGET_TEMP_ON_LOW, HT_ROOF, NOFREEZE, R_XFERA_HEAT, 6}, // 8
-    { "h0: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_HEAT_A, 8 }, //9
+    { "xA: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_XFERA, 1}, //6 ... xferA is looped with heater A / sand A by the door , inline with HeaterA which will serve to keep loop from freezing..
+    { "xB: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_XFERB, 2}, // 7
+    { "xAh: no freeze", ruleDHT_TARGET_TEMP_ON_LOW, HT_ROOF, NOFREEZE, R_XFERA_HEAT, 3}, // 8
+    { "hA: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_HEAT_A, 4 }, //9
+    { "hB: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_HEAT_B, 5 }, //15 <- so up to 16 rules... 
     { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERA, ELEM_MAX, R_HEAT_A, 0 }, //10
     { "h1 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERB, ELEM_MAX, R_HEAT_B, 0 }, //11
     { "hot foot!!!!", ruleDHT_GT_TEMP_OFF, HT_FOOT, ELEM_MAX, R_FOOT, 0 }, //12
-    { "End Of List", ruleEND_LIST,0,0,0, 0 }, //15 <- so up to 16 rules... 
     { "End Of List", ruleEND_LIST,0,0,0, 0 }, //15 <- so up to 16 rules... 
     { "End Of List", ruleEND_LIST,0,0,0, 0 }, //15 <- so up to 16 rules... 
 };
@@ -1128,8 +1128,8 @@ void loop() {
           secondLoops +=2;
          // Serial.print("Secondloop too short, increasing by 2 to ");
          // Serial.println(secondLoops);
-          if (secondLoops < 0) { secondLoops = 32000; }
-          delay(1);
+          if (secondLoops > 32000) { secondLoops = 32000; }
+          delay(2);
           readDS3231time(&rtcTime[0], &rtcTime[1],&rtcTime[2],&rtcTime[3],&rtcTime[4],&rtcTime[5],&rtcTime[6]);
         }
     }
@@ -1152,7 +1152,7 @@ void loop() {
       }
       makeDateTimeStamp();
 
-      counterMed=16;
+      counterMed=10;
      int16_t maxi = -32000;
      int16_t mini = 32000;
      int16_t sample = 0; 

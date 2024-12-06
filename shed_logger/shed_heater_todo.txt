@@ -1840,7 +1840,157 @@ just pumps - ~125
 1640 	Weird. laptop is showing no internet but is connected to the wifi extender OK.. ? can ssh to the RPI but can't go
 	online.. 
 	RPI can't go online either... hmmmm
+1700 	OK, it was just Miguel had turned off the internet so he could fix the power to the router.. OK...
+	0900-1400 res 40 to 66 F - 26 F over 5 hours during that time sandA did 40-60, sandB 50-66...
+	res is approx ~17 W/F/Hr - 17*26/5 = ~140 W 
+	sand calcs out to like ~4 W/F/hr, 4*36/5 = ~29 W so ~170 W average for the entire collection period...
+	But the main gains were 0900-1100 res 40 to 58 = 18*17/2 = ~150 W without any real additional going to sand..
+	0940-0955 42-47 => 5*17/.25= 340 W over 15 mins.. with ~50 F  diff .. 
+	I think maybe I added too much soap to the res water, as that is less efficient than previous.
+1720 	Temps tonight through tomorrow look OK, Tuesday night / Wed morning is expected down to 25 F. If I rebuild heaterA
+	tomorrow or get xferA running could be interesting to let it just run.. but otherwise seems would just be waste of power.
+1730 	should get google doc sorted out to track power min by min? 
+1830 	If I took the light level as a direct measurement of the power of the sun hitting the panel, maxes somewhere like
+	500 W... If I use the max W transfer per diff (roof-res), I only get a bit of a better temp curve but the W/15 min avg
+	comes very close to light level W, today something like 460 W idealized vs 550 W .. max today was ~250 W ...  / idealized
+	means ~54% efficiency .. vs light W -> ~45% efficiency.. But the panel is really about 2.5 M^2, so should be more like
+	1kW clear/sunny - 2x light level .. so really at ~22% efficiency.. Is very interesting that W/diff goes _down_ the greater
+	the diff - the diff itself may not be meaningful or may affect displaced in time, like should consider W/lightlevel ?
+1905 	hmmm... 90 min avg light level / 5 appears to be the roof temp in F ?!? is very oddly a close approximation..
+	Probably would get more exactly approximating if considered the ambient temperature as well.. like is ambi + ll/x ?
+1910 	/ wow OK obsessed much?! lol
 
+2024/11/26 	Tuesday
+0727 	Figured I'd come out to the shed to get an early start on stuff before work, but damn is sweaty in the shed...
+	55 F with 63 % humidity.. Wow... who would have thought I'd need a dehumidifier in the _winter_ ? 
+		Doesn't appear there was any loss yesterday in the system - it's still at about 1 Gallon under returns, with no
+	pumps running... The top of the reservoir still has a layer of suds... Which would kinda act as insulation I think? 
+	 	Ambient 39 F / 45 % humidity.. OK, so it is just humid day, sure... And a bit windy, but the tarp seems to be staying
+	on OK.. So no big worries there.. 
+		Do need to finish putting the flashing around the base.. even with it only around 3 of the sides so far, it does
+	seem to be helping with floor temperatures... Floor tends to be between shed temp and ambiennt, which makes sense, but
+	tracks closer to shed temp than ambient. Setting the rules so that heaterB engages to maintain comfy temp seems to be
+	working OK-ish - its doing OK at keeping 55 F without heaterA ... which is comfy enough. I hve the door cracked a few
+	inches with the pirate blanket covering most of the opening.
+0740 	Today is expected to be high of 44 and rain, 99-100% cloud cover. Excellent means to get baseline for a worse case
+	light levels. Ambient sensor may not be sufficiently sensitive to humidity, as it is reporting 45 but weather report says
+	82 ... hmmm...
+0745 	Weird, I can't seem to click on most things in Windows but the mouse works OK in chrome? CTRL-ALT-DEL brings it back
+	to life somehow... very strange.. 
+0755 	OK should switch to work laptop and start logging in? 
+
+2024/11/27 	Wednesday
+1325 	I had woken up late - about 1030 - due to sleeping in as today I had off from work for the thanksgiving holiday.
+	The tarp on the roof had folded itself over the panel, so collection today was not able to start until about 1040. It
+	is interesting to see how quickly the roof temperature rose - from about 40 F to >100 F within 10 mins. 
+	From 1122 to 1222 res was 51 to 65 ( then there was short period of shade...) - giving about 280 W average over that
+	hour. last 3 hours average (39-64) 25 F * 20 Wh/F / 3 = ~62 W average gain from roof to res.
+	in that time, sandB 56-62, sandA 46-54 , sand wattage estimated at ~4 Wh/F - (6+8)F*4Wh/F /3 = ~20 W so ~300 W overall.
+
+	A bit of calculating using black body radiation formula suggests that the value of the light sensor truly approximates
+	the total wattage incoming from the sun. I had placed insulation and reflective mylar under the PVC in the panel to limit
+	how much air within the panel needed to warm up as well as try to involve more of the underside of the PVC, but I also
+	did not spread the PVC out in any meaningful way - I probably should at some point implement something that could enforce
+	spacing of the PVC. PVC tends to flatten and sag under heat, so the solution couldn't be simply zip-ties or something
+	every so often, unless 'every so often' was indeed every few inches? maybe should CAD something out, the dimensions are
+	relatively straight-forward, right?
+
+	The tarp on the roof could be secured to the back fence using the tie-downs.. that would avoid it folding over the panel.
+	A seconary tarp could be used later to cover the panel at night, if desired...
+	Last night ambient got down to 33.. Roof maintained via intermittent loop pump actions of less than an hour total. Average
+	power consumption was <1A (by eyeball), with most of the power consumption being actually heaterB trying to maintain comfy
+	after midnight. There seems to be interaction between light level and relays - about 15-20 light level per relay activated?
+	It may be dependent on the overal power consumption, it is also possible there is some induced current / noise given the
+	jump of wiring... hmmm.
+
+	One weird possibility relating to increasing efficiency within the panel would be to implement something black between
+	the PVC and the glass... like maybe black paper with aluminum foil on the side facing the PVC? The idea being that the
+	black paper would heat up, conducting heat to the aluminum foil, which would be in contact with the PVC as well as radiate
+	into the air inside the panel. Any heat radiated within the panel would be bounced around until it was forced into the PVC?
+	A test setup within 1 panel should be sufficient to check... it wouldn't have to be paper either, just something black.
+	Something that would be relatively rigid would be better though... I do have the broken glass pieces, perhaps I could test
+	the concept on smaller scale vs testing on the roof panel itself? hmmm...
+		But that all is counter-intuitive to the use of glass.. Actually most designs I see online are indeed black under glass.
+	Maybe I shouldn't coil the PVC? running it back and forth might be OK, just need to be aware of kinking it at the turns..
+	Attaching it at intervals across the top then makes more sense.. possibly just a bit of duct tape? 
+	Would at least spread it all out some...  
+1420 	/ 	time to get to work... 
+1445 	OK got the tarp tied to the fence... But DAMN my toes are cold... Have just set my feet on the footwarmer, can barely
+	feel it at all.. >_<... Oh wow they hurt so bad.. but hurting is better than being numb if its about frostbite so??
+
+
+		run PVC vertically? 180* bend would need like 5 inches... each is like 27 ish inches across.. so up/down 6 times?
+		Would need to be odd - so 5 times ~3 ft = 15 feet.. is 1/5 the of the PVC only ... hmmm..
+
+2024/11/28 	Thursday
+1615 	Am waiting on tarps and stuff to properly cover roof panel for tomorrow night, so for tonight I wired up 2x PTC
+	as always-on at top of heaterA sand so it should be able to heat res if xferA gets enabled... excess heat should be 
+	able to be worked out via heaterA fan ? 
+1620 	door is open, shed is 51 F, ambient 35 F ... Am interested to see if heaterA can go to shut off at 120 F with the 
+	fan running with the added 2x PTC ... meh.. wiring mishap, heaterA DHT err'd at 113 w/ fan running... arrgh..
+	Now is down to 89 F... >_< 
+1625 	without fan, HeaterA is ~ +1 F per 10s ... Shed is at 50 F, fan will kick on at 111 F .
+1626 	fan kicked on.. fan stopped after 20-30s .. temp drop to 95... so no real change with the added PTCs.. ok...
+	The added PTCs should get the rest of heaterA warmer though all the same... so should watch to see if after fan temp
+	if it settles higher and higher? 
+/	
+
+
+2024/12/01 	Sunday
+1700 	I got the new pump in but now am waiting for the fittings and valves, which should come in within a few days.
+	Before covering the panel for the night, I wanted to update the controller software so that NOFREEZE was 30 F with the
+	other triggers closer together.. 
+		The added always-on in heaterA hasn't appears to really affect the resevoir temp during no freeze... Possibly
+	adding heaterB might help, as it can indirectly warm sandB / xferB as well as the shed? 
+		SecondLoops goes all the way down to 1.. this appears to be due to it taking more than 1s every 10s ? the timing
+	otherwise seems OK.. setting watts_millis to 150 and counterMed to 4 .. 
+1715 	compiling... 
+1716 	uploading and confirming operation..
+1717 	OK, secondLoops is increasing... hmmm.. set +=2, delay(2) for short loop..
+1722 	OK.. maybe secondLoops start at 1000 and counterMed is 10 .. ?
+1725 	Appears it settled down..
+1727 	OK seems stable, switching back to RPI monitoring..
+1730 	system appears to be stablizing at secondLoops ~2000 OK .. gonna cover up the panel and head inside. 
+
+2024/12/04 	Wednesday
+0830 	Doing some recalculating and research, I seemed to have goofed up kinda horribly. Salt water is more viscous than
+	fresh water - OK, sure, but I needed the lower freezing point. Soapy water is more viscous than fresh water. Oops, that
+	was entirely the idea behind adding the dish soap, was to lower the viscosity of the fluid.
+		Salt water and soapy water on their own are about 1.1 viscosity, vs ~1 for water.
+		The real answer to both the viscosity issue and the freezing point is Methanol. The -25 F windshield wiper fluid
+	at hardware stores is about 25-35% methanol by weight, for about $5 a gallon. 
+		Water weighs 1 oz / fl oz , methanol about .792 oz / fl oz - so assuming 25/75 mix by weight... 38/90 or 1:2.368
+	or about 30:70 .. so 7.5 lb/gallon.. 10 gallons = 75 lb as 18.75 lb methanol, say 19 lb to 56 lb or ~9 kg to 25kg 
+	using 9:25 kg . viscosity methanonal - .796 vs 1.792 for water.. salt water like 1.1*1.792=1.971
+	(9*.796 + 25*1.792)/34 = 1.53 , about 77% the viscosity, so should get ~1.29x the flow?
+		A week ago I calculated about 280 W over the course of an hour, from 1122 to 1222. if flow is the limiter, then 
+	am hoping for something like 280*1.29=360 W . 
+		considering the 10 gallon system, specific heat methanol 2.51 vs 4.18 for water, gives specific heat of ~3.76,
+	essentially the 3.8 used before for calculting, so using previous method for calculating wattage - res is approx ~17 W/F/Hr
+	360 W would mean ~21 F/hr .. collection is about 4 hours, so +84 F. Starting from approx freezing, that should mean 
+	typical reservoir temp up to ~110 F. 
+		Sand batteries being about 18 heat cap each - we'll simplify to 20 each, so 40 for the 2 sand batteries...
+		sand batteries should start at ~40 F.. so 
+		70 F * 100 heat cap split between 140 heat cap = 50 ... ending up at 90 F res/sandA/sandB ... Will believe when I see.
+	currently is more like 80 F => +40 hitting ~70 or ~30.. 40*5/7=28 ... hmmm.. seems proportionally should work.
+
+		This is before considering the pump switch, going from ~75 W to ~120 W => 1.6x flow .. 1.6 x 360 W = 576 W, likely
+	maximal for this system... if true, then +70F -> +112 F => +80 .. 120 F res/sandA/sandB ... Which would be a bit insane.
+		Considering currently system drops to about 40F from 80 F res, then 132 F res -> 90 F res? probably not.
+	Loss is probably at least somewhat proportional, as the higher temp would warm the shed more over time, so probably 
+	closer to -80 or end up at ~50 F in the morning before starting heater, assuming full sun the day before?
+		No way to know for sure until system is upgraded...
+0940 	/
+
+		drain system / install valves / swap in 10 gallons windshield wiper fluid ( 25% methanol )
+		install 120 W 110V AC pump
+		swap to black backing on panel
+		switch NOFREEZE to do defrost in morning
+		
+		CAD spacing out PVC in panel.
+		clean/org inside shed ! 
+		Finish flash around base
+		Insulate PVC to/from panel
 
 
 		Fix RTC error out - move relay power to external supply?
