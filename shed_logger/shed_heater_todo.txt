@@ -1982,11 +1982,500 @@ just pumps - ~125
 		No way to know for sure until system is upgraded...
 0940 	/
 
-		drain system / install valves / swap in 10 gallons windshield wiper fluid ( 25% methanol )
+2024/12/06
+TODO	switch NOFREEZE to do defrost in morning
+0040 	updated software so NOFREEZE just defrosts during daylight hours
+
+0715 	Ooops... the defrost should probably start 0800 not 0700, but seems the reservoir only dipped down to 30 F.
+0725 	About 15 mins to sunrise - roof at ~25 F, ambient ~25 F, reservoir holding at 30 F... res holding feels odd..
+0740 	loop was running OK.. xferA relay had some issue, so xferA pump wasn't actually running, is fixed now.
+
+
+		Collection didn't really get going until about 0930 yesterday, so NOFREEZE ( well, should rename to DEFROST ) should
+	start maybe 0900, which will be about an hour after sunrise each day. Changing the code now, will upload it later.
+
+TODO	drain system / install valves / swap in 10 gallons windshield wiper fluid ( 25% methanol )
+
+0750 	Yesterday after 5pm, I did pump the system mostly dry and there is now 8 gallons of wiper fluid added to what was 
+	remaining - which puts the system at about 10 gallons total. The reservoir is still sudding up, so there is still some
+	decent amount of soap in the system. There was some wetness below the reservoir, but unclear if it was leaked overnight
+	or simply spilled when filling or moving the reservoir.
+0810 	reservoir has been slowly warming up since xferA relay was corrected. light level has also been increasing. Roof 
+	temperature is still ~5F below reservoir ( 28/34 ). So defrost starting at 0700 wasn't too horrible, but would still
+	be better if there was higher reservoir temp trying to defrost the panel. 
+
+0900 	Yesterday maxed out 58% / 324Wh for 1122-1221 , res 54-67 F, light level avg 556, using soapy/salt water.
+	If that efficiency is linear with flow, am hoping for 69% efficiency, or ~390Wh for similar light level.
+	Reservoir currently about same level as 24h ago. Yesterday res peaked 71F, hoping for 78F.
+	Roof temp didn't spike until 1000, so will just have to wait and see?
+0920 	/
+
+1645 	firmware with DEFROST=35 from 0900 to 1600 uploaded to controller. Officially am done with covering panel at night
+	or worrying about system freezing. 
+
+2024/12/08 	Sunday
+0825 	Came out to the shed cuz Miguel was still camped out in the living room. I sorta hung that twin size throw I got 
+	off TikTok - it was a mystery thing, I got a pink hued native american looking design. Is nice and soft and the color
+	is a nice pastel on the west wall. 
+		The puddle of wiper fluid isn't gone - I am not sure if there's more than there was on Friday, just it apparently
+	will take its own sweet time to dry, especially with the shed floor getting to about 36 at night. 
+		The shed going down to 40 at night is maybe too low. HeaterA temp sensor wasn't working yesterday, and clearly 
+	heaterB isn't able to warm the shed on its own so much - which makes sense, it is a bit too high for that. Seems ~20F
+	above ambient is most I can hope for overnight with the current setup, which would be running ~5A all night. Maybe put
+	it at 45, so that heaterA kicks on at 39? but that is about what it holds over night anyway.. There isn't anything that
+	can utilize residual heat from reservoir / sand batteries currently at night, other than the passive thermal loss to the
+	shed air, so possibly could add something to help overnight temps. For now, setting comfy temp to 69 for working hours,
+	then 6pm goes to 55, then midnight to 45.. Will eventually have enough oomph in the system to accomplish that, just still
+	need to build/rebuild/upgrade components... 
+0848 	Wiring for heaterA and heaterB is really being iffy.. that controller rebuild and move off the desk is _so_ needed,
+	but I haven't had the ... whatever it is.. to even clean the shed to put up the shelves, so that I would have room to
+	work and have things organized and easy to find. 
+0852	Shed temp is 48. Mercifully, roof is already 38F, ambient 28. So maybe will warm up in here soon? can only hope,
+	right? 	Maybe the max for the heat elements can be pushed a bit.. Except they don't get that hot with the fans anyway..
+0900 	Keep meaning to fix up the display font the 128x64 uses but never get to it, is hard to read with how the numbers
+	are all jammed into each other currently. Just another thing for the list? meh.. Like I need another damn TODO.
+		I am just being grumpy, I didn't sleep well last night, I overslept into the afternoon yesterday and so just feel
+	all sorts of off is all. Just need to be kind to myself, deep breaths, take on a little bit of a thing at a time. Is
+	all that is needed, really. It is only currently 0906, I could wander off, catch a few Zs, come back this afternoon and
+	swap in the black backing for the panel or clean inside the shed a bit or whatever. Is not necessary for me to sit here
+	in a bad mood, where it is cold and such.. Reservoir 42 roof 37, is still a bit to go before things will kick off. 
+		Have made changes to the code for comfytemp and the rules, so will compile and upload that now before I wander off.
+0915 	code updooted but now heaterB element relay isn't responding.. 
+0920 	Oh.. heaterB relays came out the pin on the arduino.. arrgh.. So I am cold and heaterB is 73!??! wtf
+		Well, at least everything appears to be working now.. need to wait for things to warm up enough for heaterA and 
+		heaterB fans to kick on to be sure.. 
+0924 	loop just kicked on, heaterB fan kicked on.. OK will start working on that font then. Originally coerced to 12 to
+	make it work, but the original was 13*9=117, is 10 now so would need to be 11 high, 10 per character.. and need to add L
+0945 	OK bored of that already. is good time to go inside and maybe catch a nap or something.. head hurts, so prob should
+	try to hydrate and eat maybe.. 
+/
+
+2024/12/11 	Wednesday
+0740 	Last few days I had wiper fluid on the floor - apparently from the reservoir. Not a lot exactly, and not continuously.
+	I had managed to get the floor mostly dry yesterday, and this morning everything is dry. I added some PVC to the returns
+	so that their flow was directed more downward, into the reservoir, on the thinking that the fluid being lost was due to
+	splashing out the top of the reservoir. Yesterday, I observed soap bubbles occupying the top portion of the reservoir,
+	so possibly another avenue of loss is soap bubbles bubbling over the top. 
+		I have aluminum foil across the top as well, and placed the foamboard insulation directly on top of the reservoir,
+	hopefully these things all add up to the system remaining dry, otherwise there will need to be further investigation.
+	Possibly may need to aim a webcam at the reservoir and record video to correlate exactly with temperature / relay data.
+
+		Yesterday at about 0930, it was observed that the roof panel was reading ~50 F but still appeared covered with snow,
+	except for thin regions where the black PVC hose was coiled. Solar collection did not seem to be actually impaired, 
+	and about an hour or so later, the snow had been melted off the panel. The observed snow coverage pattern at ~50 F 
+	would appear to further validate the need to black out the backing of the panel.
+		Theoretically, the ~225 ft of PVC in the roof panel is only about 50% of the surface area of the exposed glass, 
+	meaning that blacking out the background could mean doubling the output of the system, currently maxing at about 300 W.
+		Actually, should check exactly what sort of wattage / performance I have been seeing.. Google sheets apparently 
+	doesn't like copy/pasting ~30K rows between sheets.. go figure.. so guess will have to do calcs in the new sheet..
+0820 	Switching over to wiper fluid doesn't appear to have really had impact on panel performance, still about ~45% light
+	level.. Coming to about 300 W at maximum. 
+		System was switched over for Friday, December 6th.
+
+		res is 55 kJ/F, sandA/B are 10 kJ/F ... And consider start when roof >100 F ? end about 1600
+		5 hours * 3.6ks/hour = 18 ks .. kJ/ks = W 
+	Date 	time 					res 					sandA 				sandB 					total 	average
+			start 	stop 	hours 	start 	stop 	kJ 		start 	stop 	kJ 	start 	stop 	kJ 		kJ 		W
+	12/06 	10:15 	15:15	5		47 		66		1045 	39 		64  	250 	51 	68 		170 	1465 	 81
+	12/07 	10:23 	15:25 	5 		46 	 	64 		990   	38 		61 		230 	50 	66 		160 	1380 	 77
+	12/08 	09:56 	14:56 	5 		48 	 	70 		1210  	43 		67 		240 	54 	71 		170 	1620	 90
+	12/09 	09:47 	14:47 	5 		50 	 	62 		660   	50 		62 	 	120 	55 	66 		110 	 890	 49
+	12/10 	10:00 	15:00 	5 		44 		66 		1210  	43 		65 		220 	51 	67 		160 	1590 	 88 
+
+0855 	doesn't seem too horribad... except the main pump is like 75 W so... need to push the efficiency a bit here...
+
+
+2024/12/12 	Thursday
+0535 	
+	consider res as 9 gallons - 9*8lb=72lb/2.2kg=32.7kg*3.7kJ/kgC=120.99kJ/C*5C/9F=67 kJ/F 
+	sandA/B are about 30 kg - 30*.8=24 kJ/C * 5C/9F = ~13 kJ/F
+	shed radiance - using 6*10^-7 W/K^4 as the constant... shed 40 - ambient 25=408,30=276,35=140
+	consider particular timeframe each day - 6 hours, 9AM to 3PM , so noon +/- 3 hours ...
+	shed air = 0.075 lb/ft^3 * 8*10*6=36lb or ~16.3 kg air is ~1 kJ/kg*C so shed is ~9 kJ/F
+
+Date 	LL 		amb 	shed 			rad			ruf res 		 	sandA 		 	sandB 			therm 	Pow 	Pow	
+		avg 	a 	b 	a 	b 	Δ 	kJ 	a 	b 	Wav av 	a 	b 	Δ 	kJ 	a 	b 	Δ 	kJ 	a 	b 	Δ 	kJ 	kJ Wav 	Wav 	%
+12/06 	475 	30 		46 				450 		91 	35 				38 				50 				2842	343
+					41 		60 	14 	126 	577 513			67 	32 	2144 	64 	26 	338 	68 	18 	234 	131 		 53 
+12/09 	351 	29		50				597			80 	52 				49				56				1000	593
+					37 		52 	 2 	 18 	440 518 		62 	10 	670 	63 	14 	182 	66 	10 	130 	 46 		105
+
+12/10 	448 										95 															519
+
+12/11 	478 		38 		61 		144		693 	86 		67 				52 				62 			2254	493
+				27 		45 		16 	 	501 	597 	39 		28 	1876 42 	10 	130 54 		 8 	104  	104 	 	 70
+
+0715 	hmmm... got 105% power/thermal for 9A-3P 12/09 ... maybe should double check radiant loss using overnight calculations...
+	Its still dark outside, so maybe check over last 3 hours? 
+	so.. shed 	~9 kJ/F / 60s = 150 , sand 13/60 = 217, res 67k/60s=1117
+	basically should be watts+res loss + sand loss + shed loss = radiant ? That doesn't account for watts the shed uses anyway.
+	but during this time period that should be very minimal.. lights are like 6 watts, rpi, arduino... ~20-30 W? 
+0740	If I use 5x10^-7 W/K^4 for radiant loss, it gives me 45 W average power over radiant loss... wow OK.. that changes
+	things a little..
+
+	So the efficiency column should be thermal gain minus power, in average watts, where in the sun that may be positive,
+	and at night or low sun will be negative...
+
+9A-3P
+Date 	LL 		amb 	shed 			rad			ruf res 		 	sandA 		 	sandB 			therm 	Pow 	therm-P	
+		avg 	a 	b 	a 	b 	Δ 	kJ 	a 	b 	Wav av 	a 	b 	Δ 	kJ 	a 	b 	Δ 	kJ 	a 	b 	Δ 	kJ 	kJ Wav 	Wav 	
+12/06 	475 	30 		46 				375 		91 	35 				38 				50 				2842	343
+					41 		60 	14 	126 	481 428			67 	32 	2144 	64 	26 	338 	68 	18 	234 	131 		 216 
+12/09 	351 	29		50				498			80 	52 				49				56				1000	593
+					37 		52 	 2 	 18 	366 432 		62 	10 	670 	63 	14 	182 	66 	10 	130 	 46 		-115
+
+12/10 	448 	25 		42			153	389			95 45				44		21		51		16		2041	519
+					37 		59 	17 			549 469			66 	21 	1407 	65 		273 	67 		208 	 95 		  45
+
+12/11 	478 		38 		61 		144		579 	86 		67 				52 				62 			2254	493
+				27 		45 		16 	 	418 	499 	39 		28 	1876 42 	10 	130 54 		 8 	104  	104 	 	 110
+
+0800 	That seems to make some sense.. brighter=more positive. warmer day=more positive. shed start at warmer=more positive
+	res start colder?! more positive.. because it can't pull so much off the roof if res is warmer... 
+	the main thing though is shed kJ + avg radiance vs pow ?
+	radiance - pow = sun ?
+		shed W 	radiance 	total 	pow 	p/t% (lower is better) 	LL 		ruf 	t-p=sun 	LL-sun adjust? 	
+12/06 	6 		428 		434 	343 	 79 					475 	91 		  91 		384
+12/09 	1 		432 		433 	593 	136 					351 	80 		-160 		511 <-might be off due to panic?
+12/10 	7 		469 		476 	519 	111 					448 	95 		- 43 		491
+12/11 	7 		499 		506 	493 	 97 					478		86 		  13 		465
+
+0815 	but factoring in res sand and all would be more correct.. so therm-P is what it should be.. 12/06 was an awesome day..?
+	Yesterday only having therm-P of 110 aW isn't bad.. 12/06 might have been higher therm-P because I was not in the shed
+	for about 3 hours, plus now the comfy temp is 69 not 60.. so is more power usage.
+		Clearly the optimizing thing here is increasing the roof average temp somehow, res seems limited to ~66 here..
+	these are averages over the 6 hour period, like 12/08 1300 had res 79 max v roof 115? yesterday res maxed 67 v roof 78
+	at 1300... is just very different days... but anything that could get the roof hotter should be good, and currently it
+	is reflecting not absorbing :-\ ... the acrylic should be blocking IR though, so swapping the backing to black _might_
+	be moot.. would have to try it and see? 
+0830 	/
+
+2024/12/13 	Friday
+0740 	Thinking about how to calculate the thermal transfer in the loop to better understand/optimize it...
+
+9A-3P
+Date 	LL 		amb 	shed 			rad			ruf res 		 	sandA 		 	sandB 			therm 	Pow 	therm-P	
+		avg 	a 	b 	a 	b 	Δ 	kJ 	a 	b 	Wav av 	a 	b 	Δ 	kJ 	a 	b 	Δ 	kJ 	a 	b 	Δ 	kJ 	kJ Wav 	Wav 	
+12/06 	475 	30 		46 				375 		91 	35 				38 				50 				2842	343
+					41 		60 	14 	126 	481 428			67 	32 	2144 	64 	26 	338 	68 	18 	234 	131 		 216 
+12/09 	351 	29		50				498			80 	52 				49				56				1000	593
+					37 		52 	 2 	 18 	366 432 		62 	10 	670 	63 	14 	182 	66 	10 	130 	 46 		-115
+
+12/10 	448 	25 		42			153	389			95 45				44		21		51		16		2041	519
+					37 		59 	17 			549 469			66 	21 	1407 	65 		273 	67 		208 	 95 		  45
+
+12/11 	478 		38 		61 		144		579 	86 		67 				52 				62 			2254	493
+				27 		45 		16 	 	418 	499 	39 		28 	1876 42 	10 	130 54 		 8 	104  	104 	 	 110
+
+12/12 	450 	32 		49 			162		501		87 	40 				42 				52 				2681	469
+					48 		67 	18		405		453			71 	31	2077	66 	14	182		72 	20 	260  	124 		  60
+
+0800 	probably just do like meter by meter? if 100 ft = 1 gallon = 7.5 lbs, then 0.075 lb/ft 0.034 kg/ft 0.11 kg/m
+	the panel uses about 64m of pvc.. The reservoir is assumed to contain about 8 gallons while under operation - will say 
+	25 kg. so each time step, simulate the water going 1m along...? top surface area of 1m of 0.5" diameter is 
+	1 * 0.5*0.0254*pi/2 - ~.2 m^2 and water thickness about .25inch - 0.00635 .. thermal conductivity of methanol is .2 ,
+	water .6 so 25% => .2/4 1.8/4 = .5 Wm/K .. so .5* .2 / 0.00635 = 15.75 W/C 
+	specific heat 3.7 kJ/kgC .. yields 15.75 / 3.7 /0.11 = 38.69 per second ?
+	15.75 W/C / 3.7 kJ/kgC / 0.11 kg = W/C * kgC/kJ / kg = 38.69/1000 per sec .. 0.03869 /s .. use 0.036 so its more like
+	64 meters = 1s.. for a 40 C roof ( 104 F), from freezing, 3 hours -> ~20C res or 68 F >_< that is roughly what I have
+	seen.. 4 hours - ~25C res, 77 F ... 2 hours? 15C 57 F... ok ok .. and that's using 104 F roof temp, which isn't always
+	the case.. the 3 hour value seems best for trying to figure this out?
+0840
+	Well, if the flow is increased, say by 1.6 (120/75), then 180 minutes would be 288 time units here.. 27C = 80 F
+	then if the roof temp was increased from 40C / 104 F , to say 50 C / 122 F .. res temp possibly 34 C / 93 F ! 
+0845 	Wait... this isn't 1 minute per row.. is basically in seconds .. this is being optimal..? 25*3.7=92.5 * 40=
+	3,700 kJ ! or about 1kW in an hour.. .16*92= ~15 W .. if each step was 1s.. we calc'd 15W tranfer/C .. yesterday
+	averaged 96W .. 
+0900 	OK so is really mixed scale.. screw it. can slap a factor on it and be done with it?
+	consider values from yesterday - roof average 87F=31 C, res started at 40 F = 4 C ended at 71 F or 22 ... 50% factor
+	just kinda works.. cool .. so if I put conditions in for say the 10th - start res 5 C roof 35... 68 F res ...
+	actual was 66 res.. so is actually very close.. today res starting at 50F / 10 C .. is snowing or something though,
+	so likely roof temp maybe average 80? 27 ... so expecting res end at 69 F. noice ... Which would be about where it
+	ended up yesterday, and the ending point pretty consistently in the 60s .. so yeah guess is just come down to improve
+	efficiency. 
+
+
+2024/12/14 	Saturday
+1545 	
+
+9A-3P
+Date 	LL 		amb 	shed 			rad			ruf res 		 	sandA 		 	sandB 			therm 	Pow 	therm-P	
+		avg 	a 	b 	a 	b 	Δ 	kJ 	a 	b 	Wav av 	a 	b 	Δ 	kJ 	a 	b 	Δ 	kJ 	a 	b 	Δ 	kJ 	kJ Wav 	Wav 	
+12/13  ~400 	32 		49 		18		405 	453		40 		31		43 	 	23		54 		18		2772	~500
+					48 		67 		162 	501 			71 	 	2077 	66 		299 	72 		234 	128 		~80 W
+12/14 	315 	37 		54 		10		418 		54 	51 		9		63 	 	8		57 	 	4		849		566
+					45 		64 		90 		492  455 		60 	 	603 	71 		104 	61 		52 		39 			-35 W
+
+1610 	Yesterday, it was snowing in the morning but brightened later. Getting net positive yesterday is kinda nice.
+		Today though, it has been warm but gusty winds and cloudy. The roof temp average being less than where res ended up
+		is a first, during the 6 hour period the loop_pump was only active about 36% of the time. 
+
+		The reservoir also started 11F hotter - if it hadn't, that would have easily been another 35 W gain, making the day even?
+	There's about 500W of electric heat - enough to maintain ~45 F against an ambient ~25 F. Even the coldest day should be
+	about 30 F - so during work hours 50 F should be a given... 
+		The surface area of the sand batteries is about .4m^2, reservoir is about .2m^2 ...
+		So - under power we can get to 51 F in the shed. if res and sand batteries are at 70F, that is additional 60 W,
+	which pushes to 53 F. 
+	pow 	shed 	radiate(W)
+	500 	51 		60 
+	560 	~53 	52
+	552 	53 		52
+	res=67*17=1,139 	sand=2x17*13=2x221 	~1600kJ ... maybe sustain for about 8.4 hours .. 
+	but res/sand higher- say 100 F...
+	pow 	shed 	radiate(W)
+	500 	51 		162
+	662 	57 		145	
+	645 	56 		148 (act 630...)
+
+	d*(93)=4,092 kJ , sustain ~27.6 hours ... ! 
+
+	interestink.. goal temp is 69.. 69 v 30 ambient = ~1kW .. I would need res/sand at 180 F to make that up without sunlight.
+	also would take over 9300 kJ , ~430 W of sun over 6 hours .. and only maintain ~2.5 hours ..
+
+	Is a lot of sun to hope for is all. Would make more sense if could store power overnight to use during day?
+	what about flip - only radiant heat considered? if res/sand starts at 80 F
+	pow 	shed 	radiate
+	0 		30 		147
+	147 	36 		132
+	132 	35 		135 	
+	ambient 25?
+	pow 	shed 	radiate
+	0 		25 		160
+	155 	32 		142
+	133 	31 		145 	<- well, fuck a duck, I maybe actually did it... 
+	sand/res of 91 F maybe would keep shed at 33 .. 5,394 kJ / 178 W = ~8.4 hours ... 
+
+	So there's a sort of goal that maybe I can actually achieve - not having the shed freeze overnight using like no power.
+	It would only take having res/sand above 90 F at midnight... lol
+
+1700 	/
+
+
+2024/12/16 	Monday
+0745 	Swapped in the black posterboard and recoiled the PVC hose in the panel. The first 2 panels showed promise, the 
+	acrylic got warm to the touch and started to fog a bit after sealing. The first 2 panels were done by 1230, the 3rd
+	was completed by 1700 due to needing to acquire more posterboard.
+		Yesterday was warm - 45F/28F, but periods of cloud and windy.
+
+9A-3P
+Date 	LL 		amb 	shed 			rad			ruf res 		 	sandA 		 	sandB 			therm 	Pow 	therm-P	
+		avg 	a 	b 	a 	b 	Δ 	kJ 	a 	b 	Wav av 	a 	b 	Δ 	kJ 	a 	b 	Δ 	kJ 	a 	b 	Δ 	kJ 	kJ Wav 	Wav 	
+12/15 	424 	39 		58 		9		475 	537	86 	52 		19		68 		12		59 		14		1692	513		102 
+					44 		67 		 81 	599 571			71 		1273 	80 		156 	73 		182 	78 			136
+
+		Interesting.. if consider average radiant loss minute-by-minute, is a bit higher - by ~6% / 34 W in the case of 
+	yesterday. Minute by minute therm calculated 76 W, so isn't much difference between really.. 571+76-513=647-513=134 W
+	0923-1322 therm average ~145 W, on LL average 455 / 570 W radiant / 509 W pow - r+t-p = 206 W for that 4 hour period..
+	1130-1230 	rtp - 353 W / LL 528 	
+0835 	interestink.. on the 12th, 1130-1230 258 W / LL 528 ... interestink.. ~100 W difference over on same LL, but this
+	was partially during the time I had the panel open to black the backing.. 
+
+9A-3P
+DATE 	LL 		shed 	roof 	amb 	rad 	therm 	pow 	r+t-p
+12/15 	424 	 65		 90 	 43 	571 	 76 	513 	134
+
+2024/12/17 	Tuesday
+0920 	
+9A-3P
+DATE 	LL 		shed 	roof 	amb 	rad 	therm 	pow 	r+t-p 	+60 W
+12/15 	424 	 65		 90 	 43 	571 	 76 	513 	134 	194 	
+12/16 	350 	 59 	 55 	 39 	501 	 46 	606 	-59 	  1
+
+0935 	power predictor / analysis?
+ 		roof temp - ambient  - (R-A)X+C = rtp
+ 		47X+C=134 	14X+C=-59 	33X=193 	5.8 	139
+ 		or if we subtract 60 W for the other things in the shed? 	33X=73 	2.2 	88.2
+ 		but depends also on the ambient? 	
+ 		A(R-A)X+C = rtp
+ 		43(47)x+c=134 	39(14)x+c=-59 	
+ 		2021x+C=134 	 546x+C=-59 		2021x+C=194 	546X+C=1
+ 		1475x = 193 	0.13 	-130 		1475X = 193 	0.13 	-68.73 -69.98
+
+ 		function of light level?
+ 		aL+C = rtp
+ 		424a +c = 134 	350a + c = -59 		424a + c = 194 	350a + c = 1
+ 		74a = 193 		2.6 	968.4 969 	74a = 193 	2.6 	908.4 	909 	
+0955 	interestink.. 	what if we consider average power like 30 W + pumps, w loop pump = 70 W and xfer pumps = 20 W?
+		12/15 			12/16
+		47X+C=134+66+30 	14X+C=-59+45+30
+		47X+C=230 		14X+C=16
+		33X=214 	6.5 	-75.5 	-75
+
+		2021x+C=230 	546X+C=16
+		1475X+C=214  	.15 	-103.15 	-95.9
+
+		424x+C=230 		350x+C=16
+		74X=214 	2.9 	-1029.6 	-1029		
+
+1015 	Suggests to see 500 W at this efficiency... 
+		light level needed.. 	2.9L-1029=500 	2.9L=1529 	L=527 
+		R-A -> 	6.5d - 75 = 500 	6.5d=575 	d=88 	ambient of 40 -> roof average 128 
+		A(R-A) -> .15T-100 = 500 	.15T=600 	T=4000 	AR-A^2 = 4000 	40R-1600=4000 	40R=2400 	R=60 	<- nope... redo
+1025 	crap, gotta go work.. dang it.. 	well, at least have something now? LL 527 / roof 128 for 500 W? 
+
+
+2024/12/18 	Wednesday
+1615 	Overslept, missed work, stayed in bed.. meh.. Yesterday was quite interesting for the roof temp staying hot. 
+	Today, the reservoir got to nearly 80 F, intermittent loop pump up to 20 minutes ago, the res currently at ~70F
+
+9A-3P
+DATE 	LL 		shed 	roof 	amb 	rad 	therm 	pow 	r+t-p 	+60 W
+12/15 	424 	 65		 90 	 43 	571 	 76 	513 	134 	194 	
+12/16 	350 	 59 	 55 	 39 	501 	 46 	606 	-59 	  1
+12/18 	468 	 64 	 86 	 44 	526 	105 	494 	137 	197
+		interesting, roof temp was lower today... mayne need to track more data points?
+
+9A-3P
+DATE 	LL 		shed 	sandA 	sandB 	res 	roof 	amb 	rad 	therm 	pow 	r+t-p 	+60 W
+12/15 	424 	 65		 73 	 65		 67		 90 	 43 	571 	 76 	513 	134 	194 	
+12/16 	350 	 59 	 65		 58		 54		 55 	 39 	501 	 46 	606 	-59 	  1
+12/18 	468 	 64 	 71		 61		 69		 86 	 44 	526 	105 	494 	137 	197
+
+		Each day, the reservoir started at ~50 F, ambient ~38 F, roof ~45 F , each day ending at ambient ~45 F...
+		Perhaps peak roof temp should be considered? 	18th-114 	16th-63 	15th-123 
+		The timeframe being considered may be too broad.. what if we considered only when the loop pump was active?
+
+9A-3P 	only when loop_pump active
+DATE 	LL 		shed 	roof 	amb 	rad 	therm 	pow 	r+t-p 	+60 W 	loop active
+12/15 	435 	 65 	 89 	 43 	569 	 97 	512 	 74 	134 	88%
+12/16 	359 	 59 	 56 	 40 	499 	 48 	616 	 70 	130 	65%
+12/18 	482 	 65 	 90 	 44 	531 	121 	482 	 82 	142 	88%
+
+		generally showing the pump active when roof is hotter and it is brighter outside.. rtp is much more closely grouped.
+		it seems roof alone is more important - roof-ambient is same for 12/15 and 12/18, but 12/18 had a bit more light and
+		warmer roof for it.. so maybe it is aR+b=rtp ... and light level? aR+LL=rtp ?
+		12/15 		12/16 		12/18
+		a89+435=74 	a56+359=70 	a90+531=82
+		89a=-361 	56a=-289 	90a=-449
+		a=-4.05 	a=-5.16 	a=-4.98 	intriguingly close.. inspection suggests 1F roof = 8W when pump active..
+		82/8=10.25, res averaged 70.. 20 F average difference.. hmm.. if consider just (roof-80)*8 ? but doesn't generalize
+1720 	Maybe just plot the values and try to fit a curve.. 
+1810 	finally figured out how to fit to a curve using google sheets. light level < 50 looks very chaotic..
+1820 	roof temp is approximately 38 + LL/100 + 2LL^2/10000 ? 38+5+46 = 89 .. Yeah approximately.. sure..
+1830 	current equation predicts a light level of 700 would be needed to reach ~140 F roof.. 
+1915 	OK now I got the google sheet setup so as I dump data it can average out ambient and radiant loss as well.
+	Will want to be sure there's correct amounts of data for each day going forward, or base this on a full dump from
+	the system so no data is missed? So far missing data doesn't seem too bad.. 
+
+
+2024/12/19 	Thursday
+0655 	Quick update to the google sheets for last night data. 
+0720 	Black body radiation constant is 5.67E-8 W/m^2K^4 - 1kW/meter would mean cK^4=1kW, 1kW/c=K^4 K=364, F=196
+	so something absorbing 100% of the sun over 1m^2 should be about 200 F. 
+		The roof is about 15* but should be 55* ... 
+		40/50 	neutral 55/35 - winter
+		----
+		/	40/
+		` - _/ 	
+		the roof only neutralizes about 15* of the needed 55* tilt.. so 
+		/  40/ 	sin 40 - 0.64 	cos 40 - 0.77 	.. sorta 6/8/10 ... 
+		----- 	
+		   /|
+		10/(40)
+		 /  |8
+		+---+
+		6
+		so winter, roof is getting ~0.77 at best.. is about 0.9x2m = 1.8m^2 => ~1.4m^2 	x ~770W = 1078 W for the _panel_
+		so let's say 1100 W at full summer sun.. using black body calculation, best seen last few days was ~125 F, or ~625 W/m^2
+		or 875 W for the whole panel.. if we consider a max roof temp from yesterday - 1209 114.26 , res was 78.44, was 1 min
+		value of 441 W at 1210.. OK... so that's either 441/875 so ~50% efficiency.. or its 400/(400+800)=33% efficency 
+		and the panel was seeing 1200, or it should be averaged some.. about 200 W ... saying it sucked down 200 W and so
+		the roof temp was stuck at 114 because only ~800 W left - ~200/(200+875) ... ~18% efficiency? 
+		insinuates limit to doing this thermally - at 100% efficiency, 
+		res temp 	watts max efficiency full sun (1100 W)
+		212 		  0
+		196 		100
+		179 		200
+		160 		300
+		140 		400
+		118 		500
+		 92 		600
+		 62 		700
+		 26 		800
+
+		Which would also then imply a period of time to achieve these temps.. ie - say 1100 W sun coming down..
+		res 	watts 	time to next 5
+		 26 	 800 	6 mins
+		 30 	 790 	7 mins 	~13
+		 35 	 775 	7 		 20
+		 40 	 760 	7 		 27
+		 45 	 750 	8 		 35
+		 50 	 735 	8 		 43
+		 55 	 720 	8 		 51
+		 60 	 705 	8 		 59
+		 65 	 690 	8 		 67
+		 70 	 675 	8 		 75
+		 75 	 660 	9 		 86
+		 80 	 645 	9 		 95
+		 85 	 625 	9 		104
+		 90 	 605 	9 		113
+		 95 	 590 	10 		123
+		 100 	 570 	10 		133 		for 1 m^2 panel... /1.4 for current panel, so ~90 mins if it was getting full
+		sun... but we don't have 100% efficiency or full sun.. ? 
+		got about 585 W/m2 for 114 F => 819 W across the 114 F panel, say ~250 W therm.. totals ~1069 on ~555 LL ...
+		so LL is _almost_ giving W/m^2 for the panel ?!?! is giving half... dafuq
+
+
+2024/12/20 	Friday
+0045 	
+
+9A-3P
+DATE 	LL 		shed 	sandA 	sandB 	res 	roof 	amb 	rad 	therm 	pow 	r+t-p 	+60 W
+12/15 	424 	 65		 73 	 65		 67		 90 	 43 	571 	 76 	513 	134 	194 	
+12/16 	350 	 59 	 65		 58		 54		 55 	 39 	501 	 46 	606 	-59 	  1
+12/18 	468 	 64 	 71		 61		 69		 86 	 44 	526 	105 	494 	137 	197
+12/19 	459 	 65 	 71 	 60 	 70 	 89 	 44 	552 	117 	410 	260 	320
+
+9A-3P 	only when loop_pump active
+DATE 	LL 		shed 	roof 	amb 	rad 	therm 	pow 	r+t-p 	+60 W 	loop active
+12/15 	435 	 65 	 89 	 43 	569 	 97 	512 	154 	214 	88%
+12/16 	359 	 59 	 56 	 40 	499 	 48 	616 	-69 	 -9 	65%
+12/18 	482 	 65 	 90 	 44 	531 	121 	482 	170 	142 	88%
+12/19 	465 	 66 	 93 	 44 	558 	126 	397 	287 	347 	92%
+
+0055 	oh wow. Is not exactly clear what the difference between 18th and 19th should have been, maybe just a bit less
+	cloud cover today... but RTP 260? 92% loop active ??!?	pow 410 seems due to high ambient temperature, heaterA stopped
+	before noon and didn't pick up again until after 4pm.. 
+
+0645 	maybe should double check radiant loss?
+		This morning have data 	for when it was dark and no relays running.. Due to resolution of the DHTs, need to synthesize
+	in-between temperatures... based on the 16kg of air , 
+0745 	suggests a radiant loss of 1.6E-11 W/K^4 ... That's way kinda low.. implies way less than 1W even at 69/40 ?
+	Oh, right.. 16,000g ... 1.618*10^-8
+	Air is 0.075 lb/ft^3, shed is 8x10x6=480 about 500 ft^3 so ~37.5 lbs or 17kg .. even if consider stuff in the shed so
+	20kg air equiv? 2.0E-8 	.. hmmm..  seems off by at least a magnitude.. prob cuz is only considering the _air_ inside
+	the shed... seems roughly its kg*10^-9 ... so if is assumed 100kg material in the shed is going to spit out 10^-7
+	doesn't seem quite right and not sure how much stuff is in the shed currently.. iirc 5E-7 was a working number before?
+	
+
+2024/12/22 	Sunday
+1445 	Yesterday and today it seems roof temperatures didn't get so high as they should have, suggesting the panel covered
+	with frost and defrost not being enough at its current threshold ... need to grab the data and crunch stuff though..
+
+1530 	Yesterday LL9A3P 432 max 553 with a roof average of 76? Friday was 455/573/91 .. yeah, definitely frost issue.
+	Currently defrost has 9 am / 35 ... On Friday, res/roof hit parity at ~45F at 9:30, running manually.. 
+	Checking last few days, looks like yesterday shed started warming in sun at 0830 LL 224 and today 0815	LL 213
+	Sunrise at latest is 0752 	.. suggesting value should be 8 am / 45 F? and defrost period ends 3pm ... That should help
+	jumpstart production... 
+
+	Now just have to go out later and updoot the system.. hehe
+1550 	/
+
+2024/12/23 	Monday
+0630 	updated system.. fixed that monday thing, Mon is no longer 'err'
+0640 	/	
+
+
+
+
+		fix font/display for 128x64 
+		implement xferA heater - copper tubing? teehee - hmm.. kinda pricey actually.. maybe use flashing? hmmm...
+		make floor space for shelf A
+		make floor space for shelf B
+		install valves
 		install 120 W 110V AC pump
 		swap to black backing on panel
-		switch NOFREEZE to do defrost in morning
-		
+
 		CAD spacing out PVC in panel.
 		clean/org inside shed ! 
 		Finish flash around base

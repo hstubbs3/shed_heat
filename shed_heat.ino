@@ -20,14 +20,14 @@ Temperature daTemps[] = {
   { "ComfyTemp", 60 },
   { "ComfyFoot", 90 },
   { "ELEM_MAX", 120 },
-  { "NoFreeze",  30 },
+  { "Defrost",  0 },
 };
 
 enum TEMP: byte {
   COMFYTEMP=0,
   COMFYFOOT=1,
   ELEM_MAX=2,
-  NOFREEZE=3,
+  DEFROST=3,
   NO_TEMP=255,
 };
 
@@ -42,14 +42,14 @@ struct struct_TEMP_TIME_EVENT {
 typedef struct_TEMP_TIME_EVENT TEMP_TIME_EVENT;
 
 TEMP_TIME_EVENT tempChanges[] = {
-  { COMFYTEMP,  0,  0,  40 }, //0
-  { COMFYTEMP,  5,  0,  60 }, //1
-  { COMFYTEMP, 18,  0,  40 }, //2  
+  { COMFYTEMP,  0,  0,  45 }, //0
+  { COMFYTEMP,  6,  0,  69 }, //1
+  { COMFYTEMP, 18,  0,  55 }, //2  
   { COMFYFOOT,  0,  0,  60 }, //3
   { COMFYFOOT,  4,  0, 100 }, //4
   { COMFYFOOT, 18,  0,  80 }, //5
-  { NO_TEMP,    0,  0,   0 }, //6
-  { NO_TEMP,    0,  0,   0 }, //7
+  { DEFROST,   8,  0,  45 }, //6
+  { DEFROST,  15,  0,   0 }, //7
 };
 
 unsigned long int rough_timer = 0 ;
@@ -377,20 +377,20 @@ enum TEMP: byte {
 */
 struct tempRule daRules[] = {
 //  { "0123456789ABCDE",  rule type, a, b, r, v }, 
-    { "main: roof>res", ruleDHT_LT_TARGET_DHT, HT_RESERVOIR, HT_ROOF, R_LOOP, 2 }, //0
-    { "xfer1:res>sandA", ruleDHT_LT_TARGET_DHT, HT_SANDA, HT_RESERVOIR, R_XFERA, 2 }, //1
-    { "xfer2:res>sandB", ruleDHT_LT_TARGET_DHT, HT_SANDB, HT_RESERVOIR, R_XFERB, 2 }, //1
-    { "hA: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, COMFYTEMP, R_HEAT_A, 5 }, //2
+    { "main: roof>res", ruleDHT_LT_TARGET_DHT, HT_RESERVOIR, HT_ROOF, R_LOOP, 0 }, //0
+    { "xfer1:res>sandA", ruleDHT_LT_TARGET_DHT, HT_SANDA, HT_RESERVOIR, R_XFERA, 0 }, //1
+    { "xfer2:res>sandB", ruleDHT_LT_TARGET_DHT, HT_SANDB, HT_RESERVOIR, R_XFERB, 0 }, //1
+    { "hA: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, COMFYTEMP, R_HEAT_A, 2 }, //2
     { "f0: shed<heatA", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATERA, R_HEAT_A_FAN, 60 }, //3
     { "hB: shed<comfy", ruleDHT_TARGET_TEMP_ON_LOW, HT_SHED, COMFYTEMP, R_HEAT_B, 0 }, //2
     { "f0: shed<heatB", ruleDHT_LT_TARGET_DHT, HT_SHED, HT_HEATERB, R_HEAT_B_FAN, 40 }, //3
     { "foot warmer", ruleDHT_TARGET_TEMP_ON_LOW, HT_FOOT, COMFYFOOT, R_FOOT, 0 }, //4
-    { "m: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_LOOP, 0}, //5  so the system doesn't freeze... using 30 to account for salt water...
-    { "xA: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_XFERA, 1}, //6 ... xferA is looped with heater A / sand A by the door , inline with HeaterA which will serve to keep loop from freezing..
-    { "xB: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_XFERB, 2}, // 7
-    { "xAh: no freeze", ruleDHT_TARGET_TEMP_ON_LOW, HT_ROOF, NOFREEZE, R_XFERA_HEAT, 3}, // 8
-    { "hA: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_HEAT_A, 4 }, //9
-    { "hB: no freeze", ruleDHT_LT_TEMP_ON, HT_ROOF, NOFREEZE, R_HEAT_B, 5 }, //15 <- so up to 16 rules... 
+    { "m: Defrost", ruleDHT_LT_TEMP_ON, HT_ROOF, DEFROST, R_LOOP, 0}, //5  so the system doesn't freeze... using 30 to account for salt water...
+    { "xA: Defrost", ruleDHT_LT_TEMP_ON, HT_ROOF, DEFROST, R_XFERA, 1}, //6 ... xferA is looped with heater A / sand A by the door , inline with HeaterA which will serve to keep loop from freezing..
+    { "xB: Defrost", ruleDHT_LT_TEMP_ON, HT_ROOF, DEFROST, R_XFERB, 2}, // 7
+    { "xAh: Defrost", ruleDHT_TARGET_TEMP_ON_LOW, HT_ROOF, DEFROST, R_XFERA_HEAT, 1}, // 8
+    { "hA: Defrost", ruleDHT_LT_TEMP_ON, HT_ROOF, DEFROST, R_HEAT_A, 3 }, //9
+    { "hB: Defrost", ruleDHT_LT_TEMP_ON, HT_ROOF, DEFROST, R_HEAT_B, 4 }, //15 <- so up to 16 rules... 
     { "h0 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERA, ELEM_MAX, R_HEAT_A, 0 }, //10
     { "h1 too hot!!!!", ruleDHT_GT_TEMP_OFF, HT_HEATERB, ELEM_MAX, R_HEAT_B, 0 }, //11
     { "hot foot!!!!", ruleDHT_GT_TEMP_OFF, HT_FOOT, ELEM_MAX, R_FOOT, 0 }, //12
@@ -757,7 +757,7 @@ void setup() {
 
 byte setTime[8]; //for setting time using mode 2..
 
-char dayOfWeek[8][4]= { "Mon","Tue","Wed","Thu","Fri","Sat","Sun","ERR" } ;
+char dayOfWeek[8][4]= { "ERR","Tue","Wed","Thu","Fri","Sat","Sun","Mon" } ;
 
 char setTimeString[13][17] = {
 // "0123456789ABCDEF",
@@ -1148,7 +1148,7 @@ void loop() {
       if (rtcTime[3] < 0 || rtcTime[3] > 7 ) { 
         Serial.print("Got bad value for dayOfWeek: ");
         Serial.println(rtcTime[3]);
-        rtcTime[3]=7; 
+        rtcTime[3]=0; 
       }
       makeDateTimeStamp();
 
