@@ -2463,7 +2463,55 @@ DATE 	LL 		shed 	roof 	amb 	rad 	therm 	pow 	r+t-p 	+60 W 	loop active
 
 2024/12/23 	Monday
 0630 	updated system.. fixed that monday thing, Mon is no longer 'err'
-0640 	/	
+0640 	/	Forecast today - 49/35, AM showers. cloud cover - 95% 9am , 80% at noon,  70% at 3 pm... 
+	100% cloud cover is LL ~200 and 0% cloud cover is LL ~600, giving a predictive scale something like this for noon -
+	LL 	200 	250		300		350 	400		450 	500 	550 	600
+	% 	100 	 88 	 75 	 63 	 50 	 38 	 25 	 13 	  0
+
+	is not exact but ehhh.. does it have to be? lol... 
+0650 	shed 51 	ambi 36 	roof 	36 	 	LL 55 - due to noise maybe.. still need to sort that out I s'pose.. 
+	like factor in the relays and stuff?  would need to analyze LL vs wattage to model the effect appropriately.. 
+	Currently, it is dark outside, ~516 W LL 54 	.... not sure if it is # of relays or watts though...
+	seems to be this during the night - 
+	relays 		Watts 		LL
+	0 			 77 		  1
+	1 			164 		  5
+	2 			275 	 	 30
+	3 			285/570 	 52
+	4 						 72
+	5 						 80
+
+	oh yeah, is # relays not watts.. its a voltage sink issue.. is non-linear it seems..
+	OK from 6pm to 6am, LL < 100 , looks like it is tracking based on watts... 
+0750 	oh yeah that ain't linear... not seeing pattern at all, would have to figure out what's going on with the circuit..
+	it is clear enough there is some pattern, like maybe could subtract between 4 and 20 times num relays...
+0755 	just after sunrise, LL 122 / 3 relays / 500 W ... maybe 52 of LL is relays... I dunno, would have to fit it somehow.
+	Should be heading inside for tums and relax before work...
+	95% cloud coverage / 38 F forecast for 8am, 75% / 45 F noon... system is about to enter defrost, roof isn't actually frosty
+	Possibly detect frost using humidity? maybe roof humidity or ambient? 
+	Friday roof humidity ~55 at 9am.. no.. roof humidity always high... hmmm
+0805 	System time is 0800, defrost just kicked on... that RTC is really losing time... hmm..
+	/
+
+
+2025/01/26
+0755 
+	- 	Long time, no update, I know.. System has just been working OK, although the defrost function is a bit questionable.
+	I might disable it, but also it just may not matter. 
+	-	The footwarmer relay stopped relaying, and then the 12V DC positive for it kept overheating, so I disconnected a
+	few of the PTCs in the footwarmer and hard-wired it to the 12V power supply with thicker wire.. It isn't as good, but
+	it is serviceable... 
+	-	"Serviceable" is about the only way I can really describe the system now... it just isn't very polished at all.
+	A proper redo would involve - 
+		-	improved roof panel - use thin copper piping, higher pressures, proper angle, better defrosting. Possibly also
+		implement capacity to vent air from the panel directly as well as using the fluid. Maybe some solar electric 
+		capacity as well - using two-sided solar panel with the fluid heater behind it maybe?? or convert heat to power?
+		- 	improved reservoir - controllable capacity / multiple tanks? surrounded in wood or something in order to 
+		decouple it from the shed but also allow it to act as radiator?
+		- 	improved sand batteries - switching to copper piping inside the sand batteries would allow better transfer.
+		- 	improved ventilation / air recirculation - currently, no fans or other elements to push heated air back down
+		- 	better sealing / insulation inside. 
+		-	insulated / heated floor
 
 
 
