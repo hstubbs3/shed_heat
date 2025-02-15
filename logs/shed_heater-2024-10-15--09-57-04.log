@@ -1,0 +1,112 @@
+: 49 / 50 - Tue (1) - secondLoops: 81
+ 0000/0081 :: 48 / 49 - Tue (1) - secondLoops: 81
+2024/10/15 09:56:50 - 08 0 0000/0081 :: 49 / 50 - Tue (1) - secondLoops: 81
+strTimeStamp: 09:56:52 
+init...
+init relay 0 : 12 ng on %d %s LOOP PUMP
+drawTextScreen : line 2 - This is just a small
+drawTextScreen : line 3 - test, trying to put 
+drawTextScreen : line 4 - text to the OLED.   
+drawTextScreen : line 5 -                     
+drawTextScreen : line 6 - This is ONLY A TEST!
+drawTextScreen : line 7 - ....................
+drawTextScreen : line 0 - init relay 0 : 12 ng
+drawTextScreen : line 1 - LOOP PUMP
+init relay 1 : 11 ng on %d %s XFER PUMP
+drawTextScreen : line 4 - text to the OLED.   
+drawTextScreen : line 5 -                     
+drawTextScreen : line 6 - This is ONLY A TEST!
+drawTextScreen : line 7 - ....................
+drawTextScreen : line 0 - init relay 0 : 12 ng
+drawTextScreen : line 1 - LOOP PUMP
+drawTextScreen : line 2 - init relay 1 : 11 ng
+drawTextScreen : line 3 - XFER PUMP
+init relay 2 : 10 ng on %d %s HEAT FAN
+drawTextScreen : line 6 - This is ONLY A TEST!
+drawTextScreen : line 7 - ....................
+drawTextScreen : line 0 - init relay 0 : 12 ng
+drawTextScreen : line 1 - LOOP PUMP
+drawTextScreen : line 2 - init relay 1 : 11 ng
+drawTextScreen : line 3 - XFER PUMP
+drawTextScreen : line 4 - init relay 2 : 10 ng
+drawTextScreen : line 5 - HEAT FAN
+init relay 3 : 9 ng on %d %s 110V AC HEAT
+drawTextScreen : line 0 - init relay 0 : 12 ng
+drawTextScreen : line 1 - LOOP PUMP
+drawTextScreen : line 2 - init relay 1 : 11 ng
+drawTextScreen : line 3 - XFER PUMP
+drawTextScreen : line 4 - init relay 2 : 10 ng
+drawTextScreen : line 5 - HEAT FAN
+drawTextScreen : line 6 - init relay 3 : 9 ng 
+drawTextScreen : line 7 - 110V AC HEAT
+Done relays..
+drawTextScreen : line 1 - LOOP PUMP
+drawTextScreen : line 2 - init relay 1 : 11 ng
+drawTextScreen : line 3 - XFER PUMP
+drawTextScreen : line 4 - init relay 2 : 10 ng
+drawTextScreen : line 5 - HEAT FAN
+drawTextScreen : line 6 - init relay 3 : 9 ng 
+drawTextScreen : line 7 - 110V AC HEAT
+drawTextScreen : line 0 - Done relays...
+init temp 0 : 24 SHED
+init temp 1 : 25 HEATSINK
+init temp 2 : 26 SAND
+init temp 3 : 27 RESERVOIR
+init temp 4 : 28 ROOF
+init temp 5 : 29 AMBIENT
+drawTextScreen : line 4 - init relay 2 : 10 ng
+drawTextScreen : line 5 - HEAT FAN
+drawTextScreen : line 6 - init relay 3 : 9 ng 
+drawTextScreen : line 7 - 110V AC HEAT
+drawTextScreen : line 0 - Done relays...
+drawTextScreen : line 1 -  
+drawTextScreen : line 2 - Done DHTs...
+drawTextScreen : line 3 -  
+SYSTEM INIT DONE!
+2024/10/15 09:56:56 - 01 1 0001/0001 :: switching mode from -1 to 0
+2024/10/15 09:56:57 - 01 0 0000/0649 :: 56 / 57 - Tue (1) - secondLoops: 649
+2024/10/15 09:57:01 - 00 0 0000/0649 :: 253 /  1 - Tue (1) - secondLoops: 649
+CHECK ALL DHT
+SHED : 66.20 F 
+HEATSINK : 82.40 F 
+SAND : 69.80 F 
+RESERVOIR : 64.76 F 
+ROOF : 80.78 F 
+AMBIENT : 60.98 F 
+DONE CHECK ALL DHT
+EvaluateRule : main: roof>res - DHT_LT_TARGET_DHT - RESERVOIR : 64.76 F < ROOF : 80.78 F - switching on 0 LOOP PUMP
+EvaluateRule : h0: shed<comfy - TARGET_TEMP_ON_LOW - DHT 0 SHED - 66.20 < 69 F - switching on 3 110V AC HEAT
+EvaluateRule : f0: shed<comfy - TARGET_TEMP_ON_LOW - DHT 0 SHED - 66.20 < 69 F - switching on 2 HEAT FAN
+2024/10/15 09:57:01 - 00 0 0000/0649 :: 253 DONE RULES
+8 done rules...
+Relays: LOOP PUMP: ON XFER PUMP: OFF HEAT FAN: ON 110V AC HEAT: ON  :: ~265 watts
+CSV_HEADERS,time,"SHED","HEATSINK","SAND","RESERVOIR","ROOF","AMBIENT","LOOP PUMP","XFER PUMP","HEAT FAN","110V AC HEAT","",
+CSV_VALUES, 2024/10/15 09/57,66.20,82.40,69.80,64.76,80.78,60.98,1,0,1,1,,
+2024/10/15 09:57:06 - 09 0 0000/0648 ::  1 /  6 - Tue (1) - secondLoops: 648
+2024/10/15 09:57:10 - 08 0 0000/0647 ::  6 / 10 - Tue (1) - secondLoops: 647
+2024/10/15 09:57:15 - 07 0 0000/0646 :: 10 / 15 - Tue (1) - secondLoops: 646
+2024/10/15 09:57:19 - 06 0 0000/0645 :: 15 / 19 - Tue (1) - secondLoops: 645
+2024/10/15 09:57:23 - 05 0 0000/0644 :: 19 / 23 - Tue (1) - secondLoops: 644
+2024/10/15 09:57:28 - 04 0 0000/0643 :: 23 / 28 - Tue (1) - secondLoops: 643
+2024/10/15 09:57:32 - 03 0 0000/0642 :: 28 / 32 - Tue (1) - secondLoops: 642
+2024/10/15 09:57:36 - 02 0 0000/0641 :: 32 / 36 - Tue (1) - secondLoops: 641
+2024/10/15 09:57:41 - 01 0 0000/0640 :: 36 / 41 - Tue (1) - secondLoops: 640
+2024/10/15 09:57:45 - 00 0 0000/0639 :: 41 / 45 - Tue (1) - secondLoops: 639
+CHECK ALL DHT
+SHED : 66.20 F 
+HEATSINK : 82.40 F 
+SAND : 69.80 F 
+RESERVOIR : 64.76 F 
+ROOF : 80.78 F 
+AMBIENT : 60.98 F 
+DONE CHECK ALL DHT
+EvaluateRule : main: roof>res - DHT_LT_TARGET_DHT - RESERVOIR : 64.76 F < ROOF : 80.78 F - switching on 0 LOOP PUMP
+2024/10/15 09:57:45 - 00 0 0000/0639 :: 41 DONE RULES
+8 done rules...
+Relays: LOOP PUMP: ON XFER PUMP: OFF HEAT FAN: ON 110V AC HEAT: ON  :: ~265 watts
+2024/10/15 09:57:50 - 09 0 0000/0638 :: 45 / 50 - Tue (1) - secondLoops: 638
+2024/10/15 09:57:54 - 08 0 0000/0637 :: 50 / 54 - Tue (1) - secondLoops: 637
+2024/10/15 09:57:58 - 07 0 0000/0636 :: 54 / 58 - Tue (1) - secondLoops: 636
+2024/10/15 09:58:03 - 06 0 0000/0636 :: 254 /  3 - Tue (1) - secondLoops: 636
+2024/10/15 09:58:07 - 05 0 0000/0635 ::  3 /  7 - Tue (1) - secondLoops: 635
+2024/10/15 09:58:11 - 04 0 0000/0634 ::  7 / 11 - Tue (1) - secondLoops: 634

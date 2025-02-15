@@ -2513,7 +2513,25 @@ DATE 	LL 		shed 	roof 	amb 	rad 	therm 	pow 	r+t-p 	+60 W 	loop active
 		- 	better sealing / insulation inside. 
 		-	insulated / heated floor
 
-
+2025/02/15
+0810
+	-	grabbing what logs still exist. Mid January was about the worst time anyway...
+	-	In the last few weeks, I have had some 12V DC relays fail - they just aren't passing current like they should.
+	This include heaterA fan, heaterB fan, footwarm, LOOP_PUMP... 
+	-	heaterA and heaterB temp sensors have been moved away from their original positions so that they read cooler, to
+	avoid shutting off too much due to >120 F. Unsafe temperatures were never observed on the units, after moving the temp
+	sensor, they seem to remain stabilized well under 200 F at least. They should have enough thermal mass to be safe if
+	constantly on... 
+	-	I've had to disable xferB in the last week due to the reservoir level being too low to sustain it. So effectively
+	only xferA still working via 12V DC relay. 
+	-	LOOP_PUMP I've been energizing manually as needed during the day.
+	-	footwarm is wired to be constant ON, but I also disconnected some of the PTC elements and hard-wired it to the 
+	12V DC supply with heavier gauge wire to avoid the wire melting.
+0815
+	-	Overall, even as the system has degraded over the season, I am pleased with it. There's various opportunities for
+	improvement that have been identified, but running the LOOP_PUMP manually has shown how much impact the system has.
+	-	Since the programming hasn't changed, it would be needed to check the watts used at some particular time to
+	really identify when LOOP_PUMP is active.  
 
 
 		fix font/display for 128x64 

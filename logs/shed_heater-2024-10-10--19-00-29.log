@@ -1,0 +1,200 @@
+strTimeStamp: 17:00:38 
+init...
+splash screen - hit any button
+drawTextScreen : line 0 - 0123456789ABCDEF0123
+drawTextScreen : line 1 - --------------------
+drawTextScreen : line 2 - This is just a small
+drawTextScreen : line 3 - test, trying to put 
+drawTextScreen : line 4 - text to the OLED.   
+drawTextScreen : line 5 -                     
+drawTextScreen : line 6 - This is ONLY A TEST!
+drawTextScreen : line 7 - ....................
+text screen test - hit any button
+init relay 0 : 12 d/%02d/%02d %2d:%02d:%02d LOOP PUMP
+drawTextScreen : line 2 - This is just a small
+drawTextScreen : line 3 - test, trying to put 
+drawTextScreen : line 4 - text to the OLED.   
+drawTextScreen : line 5 -                     
+drawTextScreen : line 6 - This is ONLY A TEST!
+drawTextScreen : line 7 - ....................
+drawTextScreen : line 0 - init relay 0 : 12 d/
+drawTextScreen : line 1 - LOOP PUMP
+init relay 1 : 11 d/%02d/%02d %2d:%02d:%02d XFER PUMP
+drawTextScreen : line 4 - text to the OLED.   
+drawTextScreen : line 5 -                     
+drawTextScreen : line 6 - This is ONLY A TEST!
+drawTextScreen : line 7 - ....................
+drawTextScreen : line 0 - init relay 0 : 12 d/
+drawTextScreen : line 1 - LOOP PUMP
+drawTextScreen : line 2 - init relay 1 : 11 d/
+drawTextScreen : line 3 - XFER PUMP
+init relay 2 : 10 d/%02d/%02d %2d:%02d:%02d HEAT FAN
+drawTextScreen : line 6 - This is ONLY A TEST!
+drawTextScreen : line 7 - ....................
+drawTextScreen : line 0 - init relay 0 : 12 d/
+drawTextScreen : line 1 - LOOP PUMP
+drawTextScreen : line 2 - init relay 1 : 11 d/
+drawTextScreen : line 3 - XFER PUMP
+drawTextScreen : line 4 - init relay 2 : 10 d/
+drawTextScreen : line 5 - HEAT FAN
+init relay 3 : 9 d/%02d/%02d %2d:%02d:%02d 12V DC HEAT
+drawTextScreen : line 0 - init relay 0 : 12 d/
+drawTextScreen : line 1 - LOOP PUMP
+drawTextScreen : line 2 - init relay 1 : 11 d/
+drawTextScreen : line 3 - XFER PUMP
+drawTextScreen : line 4 - init relay 2 : 10 d/
+drawTextScreen : line 5 - HEAT FAN
+drawTextScreen : line 6 - init relay 3 : 9 d/%
+drawTextScreen : line 7 - 12V DC HEAT
+Done relays..
+drawTextScreen : line 1 - LOOP PUMP
+drawTextScreen : line 2 - init relay 1 : 11 d/
+drawTextScreen : line 3 - XFER PUMP
+drawTextScreen : line 4 - init relay 2 : 10 d/
+drawTextScreen : line 5 - HEAT FAN
+drawTextScreen : line 6 - init relay 3 : 9 d/%
+drawTextScreen : line 7 - 12V DC HEAT
+drawTextScreen : line 0 - Done relays...
+init temp 0 : 12 SHED
+drawTextScreen : line 3 - XFER PUMP
+drawTextScreen : line 4 - init relay 2 : 10 d/
+drawTextScreen : line 5 - HEAT FAN
+drawTextScreen : line 6 - init relay 3 : 9 d/%
+drawTextScreen : line 7 - 12V DC HEAT
+drawTextScreen : line 0 - Done relays...
+drawTextScreen : line 1 - init temp 0 : 12 
+drawTextScreen : line 2 - SHED
+89.06
+drawTextScreen : line 4 - init relay 2 : 10 d/
+drawTextScreen : line 5 - HEAT FAN
+drawTextScreen : line 6 - init relay 3 : 9 d/%
+drawTextScreen : line 7 - 12V DC HEAT
+drawTextScreen : line 0 - Done relays...
+drawTextScreen : line 1 - init temp 0 : 12 
+drawTextScreen : line 2 - SHED
+drawTextScreen : line 3 - 89.06
+init temp 1 : 11 HEATSINK
+drawTextScreen : line 6 - init relay 3 : 9 d/%
+drawTextScreen : line 7 - 12V DC HEAT
+drawTextScreen : line 0 - Done relays...
+drawTextScreen : line 1 - init temp 0 : 12 
+drawTextScreen : line 2 - SHED
+drawTextScreen : line 3 - 89.06
+drawTextScreen : line 4 - init temp 1 : 11 
+drawTextScreen : line 5 - HEATSINK
+ERROR!
+ERR
+drawTextScreen : line 7 - 12V DC HEAT
+drawTextScreen : line 0 - Done relays...
+drawTextScreen : line 1 - init temp 0 : 12 
+drawTextScreen : line 2 - SHED
+drawTextScreen : line 3 - 89.06
+drawTextScreen : line 4 - init temp 1 : 11 
+drawTextScreen : line 5 - HEATSINK
+drawTextScreen : line 6 - ERR
+init temp 2 : 10 SAND
+drawTextScreen : line 1 - init temp 0 : 12 
+drawTextScreen : line 2 - SHED
+drawTextScreen : line 3 - 89.06
+drawTextScreen : line 4 - init temp 1 : 11 
+drawTextScreen : line 5 - HEATSINK
+drawTextScreen : line 6 - ERR
+drawTextScreen : line 7 - init temp 2 : 10 
+drawTextScreen : line 0 - SAND
+ERROR!
+ERR
+drawTextScreen : line 2 - SHED
+drawTextScreen : line 3 - 89.06
+drawTextScreen : line 4 - init temp 1 : 11 
+drawTextScreen : line 5 - HEATSINK
+drawTextScreen : line 6 - ERR
+drawTextScreen : line 7 - init temp 2 : 10 
+drawTextScreen : line 0 - SAND
+drawTextScreen : line 1 - ERR
+init temp 3 : 9 RESERVOIR
+drawTextScreen : line 4 - init temp 1 : 11 
+drawTextScreen : line 5 - HEATSINK
+drawTextScreen : line 6 - ERR
+drawTextScreen : line 7 - init temp 2 : 10 
+drawTextScreen : line 0 - SAND
+drawTextScreen : line 1 - ERR
+drawTextScreen : line 2 - init temp 3 : 9 
+drawTextScreen : line 3 - RESERVOIR
+ERROR!
+ERR
+drawTextScreen : line 5 - HEATSINK
+drawTextScreen : line 6 - ERR
+drawTextScreen : line 7 - init temp 2 : 10 
+drawTextScreen : line 0 - SAND
+drawTextScreen : line 1 - ERR
+drawTextScreen : line 2 - init temp 3 : 9 
+drawTextScreen : line 3 - RESERVOIR
+drawTextScreen : line 4 - ERR
+init temp 4 : 78 ROOF
+drawTextScreen : line 7 - init temp 2 : 10 
+drawTextScreen : line 0 - SAND
+drawTextScreen : line 1 - ERR
+drawTextScreen : line 2 - init temp 3 : 9 
+drawTextScreen : line 3 - RESERVOIR
+drawTextScreen : line 4 - ERR
+drawTextScreen : line 5 - init temp 4 : 78 
+drawTextScreen : line 6 - ROOF
+ERROR!
+ERR
+drawTextScreen : line 0 - SAND
+drawTextScreen : line 1 - ERR
+drawTextScreen : line 2 - init temp 3 : 9 
+drawTextScreen : line 3 - RESERVOIR
+drawTextScreen : line 4 - ERR
+drawTextScreen : line 5 - init temp 4 : 78 
+drawTextScreen : line 6 - ROOF
+drawTextScreen : line 7 - ERR
+init temp 5 : 2 AMBIENT
+drawTextScreen : line 2 - init temp 3 : 9 
+drawTextScreen : line 3 - RESERVOIR
+drawTextScreen : line 4 - ERR
+drawTextScreen : line 5 - init temp 4 : 78 
+drawTextScreen : line 6 - ROOF
+drawTextScreen : line 7 - ERR
+drawTextScreen : line 0 - init temp 5 : 2 
+drawTextScreen : line 1 - AMBIENT
+84.20
+drawTextScreen : line 3 - RESERVOIR
+drawTextScreen : line 4 - ERR
+drawTextScreen : line 5 - init temp 4 : 78 
+drawTextScreen : line 6 - ROOF
+drawTextScreen : line 7 - ERR
+drawTextScreen : line 0 - init temp 5 : 2 
+drawTextScreen : line 1 - AMBIENT
+drawTextScreen : line 2 - 84.20
+drawTextScreen : line 6 - ROOF
+drawTextScreen : line 7 - ERR
+drawTextScreen : line 0 - init temp 5 : 2 
+drawTextScreen : line 1 - AMBIENT
+drawTextScreen : line 2 - 84.20
+drawTextScreen : line 3 -  
+drawTextScreen : line 4 - Done DHTs...
+drawTextScreen : line 5 -  
+SYSTEM INIT DONE!
+switching mode from -1 to 0
+counterHigh:  0 - seconds  0 / 48 - Thu 2024/10/10 17:00:48
+Secondloop too long, reducing by 10 to 3490
+LCD display : 10/10   17:00:48 -- 0123456789ABCDEF
+CHECK ALL DHT
+SHED : 88.88*F 
+HEATSINK : ERR*F 
+SAND : ERR*F 
+RESERVOIR : ERR*F 
+ROOF : ERR*F 
+AMBIENT : 84.20*F 
+evaluateRule: invalid type... 7 3 4 
+evaluateRule: invalid type... 7 2 3 
+5 done rules...
+counterHigh:  9 - seconds 48 / 49 - Thu 2024/10/10 17:00:49
+counterHigh:  8 - seconds 49 / 50 - Thu 2024/10/10 17:00:50
+counterHigh:  7 - seconds 50 / 51 - Thu 2024/10/10 17:00:51
+counterHigh:  6 - seconds 51 / 52 - Thu 2024/10/10 17:00:52
+counterHigh:  5 - seconds 52 / 53 - Thu 2024/10/10 17:00:53
+counterHigh:  4 - seconds 53 / 53 - Thu 2024/10/10 17:00:53
+Secondloop too short, increasing by 1 to 3491
+counterHigh:  3 - seconds 53 / 54 - Thu 2024/10/10 17:00:54

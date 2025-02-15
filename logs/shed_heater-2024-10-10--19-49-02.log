@@ -1,0 +1,371 @@
+strTimeStamp: 17:49:12 
+init...
+splash screen - hit any button
+drawTextScreen : line 0 - 0123456789ABCDEF0123
+drawTextScreen : line 1 - --------------------
+drawTextScreen : line 2 - This is just a small
+drawTextScreen : line 3 - test, trying to put 
+drawTextScreen : line 4 - text to the OLED.   
+drawTextScreen : line 5 -                     
+drawTextScreen : line 6 - This is ONLY A TEST!
+drawTextScreen : line 7 - ....................
+text screen test - hit any button
+init relay 0 : 12 d/%02d/%02d %2d:%02d:%02d LOOP PUMP
+drawTextScreen : line 2 - This is just a small
+drawTextScreen : line 3 - test, trying to put 
+drawTextScreen : line 4 - text to the OLED.   
+drawTextScreen : line 5 -                     
+drawTextScreen : line 6 - This is ONLY A TEST!
+drawTextScreen : line 7 - ....................
+drawTextScreen : line 0 - init relay 0 : 12 d/
+drawTextScreen : line 1 - LOOP PUMP
+init relay 1 : 11 d/%02d/%02d %2d:%02d:%02d XFER PUMP
+drawTextScreen : line 4 - text to the OLED.   
+drawTextScreen : line 5 -                     
+drawTextScreen : line 6 - This is ONLY A TEST!
+drawTextScreen : line 7 - ....................
+drawTextScreen : line 0 - init relay 0 : 12 d/
+drawTextScreen : line 1 - LOOP PUMP
+drawTextScreen : line 2 - init relay 1 : 11 d/
+drawTextScreen : line 3 - XFER PUMP
+init relay 2 : 10 d/%02d/%02d %2d:%02d:%02d HEAT FAN
+drawTextScreen : line 6 - This is ONLY A TEST!
+drawTextScreen : line 7 - ....................
+drawTextScreen : line 0 - init relay 0 : 12 d/
+drawTextScreen : line 1 - LOOP PUMP
+drawTextScreen : line 2 - init relay 1 : 11 d/
+drawTextScreen : line 3 - XFER PUMP
+drawTextScreen : line 4 - init relay 2 : 10 d/
+drawTextScreen : line 5 - HEAT FAN
+init relay 3 : 9 d/%02d/%02d %2d:%02d:%02d 12V DC HEAT
+drawTextScreen : line 0 - init relay 0 : 12 d/
+drawTextScreen : line 1 - LOOP PUMP
+drawTextScreen : line 2 - init relay 1 : 11 d/
+drawTextScreen : line 3 - XFER PUMP
+drawTextScreen : line 4 - init relay 2 : 10 d/
+drawTextScreen : line 5 - HEAT FAN
+drawTextScreen : line 6 - init relay 3 : 9 d/%
+drawTextScreen : line 7 - 12V DC HEAT
+Done relays..
+drawTextScreen : line 1 - LOOP PUMP
+drawTextScreen : line 2 - init relay 1 : 11 d/
+drawTextScreen : line 3 - XFER PUMP
+drawTextScreen : line 4 - init relay 2 : 10 d/
+drawTextScreen : line 5 - HEAT FAN
+drawTextScreen : line 6 - init relay 3 : 9 d/%
+drawTextScreen : line 7 - 12V DC HEAT
+drawTextScreen : line 0 - Done relays...
+init temp 0 : 12 SHED
+drawTextScreen : line 3 - XFER PUMP
+drawTextScreen : line 4 - init relay 2 : 10 d/
+drawTextScreen : line 5 - HEAT FAN
+drawTextScreen : line 6 - init relay 3 : 9 d/%
+drawTextScreen : line 7 - 12V DC HEAT
+drawTextScreen : line 0 - Done relays...
+drawTextScreen : line 1 - init temp 0 : 12 
+drawTextScreen : line 2 - SHED
+84.02
+drawTextScreen : line 4 - init relay 2 : 10 d/
+drawTextScreen : line 5 - HEAT FAN
+drawTextScreen : line 6 - init relay 3 : 9 d/%
+drawTextScreen : line 7 - 12V DC HEAT
+drawTextScreen : line 0 - Done relays...
+drawTextScreen : line 1 - init temp 0 : 12 
+drawTextScreen : line 2 - SHED
+drawTextScreen : line 3 - 84.02
+init temp 1 : 11 HEATSINK
+drawTextScreen : line 6 - init relay 3 : 9 d/%
+drawTextScreen : line 7 - 12V DC HEAT
+drawTextScreen : line 0 - Done relays...
+drawTextScreen : line 1 - init temp 0 : 12 
+drawTextScreen : line 2 - SHED
+drawTextScreen : line 3 - 84.02
+drawTextScreen : line 4 - init temp 1 : 11 
+drawTextScreen : line 5 - HEATSINK
+ERROR!
+ERR
+drawTextScreen : line 7 - 12V DC HEAT
+drawTextScreen : line 0 - Done relays...
+drawTextScreen : line 1 - init temp 0 : 12 
+drawTextScreen : line 2 - SHED
+drawTextScreen : line 3 - 84.02
+drawTextScreen : line 4 - init temp 1 : 11 
+drawTextScreen : line 5 - HEATSINK
+drawTextScreen : line 6 - ERR
+init temp 2 : 10 SAND
+drawTextScreen : line 1 - init temp 0 : 12 
+drawTextScreen : line 2 - SHED
+drawTextScreen : line 3 - 84.02
+drawTextScreen : line 4 - init temp 1 : 11 
+drawTextScreen : line 5 - HEATSINK
+drawTextScreen : line 6 - ERR
+drawTextScreen : line 7 - init temp 2 : 10 
+drawTextScreen : line 0 - SAND
+ERROR!
+ERR
+drawTextScreen : line 2 - SHED
+drawTextScreen : line 3 - 84.02
+drawTextScreen : line 4 - init temp 1 : 11 
+drawTextScreen : line 5 - HEATSINK
+drawTextScreen : line 6 - ERR
+drawTextScreen : line 7 - init temp 2 : 10 
+drawTextScreen : line 0 - SAND
+drawTextScreen : line 1 - ERR
+init temp 3 : 9 RESERVOIR
+drawTextScreen : line 4 - init temp 1 : 11 
+drawTextScreen : line 5 - HEATSINK
+drawTextScreen : line 6 - ERR
+drawTextScreen : line 7 - init temp 2 : 10 
+drawTextScreen : line 0 - SAND
+drawTextScreen : line 1 - ERR
+drawTextScreen : line 2 - init temp 3 : 9 
+drawTextScreen : line 3 - RESERVOIR
+ERROR!
+ERR
+drawTextScreen : line 5 - HEATSINK
+drawTextScreen : line 6 - ERR
+drawTextScreen : line 7 - init temp 2 : 10 
+drawTextScreen : line 0 - SAND
+drawTextScreen : line 1 - ERR
+drawTextScreen : line 2 - init temp 3 : 9 
+drawTextScreen : line 3 - RESERVOIR
+drawTextScreen : line 4 - ERR
+init temp 4 : 78 ROOF
+drawTextScreen : line 7 - init temp 2 : 10 
+drawTextScreen : line 0 - SAND
+drawTextScreen : line 1 - ERR
+drawTextScreen : line 2 - init temp 3 : 9 
+drawTextScreen : line 3 - RESERVOIR
+drawTextScreen : line 4 - ERR
+drawTextScreen : line 5 - init temp 4 : 78 
+drawTextScreen : line 6 - ROOF
+ERROR!
+ERR
+drawTextScreen : line 0 - SAND
+drawTextScreen : line 1 - ERR
+drawTextScreen : line 2 - init temp 3 : 9 
+drawTextScreen : line 3 - RESERVOIR
+drawTextScreen : line 4 - ERR
+drawTextScreen : line 5 - init temp 4 : 78 
+drawTextScreen : line 6 - ROOF
+drawTextScreen : line 7 - ERR
+init temp 5 : 2 AMBIENT
+drawTextScreen : line 2 - init temp 3 : 9 
+drawTextScreen : line 3 - RESERVOIR
+drawTextScreen : line 4 - ERR
+drawTextScreen : line 5 - init temp 4 : 78 
+drawTextScreen : line 6 - ROOF
+drawTextScreen : line 7 - ERR
+drawTextScreen : line 0 - init temp 5 : 2 
+drawTextScreen : line 1 - AMBIENT
+81.68
+drawTextScreen : line 3 - RESERVOIR
+drawTextScreen : line 4 - ERR
+drawTextScreen : line 5 - init temp 4 : 78 
+drawTextScreen : line 6 - ROOF
+drawTextScreen : line 7 - ERR
+drawTextScreen : line 0 - init temp 5 : 2 
+drawTextScreen : line 1 - AMBIENT
+drawTextScreen : line 2 - 81.68
+drawTextScreen : line 6 - ROOF
+drawTextScreen : line 7 - ERR
+drawTextScreen : line 0 - init temp 5 : 2 
+drawTextScreen : line 1 - AMBIENT
+drawTextScreen : line 2 - 81.68
+drawTextScreen : line 3 -  
+drawTextScreen : line 4 - Done DHTs...
+drawTextScreen : line 5 -  
+SYSTEM INIT DONE!
+switching mode from -1 to 0
+counterHigh:  0 - seconds  0 / 21 - Thu 2024/10/10 17:49:21
+Secondloop too long, reducing by 10 to 3490
+LCD display : 10/10   17:49:21 -- 0123456789ABCDEF
+CHECK ALL DHT
+SHED : 84.02*F 
+HEATSINK : ERR*F 
+SAND : ERR*F 
+RESERVOIR : ERR*F 
+ROOF : ERR*F 
+AMBIENT : 81.68*F 
+evaluateRule: invalid type... 7 3 4 
+evaluateRule: invalid type... 7 2 3 
+5 done rules...
+counterHigh:  9 - seconds 21 / 22 - Thu 2024/10/10 17:49:22
+counterHigh:  8 - seconds 22 / 23 - Thu 2024/10/10 17:49:23
+counterHigh:  7 - seconds 23 / 24 - Thu 2024/10/10 17:49:24
+counterHigh:  6 - seconds 24 / 25 - Thu 2024/10/10 17:49:25
+counterHigh:  5 - seconds 25 / 26 - Thu 2024/10/10 17:49:26
+counterHigh:  4 - seconds 26 / 27 - Thu 2024/10/10 17:49:27
+counterHigh:  3 - seconds 27 / 28 - Thu 2024/10/10 17:49:28
+counterHigh:  2 - seconds 28 / 28 - Thu 2024/10/10 17:49:28
+Secondloop too short, increasing by 1 to 3491
+counterHigh:  1 - seconds 28 / 29 - Thu 2024/10/10 17:49:29
+counterHigh:  0 - seconds 29 / 30 - Thu 2024/10/10 17:49:30
+LCD display : 10/10   17:49:30 -- 0123456789ABCDEF
+CHECK ALL DHT
+SHED : 84.02*F 
+HEATSINK : ERR*F 
+SAND : ERR*F 
+RESERVOIR : ERR*F 
+ROOF : ERR*F 
+AMBIENT : 81.68*F 
+evaluateRule: invalid type... 7 3 4 
+evaluateRule: invalid type... 7 2 3 
+5 done rules...
+counterHigh:  9 - seconds 30 / 32 - Thu 2024/10/10 17:49:32
+Secondloop too long, reducing by 10 to 3481
+counterHigh:  8 - seconds 32 / 33 - Thu 2024/10/10 17:49:33
+counterHigh:  7 - seconds 33 / 33 - Thu 2024/10/10 17:49:33
+Secondloop too short, increasing by 1 to 3482
+counterHigh:  6 - seconds 33 / 34 - Thu 2024/10/10 17:49:34
+counterHigh:  5 - seconds 34 / 35 - Thu 2024/10/10 17:49:35
+counterHigh:  4 - seconds 35 / 36 - Thu 2024/10/10 17:49:36
+counterHigh:  3 - seconds 36 / 37 - Thu 2024/10/10 17:49:37
+counterHigh:  2 - seconds 37 / 38 - Thu 2024/10/10 17:49:38
+counterHigh:  1 - seconds 38 / 39 - Thu 2024/10/10 17:49:39
+counterHigh:  0 - seconds 39 / 40 - Thu 2024/10/10 17:49:40
+LCD display : 10/10   17:49:40 -- 0123456789ABCDEF
+CHECK ALL DHT
+SHED : 84.02*F 
+HEATSINK : ERR*F 
+SAND : ERR*F 
+RESERVOIR : ERR*F 
+ROOF : ERR*F 
+AMBIENT : 81.68*F 
+evaluateRule: invalid type... 7 3 4 
+evaluateRule: invalid type... 7 2 3 
+5 done rules...
+counterHigh:  9 - seconds 40 / 41 - Thu 2024/10/10 17:49:41
+counterHigh:  8 - seconds 41 / 42 - Thu 2024/10/10 17:49:42
+counterHigh:  7 - seconds 42 / 43 - Thu 2024/10/10 17:49:43
+counterHigh:  6 - seconds 43 / 44 - Thu 2024/10/10 17:49:44
+counterHigh:  5 - seconds 44 / 44 - Thu 2024/10/10 17:49:44
+Secondloop too short, increasing by 1 to 3483
+counterHigh:  4 - seconds 44 / 45 - Thu 2024/10/10 17:49:45
+counterHigh:  3 - seconds 45 / 46 - Thu 2024/10/10 17:49:46
+counterHigh:  2 - seconds 46 / 47 - Thu 2024/10/10 17:49:47
+counterHigh:  1 - seconds 47 / 48 - Thu 2024/10/10 17:49:48
+counterHigh:  0 - seconds 48 / 49 - Thu 2024/10/10 17:49:49
+LCD display : 10/10   17:49:49 -- 0123456789ABCDEF
+CHECK ALL DHT
+SHED : 84.02*F 
+HEATSINK : ERR*F 
+SAND : ERR*F 
+RESERVOIR : ERR*F 
+ROOF : ERR*F 
+AMBIENT : 81.68*F 
+evaluateRule: invalid type... 7 3 4 
+evaluateRule: invalid type... 7 2 3 
+5 done rules...
+counterHigh:  9 - seconds 49 / 50 - Thu 2024/10/10 17:49:50
+counterHigh:  8 - seconds 50 / 51 - Thu 2024/10/10 17:49:51
+counterHigh:  7 - seconds 51 / 52 - Thu 2024/10/10 17:49:52
+counterHigh:  6 - seconds 52 / 53 - Thu 2024/10/10 17:49:53
+counterHigh:  5 - seconds 53 / 54 - Thu 2024/10/10 17:49:54
+counterHigh:  4 - seconds 54 / 55 - Thu 2024/10/10 17:49:55
+counterHigh:  3 - seconds 55 / 56 - Thu 2024/10/10 17:49:56
+counterHigh:  2 - seconds 56 / 56 - Thu 2024/10/10 17:49:56
+Secondloop too short, increasing by 1 to 3484
+counterHigh:  1 - seconds 56 / 57 - Thu 2024/10/10 17:49:57
+counterHigh:  0 - seconds 57 / 58 - Thu 2024/10/10 17:49:58
+LCD display : 10/10   17:49:58 -- 0123456789ABCDEF
+CHECK ALL DHT
+SHED : 84.02*F 
+HEATSINK : ERR*F 
+SAND : ERR*F 
+RESERVOIR : ERR*F 
+ROOF : ERR*F 
+AMBIENT : 81.68*F 
+evaluateRule: invalid type... 7 3 4 
+evaluateRule: invalid type... 7 2 3 
+5 done rules...
+counterHigh:  9 - seconds 58 / 59 - Thu 2024/10/10 17:49:59
+counterHigh:  8 - seconds 59 /  0 - Thu 2024/10/10 17:50:00
+Secondloop on target - 3484
+counterHigh:  7 - seconds  0 /  1 - Thu 2024/10/10 17:50:01
+counterHigh:  6 - seconds  1 /  2 - Thu 2024/10/10 17:50:02
+counterHigh:  5 - seconds  2 /  3 - Thu 2024/10/10 17:50:03
+counterHigh:  4 - seconds  3 /  4 - Thu 2024/10/10 17:50:04
+counterHigh:  3 - seconds  4 /  5 - Thu 2024/10/10 17:50:05
+counterHigh:  2 - seconds  5 /  6 - Thu 2024/10/10 17:50:06
+counterHigh:  1 - seconds  6 /  7 - Thu 2024/10/10 17:50:07
+counterHigh:  0 - seconds  7 /  8 - Thu 2024/10/10 17:50:08
+LCD display : 10/10   17:50:08 -- 0123456789ABCDEF
+CHECK ALL DHT
+SHED : 84.02*F 
+HEATSINK : ERR*F 
+SAND : ERR*F 
+RESERVOIR : ERR*F 
+ROOF : ERR*F 
+AMBIENT : 81.68*F 
+evaluateRule: invalid type... 7 3 4 
+evaluateRule: invalid type... 7 2 3 
+5 done rules...
+counterHigh:  9 - seconds  8 /  9 - Thu 2024/10/10 17:50:09
+counterHigh:  8 - seconds  9 / 10 - Thu 2024/10/10 17:50:10
+counterHigh:  7 - seconds 10 / 11 - Thu 2024/10/10 17:50:11
+counterHigh:  6 - seconds 11 / 11 - Thu 2024/10/10 17:50:11
+Secondloop too short, increasing by 1 to 3485
+counterHigh:  5 - seconds 11 / 12 - Thu 2024/10/10 17:50:12
+counterHigh:  4 - seconds 12 / 13 - Thu 2024/10/10 17:50:13
+counterHigh:  3 - seconds 13 / 14 - Thu 2024/10/10 17:50:14
+counterHigh:  2 - seconds 14 / 15 - Thu 2024/10/10 17:50:15
+counterHigh:  1 - seconds 15 / 16 - Thu 2024/10/10 17:50:16
+counterHigh:  0 - seconds 16 / 17 - Thu 2024/10/10 17:50:17
+LCD display : 10/10   17:50:17 -- 0123456789ABCDEF
+CHECK ALL DHT
+SHED : 84.02*F 
+HEATSINK : ERR*F 
+SAND : ERR*F 
+RESERVOIR : ERR*F 
+ROOF : ERR*F 
+AMBIENT : 81.68*F 
+evaluateRule: invalid type... 7 3 4 
+evaluateRule: invalid type... 7 2 3 
+5 done rules...
+counterHigh:  9 - seconds 17 / 18 - Thu 2024/10/10 17:50:18
+counterHigh:  8 - seconds 18 / 19 - Thu 2024/10/10 17:50:19
+counterHigh:  7 - seconds 19 / 20 - Thu 2024/10/10 17:50:20
+counterHigh:  6 - seconds 20 / 21 - Thu 2024/10/10 17:50:21
+counterHigh:  5 - seconds 21 / 22 - Thu 2024/10/10 17:50:22
+counterHigh:  4 - seconds 22 / 23 - Thu 2024/10/10 17:50:23
+counterHigh:  3 - seconds 23 / 23 - Thu 2024/10/10 17:50:23
+Secondloop too short, increasing by 1 to 3486
+counterHigh:  2 - seconds 23 / 24 - Thu 2024/10/10 17:50:24
+counterHigh:  1 - seconds 24 / 25 - Thu 2024/10/10 17:50:25
+counterHigh:  0 - seconds 25 / 26 - Thu 2024/10/10 17:50:26
+LCD display : 10/10   17:50:26 -- 0123456789ABCDEF
+CHECK ALL DHT
+SHED : 84.02*F 
+HEATSINK : ERR*F 
+SAND : ERR*F 
+RESERVOIR : ERR*F 
+ROOF : ERR*F 
+AMBIENT : 81.68*F 
+evaluateRule: invalid type... 7 3 4 
+evaluateRule: invalid type... 7 2 3 
+5 done rules...
+counterHigh:  9 - seconds 26 / 27 - Thu 2024/10/10 17:50:27
+counterHigh:  8 - seconds 27 / 28 - Thu 2024/10/10 17:50:28
+counterHigh:  7 - seconds 28 / 29 - Thu 2024/10/10 17:50:29
+counterHigh:  6 - seconds 29 / 30 - Thu 2024/10/10 17:50:30
+counterHigh:  5 - seconds 30 / 31 - Thu 2024/10/10 17:50:31
+counterHigh:  4 - seconds 31 / 32 - Thu 2024/10/10 17:50:32
+counterHigh:  3 - seconds 32 / 33 - Thu 2024/10/10 17:50:33
+counterHigh:  2 - seconds 33 / 34 - Thu 2024/10/10 17:50:34
+counterHigh:  1 - seconds 34 / 34 - Thu 2024/10/10 17:50:34
+Secondloop too short, increasing by 1 to 3487
+counterHigh:  0 - seconds 34 / 35 - Thu 2024/10/10 17:50:35
+LCD display : 10/10   17:50:35 -- 0123456789ABCDEF
+CHECK ALL DHT
+SHED : 84.02*F 
+HEATSINK : ERR*F 
+SAND : ERR*F 
+RESERVOIR : ERR*F 
+ROOF : ERR*F 
+AMBIENT : 81.68*F 
+evaluateRule: invalid type... 7 3 4 
+evaluateRule: invalid type... 7 2 3 
+5 done rules...
+counterHigh:  9 - seconds 35 / 37 - Thu 2024/10/10 17:50:37
+Secondloop too long, reducing by 10 to 3477
